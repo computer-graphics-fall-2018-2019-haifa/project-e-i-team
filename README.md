@@ -1,10 +1,10 @@
 # Computer Graphics 203.3710, Winter 2018/2019
 ## Students Team data
 
-Name: Elias Jadon  
-Student Number: 207755737
+Name: 'Elias Jadon'  
+Student Number: '207755737'
 
-Name: Itay Guy  
+Name: 'Itay Guy'  
 Student Number: 'Your student number'
 
 ### Lecturer
