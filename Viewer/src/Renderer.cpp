@@ -6,6 +6,11 @@
 #include <imgui/imgui.h>
 #include <vector>
 #include <cmath>
+#include <stdio.h>
+#include <fenv.h>       /* fegetround, FE_* */
+#include <math.h>       /* nearbyint */
+
+using namespace std;
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
@@ -72,6 +77,33 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
+void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
+{
+	float x, y, e;
+	float delta_p = p1 - p2;
+	float delta_q = q1 - q2;
+	float a = delta_q / delta_p;
+	float c = q1 - a * p1;
+
+	if (a > 0 && a < 1) {
+		x = p1;
+		y = q1;
+		e = -delta_p;
+		while (x <= p2) {
+			if (e > 0) {
+				y++;
+				e = e - 2*delta_p;
+			}
+			putPixel(x, y, glm::vec3(0, 0, 0));
+			x++;
+			e = e + 2 * delta_q;
+		}
+
+
+	}
+
+}
+
 void Renderer::Render(const Scene& scene)
 {
 	//#############################################
@@ -80,9 +112,12 @@ void Renderer::Render(const Scene& scene)
 	//#############################################
 
 	// Draw a chess board in the middle of the screen
-	for (int i = 100; i < viewportWidth - 100; i++)
+	float p1 = 10, p2 = 100, q1 = 10, q2 = 90;
+	
+
+	for (int i = 0; i < viewportWidth; i++)
 	{
-		for (int j = 100; j < viewportHeight - 100; j++)
+		for (int j = 0; j < viewportHeight; j++)
 		{
 			int mod_i = i / 50;
 			int mod_j = j / 50;
@@ -97,7 +132,12 @@ void Renderer::Render(const Scene& scene)
 				putPixel(i, j, glm::vec3(1, 0, 0));
 			}
 		}
+
+		
+
+
 	}
+	BresenhamLine(p1, p2, q1, q2);
 }
 
 //##############################
