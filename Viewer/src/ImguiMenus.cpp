@@ -15,6 +15,7 @@
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
+bool showSimpleWindow = true;
 
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
@@ -32,10 +33,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	if(showSimpleWindow)
 	{
 		static float f = 0.0f;
 		static int counter = 0;
-
+		static int drawLineCounter = 0;
+		static bool DrawLine = false;
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
@@ -51,29 +54,42 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("counter = %d", counter);
 		
 		float p1, q1,p2,q2;
-		int counterLine = 0;
+		
 		if (ImGui::Button("Draw Line")) {
-			while (counterLine < 2) {
-				ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
-				if (ImGui::IsMouseClicked(0) && counterLine == 0)
-				{
-					p1 = io.MousePos.x;
-					q1 = io.MousePos.y;
-					counterLine = 1;
-					//Renderer::BresenhamLine(p1, p2, q1, q2);
-				}
-				else if (ImGui::IsMouseClicked(0))
-				{
-					p2 = io.MousePos.x;
-					q2 = io.MousePos.y;
-					counterLine = 2;
-					//Renderer::BresenhamLine(p1, p2, q1, q2); 
-				}
-
-			  }
-			 
+			DrawLine = true;
+			showDemoWindow = false;
+			showAnotherWindow = false;
+			showSimpleWindow = false;
 			
 		}
+		if (DrawLine == true) {
+			
+			ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
+			if (ImGui::IsMouseClicked(0) && drawLineCounter == 0)
+			{
+				p1 = io.MousePos.x;
+				q1 = io.MousePos.y;
+				printf("point1: (%f, %f)", io.MousePos.x, io.MousePos.y);
+				drawLineCounter++;
+			}
+			else if (ImGui::IsMouseClicked(0) && drawLineCounter == 1)
+			{
+				p2 = io.MousePos.x;
+				q2 = io.MousePos.y;
+				printf("point2: (%f, %f)", io.MousePos.x, io.MousePos.y);
+				drawLineCounter++;
+			}
+			if (drawLineCounter == 2) {
+				drawLineCounter = 0;
+				DrawLine = false;
+			}
+		}
+		
+
+			  
+			 
+			
+		   
 			
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
