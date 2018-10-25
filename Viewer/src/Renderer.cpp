@@ -14,6 +14,8 @@ using namespace std;
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
+static float p1 = 50, p2 = 200, q1 = 50, q2 = 200;
+
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
 	zBuffer(nullptr)
@@ -80,27 +82,27 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
 {
 	float x, y, e;
-	float delta_p = p1 - p2;
-	float delta_q = q1 - q2;
+	float delta_p = p2 - p1;
+	float delta_q = q2 - q1;
 	float a = delta_q / delta_p;
-	float c = q1 - a * p1;
-
-	if (a > 0 && a < 1) {
+	float c = q1 + a * p1;
+	printf("a = %f\n", a);
+	if (a >= 0 && a <= 1) {
 		x = p1;
 		y = q1;
 		e = -delta_p;
 		while (x <= p2) {
 			if (e > 0) {
 				y++;
-				e = e - 2*delta_p;
+				e = e - 2 * delta_p;
 			}
 			putPixel(x, y, glm::vec3(0, 0, 0));
 			x++;
 			e = e + 2 * delta_q;
 		}
-
-
 	}
+	
+	
 
 }
 
@@ -112,7 +114,7 @@ void Renderer::Render(const Scene& scene)
 	//#############################################
 
 	// Draw a chess board in the middle of the screen
-	float p1 = 10, p2 = 100, q1 = 10, q2 = 90;
+	
 	
 
 	for (int i = 0; i < viewportWidth; i++)
@@ -137,6 +139,7 @@ void Renderer::Render(const Scene& scene)
 
 
 	}
+	printf("p1 = (%f,%f) , p2 = (%f,%f)\n", p1, q1, p2, q2);
 	BresenhamLine(p1, p2, q1, q2);
 }
 
