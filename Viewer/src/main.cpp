@@ -132,14 +132,14 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	// That's how you get the current width/height of the frame buffer (for example, after the window was resized)
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
+	
 	// Resize handling here... (a suggestion)
 
 	// Clear the frame buffer
 	renderer.ClearColorBuffer(GetClearColor());
 
 	// Render the scene
-	renderer.Render(scene);
+	renderer.Render(scene, io);
 
 	// Swap buffers
 	renderer.SwapBuffers();
