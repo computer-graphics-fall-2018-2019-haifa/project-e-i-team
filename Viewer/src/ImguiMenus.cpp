@@ -15,6 +15,10 @@
 
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
+bool showSimpleWindow = true;
+bool DL = false;
+static int drawLineCounter = 0;
+static bool DrawLine = false;
 
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
@@ -32,10 +36,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	if(showSimpleWindow)
 	{
 		static float f = 0.0f;
 		static int counter = 0;
-
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
@@ -49,10 +53,68 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			counter++;
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", counter);
+		
+		
+		
+		if (ImGui::Button("Draw Line")) {
+			DrawLine = true;
+			showDemoWindow = false;
+			showAnotherWindow = false;
+			showSimpleWindow = false;
+			DL = true;
+			
+		}
+		
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
+
+	if (DL)
+	{
+		ImGui::Begin("Draw Line:", &DL);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Text("Point1:");
+		float p1, q1, p2, q2;
+		if (DrawLine == true) {
+
+			ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
+			if (ImGui::IsMouseClicked(0) && drawLineCounter == 0)
+			{
+				p1 = io.MousePos.x;
+				q1 = io.MousePos.y;
+				printf("point1: (%f, %f)\n", io.MousePos.x, io.MousePos.y);
+				drawLineCounter++;
+			}
+			else if (ImGui::IsMouseClicked(0) && drawLineCounter == 1)
+			{
+				p2 = io.MousePos.x;
+				q2 = io.MousePos.y;
+				printf("point2: (%f, %f)\n", io.MousePos.x, io.MousePos.y);
+				drawLineCounter++;
+			}
+			if (drawLineCounter == 1) {
+				ImGui::Text("point1: (%g, %g)\n", io.MousePos.x, io.MousePos.y);
+			}
+			if (drawLineCounter == 2) {
+				drawLineCounter = 0;
+				DrawLine = false;
+				showSimpleWindow = true;
+				//DL = false;
+			}
+		}
+
+
+
+		if (ImGui::Button("Close Me"))
+		{
+			DL = false;
+		}
+		ImGui::End();
+	}
+
+
+
+
 
 	// 3. Show another simple window.
 	if (showAnotherWindow)
