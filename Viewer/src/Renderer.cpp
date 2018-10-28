@@ -77,6 +77,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
+// Elias Function Implementation:
 void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
 {
 	float x, y, e;
