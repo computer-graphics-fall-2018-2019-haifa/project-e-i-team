@@ -14,7 +14,7 @@ using namespace std;
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-static float p1 = 200, p2 = 200, q1 = 200, q2 = 200;
+static float p1 = 200, p2, q1 = 200, q2;
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -99,16 +99,101 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2)
 		putPixel(x, 720-y, glm::vec3(0, 0, 0));
 	}
 }
+void Renderer::DrawLine(float p1, float p2, float q1, float q2) {
+	float a = (q1 - q2) / (p1 - p2);
+	printf("a = %f\n", a);
 
-void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
-{
+
+	if (a >= 0 && a <= 1) {
+		if (p1 < p2) {
+			BresenhamAlg(p1, p2, q1, q2, false);
+		}
+		else {
+			BresenhamAlg(p2, p1, q2, q1, false);
+		}
+	}
+	else if (a > 1) {
+		if (q1 < q2) {
+			BresenhamAlg(q1, q2, p1, p2, true);
+		}
+		else {
+			BresenhamAlg(q2, q1, p2, p1, true);
+		}
+	}
+	else if (a < 0 && a >= -1) {
+		if (p1 < p2) {
+			BresenhamAlg(p1, p2, q1, q2 + 2*q1, false);
+		}
+		else {
+			BresenhamAlg(p2, p1, q2, q1, false);
+		}
+	}
+	else if (a < -1) {
+		if (q1 < q2) {
+			BresenhamAlg(q1, q2, p1, p2, true);
+		}
+		else {
+			BresenhamAlg(q2, q1, p2, p1, true);
+		}
+	}
+
+}
+
+void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print) {
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
-	float a = delta_q / delta_p;
+	
+	x = p1;
+	y = q1;
+
+	
+	e = -delta_p;
+
+	while (x <= p2) {
+		if (e > 0) {
+			y++;
+			e = e - 2 * delta_p;
+		}
+		printf("xy = (%f,%F)\n", x, y);
+		if (switch_print) {
+			putPixel(y, 720 - x, glm::vec3(0, 0, 0));
+		}
+		else {
+			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
+		}
+		
+		x++;
+		e = e + 2 * delta_q;
+	}
+}
+
+void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
+{
+	float a = (q1-q2) / (p1-p2);
+	float x, y, e;
+	float delta_p = p2 - p1;
+	float delta_q = q2 - q1;
 	float target;
 
 	printf("a = %f\n", a);
+	x = p1;
+	y = q1;
+	target = p2;
+
+	e = -delta_p;
+	while (x <= target) {
+		if (e > 0) {
+			y++;
+			e = e - 2 * delta_p;
+		}
+		printf("xy = (%f,%F)\n", x, y);
+		putPixel(x, 720 - y, glm::vec3(0, 0, 0));
+		x++;
+		e = e + 2 * delta_q;
+	}
+	
+	/*
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
 			x = p1;
@@ -119,6 +204,8 @@ void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
 			x = p2;
 			y = q2;
 			target = p1;
+			delta_p = -delta_p;
+			delta_q = -delta_q;
 		}
 		
 		e = -delta_p;
@@ -134,22 +221,87 @@ void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
 		}
 	}
 	else if (a > 1) {
+		if (q1 < q2) {
 			x = p1;
 			y = q1;
-			e = -delta_p;
-			while (y <= p2) {
-				if (e > 0) {
-					x++;
-					e = e - 2 * delta_p;
-				}
-				printf("xy = (%f,%F)\n", x, y);
-				putPixel(x, 720-y, glm::vec3(0, 0, 0));
-				y++;
-				e = e + 2 * delta_q;
+			target = q2;
+		}
+		else {
+			x = p2;
+			y = q2;
+			target = q1;
+			delta_p = -delta_p;
+			delta_q = -delta_q;
+		}
+
+		e = -delta_q;
+		while (y <= target) {
+			if (e > 0) {
+				x++;
+				e = e - 2 * delta_q;
 			}
+			printf("xy = (%f,%F)\n", x, y);
+			putPixel(x, 720-y, glm::vec3(0, 0, 0));
+			y++;
+			e = e + 2 * delta_p;
+		}
 	}
-	
-	
+	*/
+
+
+	/*if (a <= 0 && a >= -1) {
+		if (p1 < p2) {
+			x = p1;
+			y = q1;
+			target = p2;
+		}
+		else {
+			x = p2;
+			y = q2;
+			target = p1;
+			delta_p = -delta_p;
+			delta_q = -delta_q;
+		}
+
+		e = -delta_p;
+		while (x <= target) {
+			if (e > 0) {
+				y++;
+				e = e - 2 * delta_p;
+			}
+			printf("xy = (%f,%F)\n", x, y);
+			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
+			x++;
+			e = e + 2 * delta_q;
+		}
+	}
+	else if (a < -1) {
+		if (q1 < q2) {
+			x = p1;
+			y = q1;
+			target = q2;
+		}
+		else {
+			x = p2;
+			y = q2;
+			target = q1;
+			delta_p = -delta_p;
+			delta_q = -delta_q;
+		}
+
+		e = -delta_q;
+		while (y <= target) {
+			if (e > 0) {
+				x++;
+				e = e - 2 * delta_q;
+			}
+			printf("xy = (%f,%F)\n", x, y);
+			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
+			y++;
+			e = e + 2 * delta_p;
+		}
+	}
+	*/
 
 }
 
@@ -190,7 +342,7 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	q2 = io.MousePos.y;
 	printf("viewportHeight = %f", viewportHeight);
 	printf("p1 = (%f,%f) , p2 = (%f,%f)\n", p1, q1, p2, q2);
-	BresenhamLine(p1, p2, q1, q2);
+	DrawLine(p1, p2, q1, q2);
 }
 
 //##############################

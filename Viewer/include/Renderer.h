@@ -23,6 +23,8 @@ private:
 	void createBuffers(int viewportWidth, int viewportHeight);
 	void BresenhamLine(float p1, float p2, float q1, float q2);
 	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2);
+	void Renderer::DrawLine(float p1, float p2, float q1, float q2);
+	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;
