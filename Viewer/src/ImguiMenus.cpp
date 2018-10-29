@@ -55,7 +55,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("counter = %d", counter);
 		
 		
-		
 		if (ImGui::Button("Draw Line")) {
 			DrawLine = true;
 			showDemoWindow = false;

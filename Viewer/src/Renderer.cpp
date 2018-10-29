@@ -14,7 +14,9 @@ using namespace std;
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-static float p1 = 200, p2, q1 = 200, q2;
+static float p1 = 0, q1 = 0;
+
+static float p2 = -50, q2 = -100;
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -106,40 +108,42 @@ void Renderer::DrawLine(float p1, float p2, float q1, float q2) {
 
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2, false);
+			BresenhamAlg(p1, p2, q1, q2, false, false, false,0);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1, false);
+			BresenhamAlg(p2, p1, q2, q1, false, false, false,0);
 		}
 	}
 	else if (a > 1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2, true);
+			BresenhamAlg(q1, q2, p1, p2, true, false, false,0);
 		}
 		else {
-			BresenhamAlg(q2, q1, p2, p1, true);
+			BresenhamAlg(q2, q1, p2, p1, true, false, false,0);
 		}
 	}
 	else if (a < 0 && a >= -1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2 + 2*q1, false);
+			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false,0);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1, false);
+			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false,0);
 		}
 	}
 	else if (a < -1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2, true);
+			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false, 0);
+			//BresenhamAlg(q2 - 2* (q2-q1), q1, p2, p1, true, false, true,p1);//q2
 		}
 		else {
-			BresenhamAlg(q2, q1, p2, p1, true);
+			//BresenhamAlg(q2, q1, p2 - 2*(p2-p1), p1, true, false, true, 0);
+			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true,p1);//q1			
 		}
 	}
 
 }
 
-void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print) {
+void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY,float P) {
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
@@ -149,21 +153,34 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 
 	
 	e = -delta_p;
-
+	float fthf = 2 * (p1 - p2);
 	while (x <= p2) {
 		if (e > 0) {
-			y++;
+
+			if (NegX) {
+				y--;
+			}
+			else {
+				y++;
+			}
 			e = e - 2 * delta_p;
 		}
-		printf("xy = (%f,%F)\n", x, y);
+		//printf("xy = (%f,%F)\n", y,x);
 		if (switch_print) {
-			putPixel(y, 720 - x, glm::vec3(0, 0, 0));
+			if (NegY) {
+				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, glm::vec3(0, 0, 0));
+			}
+			else {
+				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x, glm::vec3(0, 0, 0));
+			}
 		}
 		else {
-			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
+			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, glm::vec3(0, 0, 0));
 		}
 		
+		fthf -= 2;
 		x++;
+		
 		e = e + 2 * delta_q;
 	}
 }
@@ -306,6 +323,8 @@ void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
 
 }
 
+
+
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 {
 	//#############################################
@@ -313,10 +332,9 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	//## Here you should render the scene.       ##
 	//#############################################
 
-	// Draw a chess board in the middle of the screen
-	
-	
 
+	/*
+	// Draw a chess board in the middle of the screen
 	for (int i = 0; i < viewportWidth; i++)
 	{
 		for (int j = 0; j < viewportHeight; j++)
@@ -334,16 +352,20 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 				putPixel(i, j, glm::vec3(1, 0, 0));
 			}
 		}
-
-		
-
-
 	}
-	p2 = io.MousePos.x;
-	q2 = io.MousePos.y;
-	printf("viewportHeight = %f", viewportHeight);
-	printf("p1 = (%f,%f) , p2 = (%f,%f)\n", p1, q1, p2, q2);
-	NaiveAlg(p1, p2, q1, q2);
+	*/
+
+
+
+	p2 = io.MousePos.x - (viewportWidth/2);
+	q2 = (viewportHeight/2) - io.MousePos.y;
+
+
+	//printf("viewportHeight = %d , viewportWidth = %d\n", viewportHeight , viewportWidth);
+	//printf("p1 = (%f,%f) , p2 = (%f,%f)\n", p1, q1, p2, q2);
+	DrawLine(p1, p2, q1, q2);
+	DrawLine(-(viewportWidth/2), (viewportWidth / 2), 0, 0);
+	DrawLine(0, 0, (viewportHeight / 2), -(viewportHeight / 2));
 }
 
 //##############################
