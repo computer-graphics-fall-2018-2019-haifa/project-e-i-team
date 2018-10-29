@@ -24,7 +24,7 @@ private:
 	void BresenhamLine(float p1, float p2, float q1, float q2);
 	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2);
 	void Renderer::DrawLine(float p1, float p2, float q1, float q2);
-	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, float P);
+	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

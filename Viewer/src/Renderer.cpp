@@ -14,7 +14,7 @@ using namespace std;
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-static float p1 = 0, q1 = 0;
+static float p1 = -50, q1 = 50;
 
 static float p2 = -50, q2 = -100;
 
@@ -80,6 +80,9 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createBuffers(viewportWidth, viewportHeight);
 	createOpenGLBuffer();
 }
+
+
+// Elias Function Implementation:
 void Renderer::NaiveAlg(float p1, float p2, float q1, float q2)
 {
 	float delta_p = p2 - p1;
@@ -101,59 +104,56 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2)
 		putPixel(x, 720-y, glm::vec3(0, 0, 0));
 	}
 }
+
+// Elias Function Implementation:
 void Renderer::DrawLine(float p1, float p2, float q1, float q2) {
 	float a = (q1 - q2) / (p1 - p2);
-	printf("a = %f\n", a);
-
 
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2, false, false, false,0);
+			BresenhamAlg(p1, p2, q1, q2, false, false, false);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1, false, false, false,0);
+			BresenhamAlg(p2, p1, q2, q1, false, false, false);
 		}
 	}
 	else if (a > 1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2, true, false, false,0);
+			BresenhamAlg(q1, q2, p1, p2, true, false, false);
 		}
 		else {
-			BresenhamAlg(q2, q1, p2, p1, true, false, false,0);
+			BresenhamAlg(q2, q1, p2, p1, true, false, false);
 		}
 	}
 	else if (a < 0 && a >= -1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false,0);
+			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false,0);
+			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false);
 		}
 	}
 	else if (a < -1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false, 0);
-			//BresenhamAlg(q2 - 2* (q2-q1), q1, p2, p1, true, false, true,p1);//q2
+			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false);
 		}
 		else {
-			//BresenhamAlg(q2, q1, p2 - 2*(p2-p1), p1, true, false, true, 0);
-			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true,p1);//q1			
+			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true);	
 		}
 	}
 
 }
 
-void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY,float P) {
+// Elias Function Implementation:
+void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY) {
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
 	
 	x = p1;
 	y = q1;
-
-	
 	e = -delta_p;
-	float fthf = 2 * (p1 - p2);
+
 	while (x <= p2) {
 		if (e > 0) {
 
@@ -165,7 +165,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 			}
 			e = e - 2 * delta_p;
 		}
-		//printf("xy = (%f,%F)\n", y,x);
+		
 		if (switch_print) {
 			if (NegY) {
 				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, glm::vec3(0, 0, 0));
@@ -178,149 +178,9 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, glm::vec3(0, 0, 0));
 		}
 		
-		fthf -= 2;
-		x++;
-		
-		e = e + 2 * delta_q;
-	}
-}
-
-// Elias Function Implementation:
-void Renderer::BresenhamLine(float p1, float p2, float q1, float q2)
-{
-	float a = (q1-q2) / (p1-p2);
-	float x, y, e;
-	float delta_p = p2 - p1;
-	float delta_q = q2 - q1;
-	float target;
-
-	printf("a = %f\n", a);
-	x = p1;
-	y = q1;
-	target = p2;
-
-	e = -delta_p;
-	while (x <= target) {
-		if (e > 0) {
-			y++;
-			e = e - 2 * delta_p;
-		}
-		printf("xy = (%f,%F)\n", x, y);
-		putPixel(x, 720 - y, glm::vec3(0, 0, 0));
 		x++;
 		e = e + 2 * delta_q;
 	}
-	
-	/*
-	if (a >= 0 && a <= 1) {
-		if (p1 < p2) {
-			x = p1;
-			y = q1;
-			target = p2;
-		}
-		else {
-			x = p2;
-			y = q2;
-			target = p1;
-			delta_p = -delta_p;
-			delta_q = -delta_q;
-		}
-		
-		e = -delta_p;
-		while (x <= target) {
-			if (e > 0) {
-				y++;
-				e = e - 2 * delta_p;
-			}
-			printf("xy = (%f,%F)\n", x, y);
-			putPixel(x, 720-y, glm::vec3(0, 0, 0));
-			x++;
-			e = e + 2 * delta_q;
-		}
-	}
-	else if (a > 1) {
-		if (q1 < q2) {
-			x = p1;
-			y = q1;
-			target = q2;
-		}
-		else {
-			x = p2;
-			y = q2;
-			target = q1;
-			delta_p = -delta_p;
-			delta_q = -delta_q;
-		}
-
-		e = -delta_q;
-		while (y <= target) {
-			if (e > 0) {
-				x++;
-				e = e - 2 * delta_q;
-			}
-			printf("xy = (%f,%F)\n", x, y);
-			putPixel(x, 720-y, glm::vec3(0, 0, 0));
-			y++;
-			e = e + 2 * delta_p;
-		}
-	}
-	*/
-
-
-	/*if (a <= 0 && a >= -1) {
-		if (p1 < p2) {
-			x = p1;
-			y = q1;
-			target = p2;
-		}
-		else {
-			x = p2;
-			y = q2;
-			target = p1;
-			delta_p = -delta_p;
-			delta_q = -delta_q;
-		}
-
-		e = -delta_p;
-		while (x <= target) {
-			if (e > 0) {
-				y++;
-				e = e - 2 * delta_p;
-			}
-			printf("xy = (%f,%F)\n", x, y);
-			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
-			x++;
-			e = e + 2 * delta_q;
-		}
-	}
-	else if (a < -1) {
-		if (q1 < q2) {
-			x = p1;
-			y = q1;
-			target = q2;
-		}
-		else {
-			x = p2;
-			y = q2;
-			target = q1;
-			delta_p = -delta_p;
-			delta_q = -delta_q;
-		}
-
-		e = -delta_q;
-		while (y <= target) {
-			if (e > 0) {
-				x++;
-				e = e - 2 * delta_q;
-			}
-			printf("xy = (%f,%F)\n", x, y);
-			putPixel(x, 720 - y, glm::vec3(0, 0, 0));
-			y++;
-			e = e + 2 * delta_p;
-		}
-	}
-	*/
-
 }
 
 
