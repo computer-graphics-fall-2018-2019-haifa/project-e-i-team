@@ -83,7 +83,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 
 // Elias Function Implementation:
-void Renderer::NaiveAlg(float p1, float p2, float q1, float q2)
+void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color)
 {
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
@@ -101,51 +101,51 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2)
 	}
 	for (; x <= to; x++) {
 		y = round(m*x + c);
-		putPixel(x, 720-y, glm::vec3(0, 0, 0));
+		putPixel(x, 720-y, color);
 	}
 }
 
 // Elias Function Implementation:
-void Renderer::DrawLine(float p1, float p2, float q1, float q2) {
+void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float a = (q1 - q2) / (p1 - p2);
 
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2, false, false, false);
+			BresenhamAlg(p1, p2, q1, q2, false, false, false, color);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1, false, false, false);
+			BresenhamAlg(p2, p1, q2, q1, false, false, false, color);
 		}
 	}
 	else if (a > 1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2, true, false, false);
+			BresenhamAlg(q1, q2, p1, p2, true, false, false, color);
 		}
 		else {
-			BresenhamAlg(q2, q1, p2, p1, true, false, false);
+			BresenhamAlg(q2, q1, p2, p1, true, false, false, color);
 		}
 	}
 	else if (a < 0 && a >= -1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false);
+			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false, color);
 		}
 		else {
-			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false);
+			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false, color);
 		}
 	}
 	else if (a < -1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false);
+			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false, color);
 		}
 		else {
-			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true);	
+			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true, color);
 		}
 	}
 
 }
 
 // Elias Function Implementation:
-void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY) {
+void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color) {
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
@@ -168,14 +168,14 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 		
 		if (switch_print) {
 			if (NegY) {
-				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, glm::vec3(0, 0, 0));
+				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, color);
 			}
 			else {
-				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x, glm::vec3(0, 0, 0));
+				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x,color);
 			}
 		}
 		else {
-			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, glm::vec3(0, 0, 0));
+			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, color);
 		}
 		
 		x++;
@@ -216,16 +216,22 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	*/
 
 
-
+	//Get mouse position
 	p2 = io.MousePos.x - (viewportWidth/2);
 	q2 = (viewportHeight/2) - io.MousePos.y;
 
 
-	//printf("viewportHeight = %d , viewportWidth = %d\n", viewportHeight , viewportWidth);
-	//printf("p1 = (%f,%f) , p2 = (%f,%f)\n", p1, q1, p2, q2);
-	DrawLine(p1, p2, q1, q2);
-	DrawLine(-(viewportWidth/2), (viewportWidth / 2), 0, 0);
-	DrawLine(0, 0, (viewportHeight / 2), -(viewportHeight / 2));
+	
+	DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
+	DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
+	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
+	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
+
+
+
+	//Draw X and Y axis lines
+	DrawLine(-(viewportWidth/2), (viewportWidth / 2), 0, 0, glm::vec3(0, 0, 0));
+	DrawLine(0, 0, (viewportHeight / 2), -(viewportHeight / 2), glm::vec3(0, 0, 0));
 }
 
 //##############################
