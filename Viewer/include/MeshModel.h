@@ -31,5 +31,14 @@ public:
 
 	const std::string& GetModelName();
 
+
+	//Elias emplementation:
+	glm::vec3 GetVerticeByIndex(int index) {
+		return vertices[index];
+	}
+	//Elias emplementation:
+	std::vector<Face> GetFaces() {
+		return faces;
+	}
 	// Add more methods/functionality as needed...
 };

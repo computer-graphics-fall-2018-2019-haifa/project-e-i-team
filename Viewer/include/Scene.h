@@ -35,5 +35,16 @@ public:
 	void SetActiveModelIndex(int index);
 	const int GetActiveModelIndex() const;
 
+	//Elias implementation:
+	std::vector<Face> getModelFaces(int index) {
+		return models[index]->GetFaces();
+	}
+
+	glm::vec3 getModelVertices(int indexModel, int indexVertex) {
+		return models[indexModel]->GetVerticeByIndex(indexVertex);
+	}
+
+	
 	// Add more methods as needed...
+
 };

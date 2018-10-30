@@ -7,6 +7,7 @@
 #include <vector>
 #include <cmath>
 #include <stdio.h>
+#include <iostream>
 #include <fenv.h>       /* fegetround, FE_* */
 #include <math.h>       /* nearbyint */
 
@@ -227,6 +228,9 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
 	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
 
+	cout << scene.GetModelCount() << "  :   ";
+	cout << scene.GetActiveModelIndex() << endl;
+	
 
 
 	//Draw X and Y axis lines

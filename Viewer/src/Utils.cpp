@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 
+using namespace std;
+
 glm::vec3 Utils::Vec3fFromStream(std::istream& issLine)
 {
 	float x, y, z;
@@ -39,6 +41,11 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 
 		issLine >> std::ws >> lineType;
 
+		cout << "lineType = " << lineType << "   ";
+		cout << "curLine = " << curLine << endl;
+
+
+
 		// based on the type parse data
 		if (lineType == "v")
 		{
@@ -47,6 +54,7 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 		else if (lineType == "vn")
 		{
 			// Add the required code here...
+			normals.push_back(Utils::Vec3fFromStream(issLine));
 		}
 		else if (lineType == "vt")
 		{
@@ -65,6 +73,19 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 			std::cout << "Found unknown line Type \"" << lineType << "\"";
 		}
 	}
+
+
+	for (auto i = faces.begin(); i != faces.end(); ++i)
+	{
+		cout << i->GetVertexIndex(0) << " ";
+		cout << i->GetVertexIndex(1) << " ";
+		cout << i->GetVertexIndex(2) << endl;
+		cout << vertices[i->GetVertexIndex(0)].x << " ";
+		cout << vertices[i->GetVertexIndex(0)].y << " ";
+		cout << vertices[i->GetVertexIndex(0)].z << " ";
+	}
+	
+
 
 	return MeshModel(faces, vertices, normals, Utils::GetFileName(filePath));
 }
