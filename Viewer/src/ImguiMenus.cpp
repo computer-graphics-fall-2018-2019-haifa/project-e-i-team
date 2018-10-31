@@ -13,10 +13,11 @@
 #include <nfd.h>
 #include <random>
 
+float slideValue = 0.0;
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
 bool showSimpleWindow = true;
-bool DL = false;
+bool DRAW_LINE_NEEDED = false;
 static int drawLineCounter = 0;
 static bool DrawLine = false;
 
@@ -40,39 +41,39 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		static float f = 0.0f;
 		static int counter = 0;
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+		ImGui::Begin("Wireframe Viewer");                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &showDemoWindow);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &showAnotherWindow);
+		ImGui::Text("The First And Largest Assignment");               // Display some text (you can use a format strings too)
+		ImGui::Checkbox("GUI Settings Window", &showDemoWindow);      // Edit bools storing our window open/close state
 
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
+		// ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		// ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
 
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-		
+		// if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			// counter++;
+		// ImGui::SameLine();
+		// ImGui::Text("counter = %d", counter);
 		
 		
 		if (ImGui::Button("Draw Line")) {
 			DrawLine = true;
 			showDemoWindow = false;
-			showAnotherWindow = false;
+			// showAnotherWindow = false;
 			showSimpleWindow = false;
-			DL = true;
-			
+			DRAW_LINE_NEEDED = true;
 		}
 		
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		if (ImGui::Button("Termination")) {
+			exit(0);
+		}
 		ImGui::End();
 	}
 
-	if (DL)
+	if(DRAW_LINE_NEEDED)
 	{
-		ImGui::Begin("Draw Line:", &DL);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Begin("Draw Simple Line:", &DRAW_LINE_NEEDED);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Point1:");
 		float p1, q1, p2, q2;
 		if (DrawLine == true) {
@@ -99,15 +100,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 				drawLineCounter = 0;
 				DrawLine = false;
 				showSimpleWindow = true;
-				//DL = false;
+				// DL = false;
 			}
 		}
 
 
 
-		if (ImGui::Button("Close Me"))
+		if (ImGui::Button("Cancel"))
 		{
-			DL = false;
+			DRAW_LINE_NEEDED = false;
 		}
 		ImGui::End();
 	}
@@ -117,6 +118,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 
 	// 3. Show another simple window.
+	/*
 	if (showAnotherWindow)
 	{
 		ImGui::Begin("Another Window", &showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -127,6 +129,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		}
 		ImGui::End();
 	}
+	*/
 
 	// 4. Demonstrate creating a fullscreen menu bar and populating it.
 	{
