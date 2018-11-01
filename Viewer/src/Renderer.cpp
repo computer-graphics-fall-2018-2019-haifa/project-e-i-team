@@ -223,10 +223,10 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 
 
 	
-	DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
-	DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
-	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
-	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
+	//DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
+	//DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
+	//DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
+	//DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
 
 	cout << scene.GetModelCount() << "  :   ";
 	cout << scene.GetActiveModelIndex() << endl;
@@ -234,15 +234,15 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	
 	
 
-	if (scene.GetModelCount() > 0) {
+	if (scene.GetModelCount() > 3) {
 		
 		std::vector<Face> faces = scene.getModelFaces(0);
 		
 		
-		cout << "hello" << endl;
+		
 		for (auto i = faces.begin(); i != faces.end(); ++i)
 		{
-			cout << "helfdlo" << endl;
+			
 
 			float x0 = scene.getModelVertices(0, i->GetVertexIndex(0)).x * 100;
 			float y0 = scene.getModelVertices(0, i->GetVertexIndex(0)).y * 100;
