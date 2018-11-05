@@ -1,11 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <string>
-#include <iostream>
 #include <memory>
 #include "Face.h"
-
-using namespace std;
 
 /*
  * MeshModel class.
@@ -49,8 +46,6 @@ public:
 	}
 	//Elias emplementation:
 	std::vector<Face> GetFaces() {
-		cout << "Hello from facesvdsfvfdv" << endl;
-		faces[0];
 		return faces;
 	}
 	// Add more methods/functionality as needed...

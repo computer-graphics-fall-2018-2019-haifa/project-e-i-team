@@ -231,6 +231,7 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	cout << scene.GetModelCount() << "  :   ";
 	cout << scene.GetActiveModelIndex() << endl;
 	
+<<<<<<< HEAD
 	
 	
 	int modelCount = scene.GetModelCount();
@@ -275,6 +276,8 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	}
 	
 
+=======
+>>>>>>> parent of 797ad31... load OBJ file
 
 
 	//Draw X and Y axis lines
