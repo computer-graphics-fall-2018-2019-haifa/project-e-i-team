@@ -234,7 +234,7 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	
 	
 
-	if (scene.GetModelCount() > 3) {
+	if (scene.GetModelCount() > 0) {
 		
 		std::vector<Face> faces = scene.getModelFaces(0);
 		
