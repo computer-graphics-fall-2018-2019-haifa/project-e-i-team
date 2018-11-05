@@ -21,6 +21,7 @@ private:
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
+	glm::mat4x4 scaling = glm::mat4x4(1);
 
 public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
@@ -34,6 +35,13 @@ public:
 
 	const std::string& GetModelName();
 
+	void SetScaleWordTransform(int factor) {
+		scaling.operator*=(factor);
+	}
+
+	glm::mat4x4 GetScaleWorldTransform() {
+		return scaling;
+	}
 
 	//Elias emplementation:
 	glm::vec3 GetVerticeByIndex(int index) {

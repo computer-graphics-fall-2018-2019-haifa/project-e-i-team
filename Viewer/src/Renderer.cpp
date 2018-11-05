@@ -233,36 +233,45 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	
 	
 	
+	int modelCount = scene.GetModelCount();
+	if (modelCount > 0) {
 
-	if (scene.GetModelCount() > 3) {
-		
-		std::vector<Face> faces = scene.getModelFaces(0);
-		
-		
-		
-		for (auto i = faces.begin(); i != faces.end(); ++i)
-		{
+		for (int m = 0; m < modelCount; m++) {
+
+			std::vector<Face> faces = scene.getModelFaces(m);
+
+			for (auto i = faces.begin(); i != faces.end(); i++)
+			{
+				int vertex0Index = i->GetVertexIndex(0);
+				float x0 = scene.getModelVertices(0, vertex0Index).x;
+				float y0 = scene.getModelVertices(0, vertex0Index).y;
+				float z0 = scene.getModelVertices(0, vertex0Index).z;
+				
+				// Stucking HERE!!! with array out of bound exception - cannot catch it with try catch block!
+				int vertex1Index = i->GetVertexIndex(1);
+				float x1 = scene.getModelVertices(0, vertex1Index).x;
+				float y1 = scene.getModelVertices(0, vertex1Index).y;
+				float z1 = scene.getModelVertices(0, vertex1Index).z;
 			
+				int vertex2Index = i->GetVertexIndex(2);
+				float x2 = scene.getModelVertices(0, vertex2Index).x;
+				float y2 = scene.getModelVertices(0, vertex2Index).y;
+				float z2 = scene.getModelVertices(0, vertex2Index).z;
+			
+				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
+				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
+				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" << endl;
 
-			float x0 = scene.getModelVertices(0, i->GetVertexIndex(0)).x * 100;
-			float y0 = scene.getModelVertices(0, i->GetVertexIndex(0)).y * 100;
-			float z0 = scene.getModelVertices(0, i->GetVertexIndex(0)).z * 100;
-			float x1 = scene.getModelVertices(0, i->GetVertexIndex(1)).x * 100;
-			float y1 = scene.getModelVertices(0, i->GetVertexIndex(1)).y * 100;
-			float z1 = scene.getModelVertices(0, i->GetVertexIndex(1)).z * 100;
-			float x2 = scene.getModelVertices(0, i->GetVertexIndex(2)).x * 100;
-			float y2 = scene.getModelVertices(0, i->GetVertexIndex(2)).y * 100;
-			float z2 = scene.getModelVertices(0, i->GetVertexIndex(2)).z * 100;
+				std::shared_ptr<MeshModel> model = scene.GetModel(m);
+				glm::mat4x4 scaleMatrix = model->GetScaleWorldTransform();
+				model->SetWorldTransformation(scaleMatrix.operator*=(model->GetWorldTransformation()));
 
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" <<endl;
-
-			DrawLine(x0, x1, y0, y1, glm::vec3(0, 0, 0));
-			DrawLine(x0, x2, y0, y2, glm::vec3(0, 0, 0));
-			DrawLine(x1, x2, y1, y2, glm::vec3(0, 0, 0));
+				glm::vec3 blackColorVec = glm::vec3(0, 0, 0);
+				DrawLine(x0, x1, y0, y1, blackColorVec);
+				DrawLine(x0, x2, y0, y2, blackColorVec);
+				DrawLine(x1, x2, y1, y2, blackColorVec);
+			}
 		}
-
 	}
 	
 

@@ -19,6 +19,7 @@ private:
 
 	int activeCameraIndex;
 	int activeModelIndex;
+	int scaleFactor;
 
 public:
 	Scene();
@@ -44,7 +45,10 @@ public:
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 
-	
+	std::shared_ptr<MeshModel> GetModel(int index) const {
+		return models[index];
+	}
+
 	// Add more methods as needed...
 
 };

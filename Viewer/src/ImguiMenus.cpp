@@ -27,6 +27,35 @@ const glm::vec4& GetClearColor()
 	return clearColor;
 }
 
+char* getLoadedModels(Scene scene) {
+	int length = scene.GetModelCount();
+	if (length == 0) {
+		return "";
+	}
+	string cStr = "";
+	for (size_t i = 0; i < length; i++) {
+		cStr += scene.GetModel(i)->GetModelName();
+		if (i != (length - 1)) {
+			cStr += '\0';
+		}
+	}
+	int listLength = cStr.length();
+	char* comboList = new char[listLength + 1];
+	comboList[listLength] = '\0';
+	for (size_t i = 0; i < listLength; i++) {
+		comboList[i] = cStr.at(i);
+	}
+	return comboList;
+}
+
+void setScaleFactor(int factor,Scene scene) {
+	int length = scene.GetModelCount();
+	for (size_t i = 0; i < length; i++) {
+		std::shared_ptr<MeshModel> model = scene.GetModel(i);
+		model->SetScaleWordTransform(factor);
+	}
+}
+
 void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 {
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
@@ -36,8 +65,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	if(showSimpleWindow)
+	if (showSimpleWindow)
 	{
+		static float modelScaleFactor = 1.0f;
 		static float f = 0.0f;
 		static int counter = 0;
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
@@ -48,6 +78,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
+
+		const char* items = getLoadedModels(scene);
+		static int item_current = 0;
+		ImGui::Combo("Pick A Model", &item_current, items, IM_ARRAYSIZE(items));
+
+		ImGui::SliderFloat("Scale By", &modelScaleFactor, 50.0f, 250.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		setScaleFactor(modelScaleFactor, scene);
 
 		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 			counter++;
@@ -61,7 +98,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			showAnotherWindow = false;
 			showSimpleWindow = false;
 			DL = true;
-			
 		}
 		
 
@@ -104,7 +140,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 
 
-		if (ImGui::Button("Close Me"))
+		if (ImGui::Button("Dismiss"))
 		{
 			DL = false;
 		}
@@ -120,7 +156,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		ImGui::Begin("Another Window", &showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Hello from another window!");
-		if (ImGui::Button("Close Me"))
+		if (ImGui::Button("Dismiss"))
 		{
 			showAnotherWindow = false;
 		}
