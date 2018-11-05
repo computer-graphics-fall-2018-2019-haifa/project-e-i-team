@@ -19,7 +19,6 @@ private:
 
 	int activeCameraIndex;
 	int activeModelIndex;
-	int scaleFactor;
 
 public:
 	Scene();
@@ -37,18 +36,15 @@ public:
 	const int GetActiveModelIndex() const;
 
 	//Elias implementation:
-	std::vector<Face> getModelFaces(int index) {
+	std::vector<Face> getModelFaces(int index) const{
 		return models[index]->GetFaces();
 	}
 
-	glm::vec3 getModelVertices(int indexModel, int indexVertex) {
+	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 
-	std::shared_ptr<MeshModel> GetModel(int index) const {
-		return models[index];
-	}
-
+	
 	// Add more methods as needed...
 
 };

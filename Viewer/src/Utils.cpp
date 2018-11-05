@@ -75,18 +75,6 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	}
 
 
-	for (auto i = faces.begin(); i != faces.end(); ++i)
-	{
-		cout << i->GetVertexIndex(0) << " ";
-		cout << i->GetVertexIndex(1) << " ";
-		cout << i->GetVertexIndex(2) << endl;
-		cout << vertices[i->GetVertexIndex(0)].x << " ";
-		cout << vertices[i->GetVertexIndex(0)].y << " ";
-		cout << vertices[i->GetVertexIndex(0)].z << " ";
-	}
-	
-
-
 	return MeshModel(faces, vertices, normals, Utils::GetFileName(filePath));
 }
 

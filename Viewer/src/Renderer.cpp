@@ -223,73 +223,49 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 
 
 	
-	//DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
-	//DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
-	//DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
-	//DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
+	DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
+	DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
+	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
+	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
 
 	cout << scene.GetModelCount() << "  :   ";
 	cout << scene.GetActiveModelIndex() << endl;
 	
-<<<<<<< HEAD
 	
 	
-	int modelCount = scene.GetModelCount();
-	if (modelCount > 0) {
 
-<<<<<<< HEAD
 	if (scene.GetModelCount() > 0) {
 		
 		std::vector<Face> faces = scene.getModelFaces(0);
 		
 		
-		
+		cout << "hello" << endl;
 		for (auto i = faces.begin(); i != faces.end(); ++i)
 		{
-			
-=======
-		for (int m = 0; m < modelCount; m++) {
->>>>>>> 82f5db21e6e6c02afc5d86a5d6562a54390e249c
+			cout << "helfdlo" << endl;
 
-			std::vector<Face> faces = scene.getModelFaces(m);
+			float x0 = scene.getModelVertices(0, i->GetVertexIndex(0)).x * 100;
+			float y0 = scene.getModelVertices(0, i->GetVertexIndex(0)).y * 100;
+			float z0 = scene.getModelVertices(0, i->GetVertexIndex(0)).z * 100;
+			float x1 = scene.getModelVertices(0, i->GetVertexIndex(1)).x * 100;
+			float y1 = scene.getModelVertices(0, i->GetVertexIndex(1)).y * 100;
+			float z1 = scene.getModelVertices(0, i->GetVertexIndex(1)).z * 100;
+			float x2 = scene.getModelVertices(0, i->GetVertexIndex(2)).x * 100;
+			float y2 = scene.getModelVertices(0, i->GetVertexIndex(2)).y * 100;
+			float z2 = scene.getModelVertices(0, i->GetVertexIndex(2)).z * 100;
 
-			for (auto i = faces.begin(); i != faces.end(); i++)
-			{
-				int vertex0Index = i->GetVertexIndex(0);
-				float x0 = scene.getModelVertices(0, vertex0Index).x;
-				float y0 = scene.getModelVertices(0, vertex0Index).y;
-				float z0 = scene.getModelVertices(0, vertex0Index).z;
-				
-				// Stucking HERE!!! with array out of bound exception - cannot catch it with try catch block!
-				int vertex1Index = i->GetVertexIndex(1);
-				float x1 = scene.getModelVertices(0, vertex1Index).x;
-				float y1 = scene.getModelVertices(0, vertex1Index).y;
-				float z1 = scene.getModelVertices(0, vertex1Index).z;
-			
-				int vertex2Index = i->GetVertexIndex(2);
-				float x2 = scene.getModelVertices(0, vertex2Index).x;
-				float y2 = scene.getModelVertices(0, vertex2Index).y;
-				float z2 = scene.getModelVertices(0, vertex2Index).z;
-			
-				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-				cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" << endl;
+			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
+			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
+			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" <<endl;
 
-				std::shared_ptr<MeshModel> model = scene.GetModel(m);
-				glm::mat4x4 scaleMatrix = model->GetScaleWorldTransform();
-				model->SetWorldTransformation(scaleMatrix.operator*=(model->GetWorldTransformation()));
-
-				glm::vec3 blackColorVec = glm::vec3(0, 0, 0);
-				DrawLine(x0, x1, y0, y1, blackColorVec);
-				DrawLine(x0, x2, y0, y2, blackColorVec);
-				DrawLine(x1, x2, y1, y2, blackColorVec);
-			}
+			DrawLine(x0, x1, y0, y1, glm::vec3(0, 0, 0));
+			DrawLine(x0, x2, y0, y2, glm::vec3(0, 0, 0));
+			DrawLine(x1, x2, y1, y2, glm::vec3(0, 0, 0));
 		}
+
 	}
 	
 
-=======
->>>>>>> parent of 797ad31... load OBJ file
 
 
 	//Draw X and Y axis lines
