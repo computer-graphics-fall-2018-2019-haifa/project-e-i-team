@@ -41,8 +41,6 @@ public:
 	}
 	//Elias emplementation:
 	std::vector<Face> GetFaces() {
-		cout << "Hello from facesvdsfvfdv" << endl;
-		faces[0];
 		return faces;
 	}
 	// Add more methods/functionality as needed...

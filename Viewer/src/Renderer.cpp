@@ -215,60 +215,55 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 		}
 	}
 	*/
-
-
-	//Get mouse position
+	// Get mouse position:
 	p2 = io.MousePos.x - (viewportWidth/2);
 	q2 = (viewportHeight/2) - io.MousePos.y;
 
-
-	
 	DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
 	DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
 	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
 	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
 
+	int modelsCount = scene.GetModelCount();
+
 	cout << scene.GetModelCount() << "  :   ";
 	cout << scene.GetActiveModelIndex() << endl;
 	
-	
-	
-
 	if (scene.GetModelCount() > 0) {
-		
-		std::vector<Face> faces = scene.getModelFaces(0);
-		
-		
-		cout << "hello" << endl;
-		for (auto i = faces.begin(); i != faces.end(); ++i)
-		{
-			cout << "helfdlo" << endl;
+		for (int k = 0; k < modelsCount; k++) {
+			std::vector<Face> faces = scene.getModelFaces(k);
+			int j = 0;
+			for (auto i = faces.begin(); i != faces.end(); ++i) {
+				try {
+					int v0 = i->GetVertexIndex(0);
+					int v1 = i->GetVertexIndex(1);
+					int v2 = i->GetVertexIndex(2);
+					float x0 = scene.getModelVertices(k, v0).x;
+					float y0 = scene.getModelVertices(k, v0).y;
+					float z0 = scene.getModelVertices(k, v0).z;
 
-			float x0 = scene.getModelVertices(0, i->GetVertexIndex(0)).x * 100;
-			float y0 = scene.getModelVertices(0, i->GetVertexIndex(0)).y * 100;
-			float z0 = scene.getModelVertices(0, i->GetVertexIndex(0)).z * 100;
-			float x1 = scene.getModelVertices(0, i->GetVertexIndex(1)).x * 100;
-			float y1 = scene.getModelVertices(0, i->GetVertexIndex(1)).y * 100;
-			float z1 = scene.getModelVertices(0, i->GetVertexIndex(1)).z * 100;
-			float x2 = scene.getModelVertices(0, i->GetVertexIndex(2)).x * 100;
-			float y2 = scene.getModelVertices(0, i->GetVertexIndex(2)).y * 100;
-			float z2 = scene.getModelVertices(0, i->GetVertexIndex(2)).z * 100;
+					float x1 = scene.getModelVertices(k, v1).x;
+					float y1 = scene.getModelVertices(k, v1).y;
+					float z1 = scene.getModelVertices(k, v1).z;
 
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" <<endl;
+					float x2 = scene.getModelVertices(k, v2).x;
+					float y2 = scene.getModelVertices(k, v2).y;
+					float z2 = scene.getModelVertices(k, v2).z;
 
-			DrawLine(x0, x1, y0, y1, glm::vec3(0, 0, 0));
-			DrawLine(x0, x2, y0, y2, glm::vec3(0, 0, 0));
-			DrawLine(x1, x2, y1, y2, glm::vec3(0, 0, 0));
+					glm::vec3 color = glm::vec3(0, 0, 0);
+					DrawLine(x0, y0, x1,y1, color);
+					DrawLine(x0, y0, x1, y1, color);
+					DrawLine(x0, y0, x1, y1, color);
+					j++;
+				}
+				catch (exception &e) {
+					printf("blabla ==>  %d", j);
+				}
+			}
 		}
-
 	}
-	
 
-
-
-	//Draw X and Y axis lines
+	// Draw X and Y axis lines:
 	DrawLine(-(viewportWidth/2), (viewportWidth / 2), 0, 0, glm::vec3(0, 0, 0));
 	DrawLine(0, 0, (viewportHeight / 2), -(viewportHeight / 2), glm::vec3(0, 0, 0));
 }

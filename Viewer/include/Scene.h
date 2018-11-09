@@ -41,10 +41,25 @@ public:
 	}
 
 	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
+		printf("model=>%s\n", models[indexModel]);
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 
-	
+	std::shared_ptr<MeshModel> GetModel(int index) {
+		if (models.size() == 0) {
+			return nullptr;
+		}
+		return models[index];
+	}
+
+	int modelName2Index(std::string name) {
+		for (size_t i = 0; i < models.size(); i++){
+			if (models[i]->GetModelName().compare(name) == 0) {
+				return i;
+			}
+		}
+		return -1;
+	}
 	// Add more methods as needed...
 
 };
