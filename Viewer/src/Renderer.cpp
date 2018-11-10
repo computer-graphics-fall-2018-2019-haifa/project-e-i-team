@@ -233,36 +233,46 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	
 	
 	
-
+	int indexModel = 0;
 	if (scene.GetModelCount() > 0) {
 		
-		std::vector<Face> faces = scene.getModelFaces(0);
+		std::vector<Face> currFaces = scene.getModelfaces(indexModel);
 		
-		
-		cout << "hello" << endl;
-		for (auto i = faces.begin(); i != faces.end(); ++i)
+		for (auto i = currFaces.begin(); i != currFaces.end(); ++i)
 		{
-			cout << "helfdlo" << endl;
 
-			float x0 = scene.getModelVertices(0, i->GetVertexIndex(0)).x * 100;
-			float y0 = scene.getModelVertices(0, i->GetVertexIndex(0)).y * 100;
-			float z0 = scene.getModelVertices(0, i->GetVertexIndex(0)).z * 100;
-			float x1 = scene.getModelVertices(0, i->GetVertexIndex(1)).x * 100;
-			float y1 = scene.getModelVertices(0, i->GetVertexIndex(1)).y * 100;
-			float z1 = scene.getModelVertices(0, i->GetVertexIndex(1)).z * 100;
-			float x2 = scene.getModelVertices(0, i->GetVertexIndex(2)).x * 100;
-			float y2 = scene.getModelVertices(0, i->GetVertexIndex(2)).y * 100;
-			float z2 = scene.getModelVertices(0, i->GetVertexIndex(2)).z * 100;
+			int IndexV0 = (i->GetVertexIndex(0)) -1;
+			int IndexV1 = (i->GetVertexIndex(1)) -1;
+			int IndexV2 = (i->GetVertexIndex(2)) -1;
+			
+			cout << "IndexV0 = " << IndexV0 << endl;
+			cout << "IndexV1 = " << IndexV1 << endl;
+			cout << "IndexV2 = " << IndexV2 << endl;
+			
+			glm::vec3 V0 = scene.getModelVertices(indexModel, IndexV0);
+			glm::vec3 V1 = scene.getModelVertices(indexModel, IndexV1);
+			glm::vec3 V2 = scene.getModelVertices(indexModel, IndexV2);
+			
+			float x0 = scene.getModelVertices(indexModel, IndexV0).x * 100;
+			float y0 = scene.getModelVertices(indexModel, IndexV0).y * 100;
+			float z0 = scene.getModelVertices(indexModel, IndexV0).z * 100;
+			float x1 = scene.getModelVertices(indexModel, IndexV1).x * 100;
+			float y1 = scene.getModelVertices(indexModel, IndexV1).y * 100;
+			float z1 = scene.getModelVertices(indexModel, IndexV1).z * 100;
+			float x2 = scene.getModelVertices(indexModel, IndexV2).x * 100;
+			float y2 = scene.getModelVertices(indexModel, IndexV2).y * 100;
+			float z2 = scene.getModelVertices(indexModel, IndexV2).z * 100;
 
 			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )  -  ";
-			cout << "( " << x0 << " , " << y0 << " , " << z0 << " )" <<endl;
-
+			cout << "( " << x1 << " , " << y1 << " , " << z1 << " )  -  ";
+			cout << "( " << x2 << " , " << y2 << " , " << z2 << " )" <<endl;
+			
 			DrawLine(x0, x1, y0, y1, glm::vec3(0, 0, 0));
 			DrawLine(x0, x2, y0, y2, glm::vec3(0, 0, 0));
 			DrawLine(x1, x2, y1, y2, glm::vec3(0, 0, 0));
+			
 		}
-
+		
 	}
 	
 
