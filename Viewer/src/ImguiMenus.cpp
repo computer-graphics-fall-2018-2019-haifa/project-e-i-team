@@ -23,13 +23,14 @@ bool DL = false;
 static int drawLineCounter = 0;
 static bool DrawLine = false;
 
+std::string lastLoadedObjName;
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
 const glm::vec4& GetClearColor(){
 	return clearColor;
 }
 
-const char*  getLoadedModels(Scene scene) {
+const char* getLoadedModels(Scene scene) {
 	int length = scene.GetModelCount();
 	if (length == 0) {
 		return "\0";
@@ -54,6 +55,10 @@ void buildTransformationsWindow(Scene scene) {
 	static int modelIndex = 0;
 	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
 	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
+	lastLoadedObjName = m->GetModelName();
+
+	cout << lastLoadedObjName << endl;
+	
 	static float fScale = 1.0f, fRotatex = 1.0f, fRotatey = 1.0f, fRotatez = 1.0f;
 	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
 	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
@@ -69,31 +74,11 @@ void buildTransformationsWindow(Scene scene) {
 	ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
 	glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
 	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
-	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f,0.0f,fTranslatez);
+	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
 	if (m != nullptr) {
-		// TODO: need to do the right way to scale,rotate and translate at the "same" time
-		if (fTranslatex != 0.0f) {
-
-		}
-		if (fTranslatey != 0.0f) {
-
-		}
-		if (fTranslatez != 0.0f) {
-
-		}
-		if (fScale != 1.0f) {
-
-		}
-		if (fRotatex != 0.0f) {
-
-		}
-		if (fRotatey != 0.0f) {
-
-		}
-		if (fRotatez != 0.0f) {
-
-		}
-		// m->SetWorldTransformation(zRotateMat*yRotateMat*xRotateMat*scaling*m->GetWorldTransformation());
+		glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
+		glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
+		m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 	}
 	if (ImGui::Button("Dismiss")) {
 		showTransWindow = false;

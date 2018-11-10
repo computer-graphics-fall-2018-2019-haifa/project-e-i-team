@@ -45,7 +45,7 @@ public:
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 
-	std::shared_ptr<MeshModel> GetModel(int index) {
+	std::shared_ptr<MeshModel> GetModel(int index) const {
 		if (models.size() == 0) {
 			return nullptr;
 		}
