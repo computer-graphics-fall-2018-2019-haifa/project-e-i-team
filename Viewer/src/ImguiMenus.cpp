@@ -1,6 +1,7 @@
 #pragma once
 #define _USE_MATH_DEFINES
 
+#include "Trans.h"
 #include "ImguiMenus.h"
 #include "MeshModel.h"
 #include "Utils.h"
@@ -14,7 +15,7 @@
 #include <random>
 #include <iostream>
 
-bool showTransformationsWindow = false;
+bool showTransWindow = false;
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
 bool showSimpleWindow = true;
@@ -46,48 +47,56 @@ const char*  getLoadedModels(Scene scene) {
 	return comboList;
 }
 
-glm::mat4x4 getRotateByXTransMat(float teta) {
-	return glm::mat4x4(glm::highp_mat4::col_type(1.0f, 0.0f, 0.0f, 0.0f),
-					   glm::highp_mat4::col_type(0.0f, cos(teta), (-1)*sin(teta), 0.0f),
-					   glm::highp_mat4::col_type(0.0f, sin(teta), cos(teta), 0.0f),
-					   glm::highp_mat4::col_type(0.0f, 0.0f, 0.0f, 1.0f));
-}
-
-glm::mat4x4 getRotateByYTransMat(float teta) {
-	return glm::mat4x4(glm::highp_mat4::col_type(cos(teta), 0.0f, (-1)*sin(teta), 0.0f),
-					   glm::highp_mat4::col_type(0.0f, 1.0f, 0.0f, 0.0f),
-					   glm::highp_mat4::col_type(sin(teta), 0.0f, cos(teta), 0.0f),
-					   glm::highp_mat4::col_type(0.0f, 0.0f, 0.0f, 1.0f));
-}
-
-glm::mat4x4 getRotateByZTransMat(float teta) {
-	return glm::mat4x4(glm::highp_mat4::col_type(cos(teta), (-1)*sin(teta), 0.0f, 0.0f),
-					   glm::highp_mat4::col_type(sin(teta), cos(teta), 0.0f, 0.0f),
-					   glm::highp_mat4::col_type(0.0f, 0.0f, 1.0f, 0.0f),
-					   glm::highp_mat4::col_type(0.0f, 0.0f, 0.0f, 1.0f));
-}
-
 void buildTransformationsWindow(Scene scene) {
-	ImGui::Begin("Transformations Window", &showTransformationsWindow);
+	ImGui::Begin("Transformations Window", &showTransWindow);
 	ImGui::Text("Transformations window:");
 	const char* items = getLoadedModels(scene);
 	static int modelIndex = 0;
 	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
 	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
 	static float fScale = 1.0f, fRotatex = 1.0f, fRotatey = 1.0f, fRotatez = 1.0f;
+	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
 	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
-	glm::mat4x4 scaling = glm::mat4x4(fScale);
+	glm::mat4x4 scaling = Trans::getScale4x4(fScale);
 	ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 xRotateMat = getRotateByXTransMat(fRotatex);
+	glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
+	ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
+	glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
 	ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 yRotateMat = getRotateByYTransMat(fRotatey);
+	glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
+	ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
+	glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
 	ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 zRotateMat = getRotateByZTransMat(fRotatez);
+	glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
+	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
+	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f,0.0f,fTranslatez);
 	if (m != nullptr) {
-		m->SetWorldTransformation(zRotateMat*yRotateMat*xRotateMat*scaling*m->GetWorldTransformation());
+		// TODO: need to do the right way to scale,rotate and translate at the "same" time
+		if (fTranslatex != 0.0f) {
+
+		}
+		if (fTranslatey != 0.0f) {
+
+		}
+		if (fTranslatez != 0.0f) {
+
+		}
+		if (fScale != 1.0f) {
+
+		}
+		if (fRotatex != 0.0f) {
+
+		}
+		if (fRotatey != 0.0f) {
+
+		}
+		if (fRotatez != 0.0f) {
+
+		}
+		// m->SetWorldTransformation(zRotateMat*yRotateMat*xRotateMat*scaling*m->GetWorldTransformation());
 	}
 	if (ImGui::Button("Dismiss")) {
-		showTransformationsWindow = false;
+		showTransWindow = false;
 	}
 	ImGui::End();
 }
@@ -108,7 +117,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 		ImGui::Checkbox("Demo Window", &showDemoWindow);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &showAnotherWindow);
 
-		ImGui::Checkbox("Transformations Window", &showTransformationsWindow);
+		ImGui::Checkbox("Transformations Window", &showTransWindow);
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
@@ -210,7 +219,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 	}
 
 	// 3. Show transformations window.
-	if (showTransformationsWindow){
+	if (showTransWindow){
+		// Itay's implementation:
 		buildTransformationsWindow(scene);
 	}
 }

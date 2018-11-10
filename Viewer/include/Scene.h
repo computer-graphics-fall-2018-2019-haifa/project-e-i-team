@@ -41,7 +41,7 @@ public:
 	}
 
 	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
-		printf("model=>%s\n", models[indexModel]);
+		std::cout << models[indexModel]->GetModelName() << std::endl;
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 
