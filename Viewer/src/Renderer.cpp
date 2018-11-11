@@ -235,9 +235,9 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 			int j = 0;
 			for (auto i = faces.begin(); i != faces.end(); ++i) {
 				try {
-					int v0 = i->GetVertexIndex(0);
-					int v1 = i->GetVertexIndex(1);
-					int v2 = i->GetVertexIndex(2);
+					int v0 = i->GetVertexIndex(0) - 1;
+					int v1 = i->GetVertexIndex(1) - 1;
+					int v2 = i->GetVertexIndex(2) - 1;
 					float x0 = scene.getModelVertices(k, v0).x;
 					float y0 = scene.getModelVertices(k, v0).y;
 					float z0 = scene.getModelVertices(k, v0).z;
