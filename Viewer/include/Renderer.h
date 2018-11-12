@@ -32,7 +32,7 @@ private:
 	// Itay Function Implementation:
 	glm::vec3 Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, int k);
 	// Itay Function Implementation:
-	void Renderer::showMeshNormals(Scene scene, std::vector<glm::vec3>::iterator normal, glm::vec3 faceAvgPoint);
+	glm::vec3 Renderer::GetCurrentNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

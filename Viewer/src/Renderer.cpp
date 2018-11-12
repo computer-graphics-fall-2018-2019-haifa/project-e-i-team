@@ -210,8 +210,6 @@ glm::vec3 Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face
 	glm::vec4 vec2(x2, y2, z2, 1);
 	// => (x2,y2,z2)
 
-	glm::vec3 faceAvgPoint((x0 + x1 + x2) / 3, (y0 + y1 + y2) / 3, (z0 + z1 + z2) / 3);
-
 	std::shared_ptr<MeshModel> model = scene.GetModel(k);
 	glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
 	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
@@ -222,12 +220,11 @@ glm::vec3 Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
 
-	return faceAvgPoint;
+	//glm::vec3 currentNormal = GetCurrentNormal(vect0, vect1, vect2);
 }
 
-void Renderer::showMeshNormals(Scene scene, std::vector<glm::vec3>::iterator normal, glm::vec3 faceAvgPoint) {
-	glm::vec3 color(0,0,0);
-	DrawLine(faceAvgPoint.x, normal->x, faceAvgPoint.y, normal->y, color);
+glm::vec3 Renderer::GetCurrentNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
+
 }
 
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
@@ -237,18 +234,13 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	q2 = (viewportHeight/2) - io.MousePos.y;
 
 	int modelsCount = scene.GetModelCount();
-	
+
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelFaces(k);
-			std::vector<glm::vec3> normals = scene.getModelNormals(k);
-			auto normal = normals.begin();
+			//std::vector<glm::vec3> normals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				glm::vec3 faceAvgPoint = showMeshObject(scene, face,k);
-				if (scene.GetModel(k)->GetNormalView()) {
-					showMeshNormals(scene, normal,faceAvgPoint);
-					normal++;
-				}
+				showMeshObject(scene, face, k);
 			}
 		}
 	}

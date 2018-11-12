@@ -56,6 +56,7 @@ void buildTransformationsWindow(Scene scene) {
 	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
 	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
 	static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
+	static float fScale = 1.0f, fRotatex = 1.0f, fRotatey = 1.0f, fRotatez = 1.0f;
 	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
 	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
 	glm::mat4x4 scaling = Trans::getScale4x4(fScale);
