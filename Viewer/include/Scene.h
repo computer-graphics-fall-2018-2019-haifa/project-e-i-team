@@ -36,8 +36,8 @@ public:
 	const int GetActiveModelIndex() const;
 
 	//Elias implementation:
-	std::vector<Face> getModelFaces(int index) const{
-		return models[index]->GetFaces();
+	std::vector<Face> getModelfaces(int indexModel) const{
+		return models[indexModel]->GetFaces();
 	}
 
 	std::vector<glm::vec3> getModelNormals(int indexModel) const {

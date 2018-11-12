@@ -253,7 +253,7 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
-			std::vector<Face> faces = scene.getModelFaces(k);
+			std::vector<Face> faces = scene.getModelfaces(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
 				showMeshObject(scene, face, k);
 			}

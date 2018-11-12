@@ -55,5 +55,6 @@ public:
 	bool GetNormalView() {
 		return showNormals;
 	}
+
 	// Add more methods/functionality as needed...
 };
