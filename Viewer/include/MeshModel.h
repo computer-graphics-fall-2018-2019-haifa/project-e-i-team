@@ -21,6 +21,7 @@ private:
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
+	bool showNormals;
 
 public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
@@ -34,6 +35,9 @@ public:
 
 	const std::string& GetModelName();
 
+	std::vector<glm::vec3> GetNormals() {
+		return normals;
+	}
 
 	//Elias emplementation:
 	glm::vec3 GetVerticeByIndex(int index) {
@@ -42,6 +46,14 @@ public:
 	//Elias emplementation:
 	std::vector<Face> GetFaces() {
 		return faces;
+	}
+
+	void SetNormalView(bool NeedShowNormals) {
+		showNormals = NeedShowNormals;
+	}
+
+	bool GetNormalView() {
+		return showNormals;
 	}
 	// Add more methods/functionality as needed...
 };

@@ -29,6 +29,10 @@ private:
 	void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color);
 	// Elias Function Implementation:
 	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
+	// Itay Function Implementation:
+	glm::vec3 Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, int k);
+	// Itay Function Implementation:
+	void Renderer::showMeshNormals(Scene scene, std::vector<glm::vec3>::iterator normal, glm::vec3 faceAvgPoint);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

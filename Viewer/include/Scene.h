@@ -40,8 +40,11 @@ public:
 		return models[index]->GetFaces();
 	}
 
+	std::vector<glm::vec3> getModelNormals(int indexModel) const {
+		return models[indexModel]->GetNormals();
+	}
+
 	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
-		std::cout << models[indexModel]->GetModelName() << std::endl;
 		return models[indexModel]->GetVerticeByIndex(indexVertex);
 	}
 

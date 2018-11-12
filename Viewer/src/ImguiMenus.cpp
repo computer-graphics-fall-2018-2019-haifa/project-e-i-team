@@ -15,6 +15,7 @@
 #include <random>
 #include <iostream>
 
+bool showNormals = false;
 bool showTransWindow = false;
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
@@ -23,7 +24,6 @@ bool DL = false;
 static int drawLineCounter = 0;
 static bool DrawLine = false;
 
-std::string lastLoadedObjName;
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 
 const glm::vec4& GetClearColor(){
@@ -33,7 +33,7 @@ const glm::vec4& GetClearColor(){
 const char* getLoadedModels(Scene scene) {
 	int length = scene.GetModelCount();
 	if (length == 0) {
-		return "\0";
+		return '\0';
 	}
 	string cStr = "";
 	for (size_t i = 0; i < length; i++) {
@@ -55,11 +55,15 @@ void buildTransformationsWindow(Scene scene) {
 	static int modelIndex = 0;
 	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
 	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
+<<<<<<< HEAD
+	static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
+=======
 	lastLoadedObjName = m->GetModelName();
 
-	cout << lastLoadedObjName << endl;
+	
 	
 	static float fScale = 1.0f, fRotatex = 1.0f, fRotatey = 1.0f, fRotatez = 1.0f;
+>>>>>>> 2196c628b81ac93a206e0d352e075831a212b12e
 	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
 	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
 	glm::mat4x4 scaling = Trans::getScale4x4(fScale);
@@ -75,6 +79,10 @@ void buildTransformationsWindow(Scene scene) {
 	glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
 	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
 	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
+	ImGui::Checkbox("Show Normals", &showNormals);
+
+	cout << "showNormals => " << showNormals << endl;
+	m->SetNormalView(showNormals);
 	if (m != nullptr) {
 		glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 		glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
