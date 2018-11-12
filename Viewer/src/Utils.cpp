@@ -41,11 +41,7 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 
 		issLine >> std::ws >> lineType;
 
-		cout << "lineType = " << lineType << "   ";
-		cout << "curLine = " << curLine << endl;
-
-
-
+		
 		// based on the type parse data
 		if (lineType == "v")
 		{

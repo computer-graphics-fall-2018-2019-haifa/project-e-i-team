@@ -188,52 +188,28 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 {
-	//#############################################
-	//## You should override this implementation ##
-	//## Here you should render the scene.       ##
-	//#############################################
+	
 
-
-	/*
-	// Draw a chess board in the middle of the screen
-	for (int i = 0; i < viewportWidth; i++)
-	{
-		for (int j = 0; j < viewportHeight; j++)
-		{
-			int mod_i = i / 50;
-			int mod_j = j / 50;
-
-			int odd = (mod_i + mod_j) % 2;
-			if (odd)
-			{
-				putPixel(i, j, glm::vec3(0, 1, 0));
-			}
-			else
-			{
-				putPixel(i, j, glm::vec3(1, 0, 0));
-			}
-		}
-	}
-	*/
-	// Get mouse position:
 	p2 = io.MousePos.x - (viewportWidth/2);
 	q2 = (viewportHeight/2) - io.MousePos.y;
 
+	/*
 	DrawLine(50, p2, 50, q2, glm::vec3(0, 0, 1));
 	DrawLine(-50, p2, 50, q2, glm::vec3(0, 1, 0));
 	DrawLine(50, p2, -50, q2, glm::vec3(1, 0, 0));
 	DrawLine(-50, p2, -50, q2, glm::vec3(0, 1, 1));
+	*/
 
 	int modelsCount = scene.GetModelCount();
 
-	cout << scene.GetModelCount() << "  :   ";
-	cout << scene.GetActiveModelIndex() << endl;
+	
 	
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelFaces(k);
 			int j = 0;
 			for (auto i = faces.begin(); i != faces.end(); ++i) {
+
 				try {
 					int v0 = i->GetVertexIndex(0) - 1;
 					int v1 = i->GetVertexIndex(1) - 1;
@@ -259,6 +235,43 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 				catch (exception &e) {
 					printf("blabla ==>  %d", j);
 				}
+
+				
+				int v0 = i->GetVertexIndex(0) - 1;
+				int v1 = i->GetVertexIndex(1) - 1;
+				int v2 = i->GetVertexIndex(2) - 1;
+
+				// v0,v1,v2 => 1,13,4
+
+				float x0 = scene.getModelVertices(k, v0).x;
+				float y0 = scene.getModelVertices(k, v0).y;
+				float z0 = scene.getModelVertices(k, v0).z;
+				glm::vec4 vec0(x0, y0, z0,1);
+				// => (x0,y0,zo)
+
+				float x1 = scene.getModelVertices(k, v1).x;
+				float y1 = scene.getModelVertices(k, v1).y;
+				float z1 = scene.getModelVertices(k, v1).z;
+				glm::vec4 vec1(x1, y1, z1, 1);
+				// => (x1,y1,z1)
+
+				float x2 = scene.getModelVertices(k, v2).x;
+				float y2 = scene.getModelVertices(k, v2).y;
+				float z2 = scene.getModelVertices(k, v2).z;
+				glm::vec4 vec2(x2, y2, z2, 1);
+				// => (x2,y2,z2)
+
+				std::shared_ptr<MeshModel> model = scene.GetModel(k);
+				glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
+				glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
+				glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
+
+
+				glm::vec3 color = glm::vec3(0, 0, 0);
+				DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, color);
+				DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
+				DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
+
 			}
 		}
 	}
