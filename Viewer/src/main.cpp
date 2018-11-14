@@ -32,6 +32,9 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
+	
+
+	
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
@@ -72,6 +75,9 @@ int main(int argc, char **argv)
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
+
+
+	
     return 0;
 }
 
