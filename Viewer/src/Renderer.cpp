@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fenv.h>       /* fegetround, FE_* */
 #include <math.h>       /* nearbyint */
+#include <algorithm>
 
 using namespace std;
 
@@ -184,8 +185,19 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
+float getMax(float a, float b, float c) {
+	float m1 = max(a, b);
+	float m2 = max(b, c);
+	return max(m1, m2);
+}
 
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int k) {
+float getMin(float a,float b,float c) {
+	float m1 = min(a, b);
+	float m2 = min(b, c);
+	return min(m1,m2);
+}
+
+void Renderer::showMeshObject(const ImGuiIO& io,Scene scene, std::vector<Face>::iterator face,int k,bool showNormals) {
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
@@ -215,47 +227,63 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
 	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
 
+	float mx1 = getMax(vect0.x, vect1.x, vect2.x);
+	float mx2 = getMin(vect0.x, vect1.x, vect2.x);
+
+	float my1 = getMax(vect0.y, vect1.y, vect2.y);
+	float my2 = getMin(vect0.y, vect1.y, vect2.y);
+
+	float xPos = io.MousePos.x;
+	float yPos = io.MousePos.y;
+
+	if (viewportHeight < my1 ||
+		my2 < -100 ||
+		viewportWidth < mx1 ||
+		mx2 < -100) {
+		return;
+	}
+
 	glm::vec3 color = glm::vec3(0, 0, 0);
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, color);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
 
-	glm::vec3 currentNormal = GetEstimatedNormal(vect0, vect1, vect2);
-	int norm = pow(pow(currentNormal.x,2) + pow(currentNormal.y, 2) + pow(currentNormal.z, 2),1/2)*100;
-	glm::vec3 scalarCurrentNormal(currentNormal.x*norm, currentNormal.y*norm, currentNormal.z*norm);
-	
-	// TODO: check the positive system:
-	glm::vec3 normalColor = glm::vec3(0, 0, 0);
-	DrawLine(currentNormal.x, scalarCurrentNormal.x, currentNormal.y, scalarCurrentNormal.y, normalColor);
+	if (showNormals) {
+		glm::vec3 currentNormal = GetEstimatedNormal(vect0, vect1, vect2);
+		glm::vec4 homoNormal(currentNormal.x, currentNormal.y, currentNormal.z,1);
+		homoNormal = model->GetWorldTransformation()*homoNormal;
+		int norm = pow(pow(homoNormal.x, 2) + pow(homoNormal.y, 2) + pow(homoNormal.z, 2), 1 / 2);
+		glm::vec3 scalarCurrentNormal(homoNormal.x, homoNormal.y, homoNormal.z);
+		scalarCurrentNormal *= norm*10;
+		glm::vec3 normalColor = glm::vec3(255, 0, 0);
+		DrawLine(homoNormal.x, scalarCurrentNormal.x, homoNormal.y, scalarCurrentNormal.y, normalColor);
+	}
 }
 
 glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
-	glm::vec3 n0 = VectorMul((vec0 - vec1), (vec1 - vec2));
-	glm::vec3 n1 = VectorMul((vec0-vec2),(vec2-vec1));
-	glm::vec3 n2 = VectorMul((vec0-vec1),(vec0-vec2));
-	return (n0 + n1 + n2)*glm::vec3(1 / 3, 1 / 3, 1 / 3);;
-}
-
-glm::vec3 Renderer::VectorMul(glm::vec3 vec0, glm::vec3 vec1) {
-	float x = vec0.x*(vec1.x + vec1.y + vec1.z);
-	float y = vec0.y*(vec1.x + vec1.y + vec1.z);
-	float z = vec0.z*(vec1.x + vec1.y + vec1.z);
-	return glm::vec3(x,y,z);
+	glm::vec3 n0 = glm::cross(vec0 - vec1,vec1 - vec2);
+	glm::vec3 n1 = glm::cross(vec0 - vec2,vec2 - vec1);
+	glm::vec3 n2 = glm::cross(vec0 - vec1,vec0 - vec2);
+	n0 /= 3;
+	n1 /= 3;
+	n2 /= 3;
+	return glm::vec3(n0 + n1 + n2);
 }
 
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 {
 	// Get mouse position:
-	p2 = io.MousePos.x - (viewportWidth/2);
-	q2 = (viewportHeight/2) - io.MousePos.y;
+	//p2 = io.MousePos.x - (viewportWidth/2);
+	//q2 = (viewportHeight/2) - io.MousePos.y;
 
 	int modelsCount = scene.GetModelCount();
 
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelfaces(k);
+			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				showMeshObject(scene, face, k);
+				showMeshObject(io,scene, face, k, model->GetNormalView());
 			}
 		}
 	}
