@@ -15,6 +15,8 @@
 #include <random>
 #include <iostream>
 
+
+
 bool showNormals = false;
 bool showTransWindow = false;
 bool showDemoWindow = false;
@@ -40,6 +42,7 @@ const char* getLoadedModels(Scene scene) {
 		cStr += scene.GetModel(i)->GetModelName();
 		cStr += '\0';
 	}
+	cStr += '\0';
 	int listLength = cStr.length();
 	char* comboList = new char[listLength];
 	for (size_t i = 0; i < listLength; i++) {
@@ -48,38 +51,113 @@ const char* getLoadedModels(Scene scene) {
 	return comboList;
 }
 
-void buildTransformationsWindow(Scene scene) {
-	ImGui::Begin("Transformations Window", &showTransWindow);
-	ImGui::Text("Transformations window:");
-	const char* items = getLoadedModels(scene);
-	static int modelIndex = 0;
-	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
-	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
-	static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
-	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
-	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
-	glm::mat4x4 scaling = Trans::getScale4x4(fScale);
-	ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
-	ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
-	glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
-	ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
-	ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
-	glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
-	ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
-	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
-	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
-	ImGui::Checkbox("Show Normals", &showNormals);
 
-	cout << "showNormals => " << showNormals << endl;
-	m->SetNormalView(showNormals);
-	if (m != nullptr) {
-		glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-		glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
-		m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
+
+//Elias emplementation:
+const char* getCamerasNames(int length) {
+	string cStr = "";
+	for (size_t i = 0; i < length; i++) {
+
+		cStr += "Camera ";
+		if (i < 10) {
+			cStr += '0' + i;
+		}
+		else {
+			cStr += '0' + int(i / 10);
+			cStr += '0' + int(i % 10);
+		}
+		cStr += '\0';
 	}
+	cStr += '\0';
+	int listLength = cStr.length();
+
+	char* comboList = new char[listLength];
+	for (size_t i = 0; i < listLength; i++) {
+		comboList[i] = cStr.at(i);
+	}
+	return comboList;
+}
+
+
+
+
+void buildTransformationsWindow(Scene scene) {
+	ImGui::Begin("Scene Menu", &showTransWindow);
+	ImGui::Text("Transformations window:");
+
+
+	if (ImGui::CollapsingHeader("Cameras")) {
+		
+		static int camera_current = 0;
+		const char* cameras = getCamerasNames(scene.GetCameraCount());
+
+
+		if (ImGui::Button("Add camera")) {
+			Camera c = Camera(glm::vec4(200,200,0,1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
+			scene.AddCamera(c);
+		}
+	
+		
+		
+		ImGui::Combo("Active Camera", &camera_current, cameras, IM_ARRAYSIZE(cameras));
+
+		static int Transform_type = 0;
+		ImGui::RadioButton("Perspective", &Transform_type, 0);
+		ImGui::RadioButton("Orthographic", &Transform_type, 1);
+		
+
+		
+		
+		static float ffovy = 1.0f;
+		static float fnear = 1.0f;
+		static float ffar = 1.0f;
+		
+		ImGui::SliderFloat("Fovy", &ffovy, 0.0f, 3.142f);
+		ImGui::SliderFloat("Near", &fnear, 1.0f, 10.0f);
+		ImGui::SliderFloat("Far", &ffar, 1.0f, 10.0f);
+		
+
+	}
+
+
+
+
+
+	if (ImGui::CollapsingHeader("Models")) {
+		const char* items = getLoadedModels(scene);
+		static int modelIndex = 0;
+		ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
+		std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
+		static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
+		static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
+		ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
+		glm::mat4x4 scaling = Trans::getScale4x4(fScale);
+		ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
+		glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
+		ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
+		glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
+		ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
+		glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
+		ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
+		glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
+		ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
+		glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
+		ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
+		glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
+		ImGui::Checkbox("Show Normals", &showNormals);
+
+		cout << "showNormals => " << showNormals << endl;
+		m->SetNormalView(showNormals);
+		if (m != nullptr) {
+			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
+			glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
+			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
+		}
+	}
+
+
+	ImGui::Text("");
+	ImGui::Text("");
 	if (ImGui::Button("Dismiss")) {
 		showTransWindow = false;
 	}

@@ -3,10 +3,11 @@
 #include <string>
 
 Scene::Scene() :
-	activeCameraIndex(0),
+	activeCameraIndex(1),
 	activeModelIndex(0)
 {
-
+	Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
+	cameras.push_back(c);
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
@@ -21,6 +22,7 @@ const int Scene::GetModelCount() const
 
 void Scene::AddCamera(const Camera& camera)
 {
+	activeCameraIndex++;
 	cameras.push_back(camera);
 }
 
