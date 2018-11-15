@@ -14,7 +14,7 @@
 #include <nfd.h>
 #include <random>
 #include <iostream>
-
+#include <list>
 
 
 bool showNormals = false;
@@ -89,12 +89,14 @@ void buildTransformationsWindow(Scene scene) {
 	if (ImGui::CollapsingHeader("Cameras")) {
 		
 		static int camera_current = 0;
-		const char* cameras = getCamerasNames(scene.GetCameraCount());
+		static int number_of_cameras = 1;
+		const char* cameras = getCamerasNames(number_of_cameras);
 
 
 		if (ImGui::Button("Add camera")) {
-			Camera c = Camera(glm::vec4(200,200,0,1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
-			scene.AddCamera(c);
+			number_of_cameras++;
+			//Camera c = Camera(glm::vec4(200,200,0,1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
+			//scene.AddCamera(c);
 		}
 	
 		
@@ -107,10 +109,16 @@ void buildTransformationsWindow(Scene scene) {
 		
 
 		
+
+
+		/*static list<float> ffovy(1, 1.0f);
+		static list<float> fnear(1, 1.0f);
+		static list<float> ffar(1, 1.0f);*/
 		
 		static float ffovy = 1.0f;
 		static float fnear = 1.0f;
 		static float ffar = 1.0f;
+		
 		
 		ImGui::SliderFloat("Fovy", &ffovy, 0.0f, 3.142f);
 		ImGui::SliderFloat("Near", &fnear, 1.0f, 10.0f);

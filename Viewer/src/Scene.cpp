@@ -2,10 +2,10 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() :
-	activeCameraIndex(1),
-	activeModelIndex(0)
+Scene::Scene()
 {
+	activeCameraIndex = 1;
+	activeModelIndex = 0;
 	Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
 	cameras.push_back(c);
 }
@@ -22,8 +22,11 @@ const int Scene::GetModelCount() const
 
 void Scene::AddCamera(const Camera& camera)
 {
-	activeCameraIndex++;
-	cameras.push_back(camera);
+	cout << activeCameraIndex << endl;
+	this->activeCameraIndex++;
+	cout << activeCameraIndex << endl;
+
+	(this->cameras).push_back(camera);
 }
 
 const int Scene::GetCameraCount() const

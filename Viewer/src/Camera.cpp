@@ -48,8 +48,14 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::vec4 t = glm::vec4(0, 0, 0, 1);
 	glm::mat4 c = glm::mat4(u, v, n, t);
 
-	//viewTransformation =  c * translate(-eye4);
+	//Translate ( -eye )
+	glm::vec4 v1 = glm::vec4(1, 0, 0, 0);
+	glm::vec4 v2 = glm::vec4(0, 1, 0, 0);
+	glm::vec4 v3 = glm::vec4(0, 0, 1, 0);
+	glm::vec4 v4 = glm::vec4(-eye4.x, -eye4.y, -eye4.z, 1);
 
+
+	viewTransformation = c * glm::mat4(v1, v2, v3, v4);
 }
 
 
