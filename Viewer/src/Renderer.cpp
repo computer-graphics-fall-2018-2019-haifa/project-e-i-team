@@ -220,27 +220,27 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
 
-	glm::vec3 currentNormal = GetEstimatedNormal(vect0, vect1, vect2);
-	int norm = pow(pow(currentNormal.x,2) + pow(currentNormal.y, 2) + pow(currentNormal.z, 2),1/2)*100;
-	glm::vec3 scalarCurrentNormal(currentNormal.x*norm, currentNormal.y*norm, currentNormal.z*norm);
-	
-	// TODO: check the positive system:
-	glm::vec3 normalColor = glm::vec3(0, 0, 0);
-	DrawLine(currentNormal.x, scalarCurrentNormal.x, currentNormal.y, scalarCurrentNormal.y, normalColor);
+	if (model->GetNormalView()) {
+		glm::vec3 currentNormal = GetEstimatedNormal(vect0, vect1, vect2);
+		glm::vec4 transNormal = model->GetWorldTransformation()*glm::vec4(currentNormal.x, currentNormal.y, currentNormal.z, 1);
+		currentNormal = glm::vec3(transNormal.x, transNormal.y, transNormal.z);
+		int norm = pow(pow(currentNormal.x, 2) + pow(currentNormal.y, 2) + pow(currentNormal.z, 2), 1 / 2) * 100;
+		glm::vec3 scalarCurrentNormal(currentNormal.x*norm, currentNormal.y*norm, currentNormal.z*norm);
+
+		// TODO: check the positive system:
+		glm::vec3 normalColor = glm::vec3(255, 0, 0);
+		DrawLine(currentNormal.x, scalarCurrentNormal.x, currentNormal.y, scalarCurrentNormal.y, normalColor);
+	}
 }
 
 glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
-	glm::vec3 n0 = VectorMul((vec0 - vec1), (vec1 - vec2));
-	glm::vec3 n1 = VectorMul((vec0-vec2),(vec2-vec1));
-	glm::vec3 n2 = VectorMul((vec0-vec1),(vec0-vec2));
-	return (n0 + n1 + n2)*glm::vec3(1 / 3, 1 / 3, 1 / 3);;
-}
-
-glm::vec3 Renderer::VectorMul(glm::vec3 vec0, glm::vec3 vec1) {
-	float x = vec0.x*(vec1.x + vec1.y + vec1.z);
-	float y = vec0.y*(vec1.x + vec1.y + vec1.z);
-	float z = vec0.z*(vec1.x + vec1.y + vec1.z);
-	return glm::vec3(x,y,z);
+	glm::vec3 n0 = glm::cross((vec0 - vec1), (vec1 - vec2));
+	glm::vec3 n1 = glm::cross((vec0-vec2),(vec2-vec1));
+	glm::vec3 n2 = glm::cross((vec0-vec1),(vec0-vec2));
+	n0 /= 3;
+	n1 /= 3;
+	n2 /= 3;
+	return glm::vec3(n0 + n1 + n2);
 }
 
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
