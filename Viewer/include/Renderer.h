@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 
+#define NORMAL_LENGTH 10
+
 /*
  * Renderer class.
  */
@@ -34,7 +36,9 @@ private:
 	// Itay Function Implementation:
 	glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2);
 	// Itay Function Implementation:
-	glm::vec3 Renderer::VectorMul(glm::vec3 vec0, glm::vec3 vec1);
+	unsigned int getNorm(glm::vec3 v) {
+		return pow(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2), 1 / 2);
+	}
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

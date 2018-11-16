@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fenv.h>       /* fegetround, FE_* */
 #include <math.h>       /* nearbyint */
+#include "Trans.h"
 
 using namespace std;
 
@@ -185,7 +186,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 }
 
 
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int k) {
+void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int k, const ImGuiIO& io) {
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
@@ -214,32 +215,32 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
 	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
 	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
+	
+	//if ((maxX(points) >= viewportWidth) || (minX(points) <= -viewportWidth)
+	//	|| (maxY(points) >= viewportHeight) || (minY(points) <= -viewportHeight)) {
+	//	return;
+	//}
 
+	// it is at the valid scope:
 	glm::vec3 color = glm::vec3(0, 0, 0);
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, color);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
 
 	if (model->GetNormalView()) {
-		glm::vec3 currentNormal = GetEstimatedNormal(vect0, vect1, vect2);
-		glm::vec4 transNormal = model->GetWorldTransformation()*glm::vec4(currentNormal.x, currentNormal.y, currentNormal.z, 1);
-		currentNormal = glm::vec3(transNormal.x, transNormal.y, transNormal.z);
-		int norm = pow(pow(currentNormal.x, 2) + pow(currentNormal.y, 2) + pow(currentNormal.z, 2), 1 / 2) * 100;
-		glm::vec3 scalarCurrentNormal(currentNormal.x*norm, currentNormal.y*norm, currentNormal.z*norm);
-
-		// TODO: check the positive system:
+		glm::vec3 estNormal = GetEstimatedNormal(vect0, vect1, vect2);
+		glm::vec4 estNormal4 = glm::vec4(estNormal.x, estNormal.y, estNormal.z, 1);
+		glm::vec4 scaled4 = Trans::getScale4x4(NORMAL_LENGTH)*estNormal4;
+		glm::vec3 scaled3 = glm::vec3(scaled4.x, scaled4.y, scaled4.z);
 		glm::vec3 normalColor = glm::vec3(255, 0, 0);
-		DrawLine(currentNormal.x, scalarCurrentNormal.x, currentNormal.y, scalarCurrentNormal.y, normalColor);
+		DrawLine(estNormal.x, scaled3.x, estNormal.y, scaled3.y, normalColor);
 	}
 }
 
 glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
-	glm::vec3 n0 = glm::cross((vec0 - vec1), (vec1 - vec2));
-	glm::vec3 n1 = glm::cross((vec0-vec2),(vec2-vec1));
-	glm::vec3 n2 = glm::cross((vec0-vec1),(vec0-vec2));
-	n0 /= 3;
-	n1 /= 3;
-	n2 /= 3;
+	glm::vec3 n0 = glm::cross(vec0 - vec1,vec0 - vec2)*(1.0f / 3);
+	glm::vec3 n1 = glm::cross(vec1 - vec0,vec1 - vec2)*(1.0f / 3);
+	glm::vec3 n2 = glm::cross(vec2 - vec0,vec2 - vec1)*(1.0f / 3);
 	return glm::vec3(n0 + n1 + n2);
 }
 
@@ -255,7 +256,7 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelfaces(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				showMeshObject(scene, face, k);
+				showMeshObject(scene, face, k,io);
 			}
 		}
 	}
