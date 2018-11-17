@@ -36,9 +36,9 @@ private:
 	// Itay Function Implementation:
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2);
 
-	double Renderer::maxValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
+	double Renderer::maxValue(double v0, double v1, double v2);
 
-	double Renderer::minValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
+	double Renderer::minValue(double v0, double v1, double v2);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

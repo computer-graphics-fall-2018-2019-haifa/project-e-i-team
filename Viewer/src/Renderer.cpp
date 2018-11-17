@@ -20,6 +20,13 @@ static float p1 = -50, q1 = 50;
 
 static float p2 = -50, q2 = -100;
 
+static glm::vec3 lastVect0;
+static glm::vec3 lastVect1;
+static glm::vec3 lastVect2;
+static glm::vec3 lastVn0;
+static glm::vec3 lastVn1;
+static glm::vec3 lastVn2;
+
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
 	zBuffer(nullptr)
@@ -186,9 +193,41 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 }
 
 
-double Renderer::maxValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) {}
+double Renderer::maxValue(double v0, double v1, double v2) {
+	if (v0 > v1) {
+		if (v0 > v2) {
+			return v0;
+		}
+		else if (v2 > v1) {
+			return v2;
+		}
+		else {
+			v1;
+		}
+	}
+	else if (v2 > v1) {
+		return v2;
+	}
+	return v1;
+}
 
-double Renderer::minValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) {}
+double Renderer::minValue(double v0, double v1, double v2) {
+	if (v0 < v1) {
+		if (v0 < v2) {
+			return v0;
+		}
+		else if (v2 < v1) {
+			return v2;
+		}
+		else {
+			v1;
+		}
+	}
+	else if (v2 < v1) {
+		return v2;
+	}
+	return v1;
+}
 
 void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals,int k, const ImGuiIO& io) {
 	int v0 = face->GetVertexIndex(0) - 1;
@@ -231,27 +270,43 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 	
 
 	// height = 720 & width = 1280 on my laptop constantly
+	printf("max vect_x=%f\n", maxValue(vect0.x, vect1.x, vect2.x));
+	printf("min vect_x=%f\n", minValue(vect0.x, vect1.x, vect2.x));
+	printf("max vect_y=%f\n", maxValue(vect0.y, vect1.y, vect2.y));
+	printf("min vect_y=%f\n", minValue(vect0.y, vect1.y, vect2.y));
+	printf("\n");
+
 	if (maxValue(vect0.x, vect1.x, vect2.x) > (viewportWidth / 2) ||
 		minValue(vect0.x, vect1.x, vect2.x) < (-viewportWidth / 2) ||
 		maxValue(vect0.y, vect1.y, vect2.y) > (viewportHeight / 2) ||
-		minValue(vect0.y, vect1.y, vect2.y) < (-viewportHeight / 2))) {}
+		minValue(vect0.y, vect1.y, vect2.y) < (-viewportHeight / 2)) {
+		return;
+	}
+	else {
+		lastVect0 = vect0;
+		lastVn0 = n0;
+		lastVect1 = vect1;
+		lastVn1 = n1;
+		lastVect2 = vect2;
+		lastVn2 = n2;
+	}
 
 	// it is at the valid scope:
 	glm::vec3 color = glm::vec3(0, 0, 0);
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, color);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
-	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
+	DrawLine(lastVect0.x, lastVect1.x, lastVect0.y, lastVect1.y, color);
+	DrawLine(lastVect0.x, lastVect2.x, lastVect0.y, lastVect2.y, color);
+	DrawLine(lastVect1.x, lastVect2.x, lastVect1.y, lastVect2.y, color);
 
 	if (model->GetFaceNormalView()) {
-		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
-		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2);
-		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(230, 0, 0));
+		glm::vec3 basePoint((lastVect0.x + lastVect1.x + lastVect2.x) / 3, (lastVect0.y + lastVect1.y + lastVect2.y) / 3, (lastVect0.z + lastVect1.z + lastVect2.z) / 3);
+		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, lastVect0, lastVect1, lastVect2);
+		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(200, 0, 0));
 	}
 
 	if (model->GetVertexNormalView()) {
-		DrawLine(vect0.x, n0.x, vect0.y, n0.y, glm::vec3(0, 230, 0));
-		DrawLine(vect1.x, n1.x, vect1.y, n1.y, glm::vec3(0, 230, 0));
-		DrawLine(vect2.x, n2.x, vect2.y, n2.y, glm::vec3(0, 230, 0));
+		DrawLine(lastVect0.x, lastVn0.x, lastVect0.y, lastVn0.y, glm::vec3(0, 200, 0));
+		DrawLine(lastVect1.x, lastVn1.x, lastVect1.y, lastVn1.y, glm::vec3(0, 200, 0));
+		DrawLine(lastVect2.x, lastVn2.x, lastVect2.y, lastVn2.y, glm::vec3(0, 200, 0));
 	}
 }
 
