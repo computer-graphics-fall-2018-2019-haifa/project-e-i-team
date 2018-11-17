@@ -72,7 +72,7 @@ void buildTransformationsWindow(Scene scene) {
 	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
 	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
 	ImGui::Checkbox("Show Normals", &showNormals);
-	m->SetNormalView(showNormals);
+	m->SetFaceNormalView(showNormals);
 	if (m != nullptr) {
 		glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 		glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);

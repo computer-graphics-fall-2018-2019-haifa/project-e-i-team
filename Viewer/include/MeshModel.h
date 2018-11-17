@@ -48,11 +48,11 @@ public:
 		return faces;
 	}
 
-	void SetNormalView(bool NeedShowNormals) {
+	void SetFaceNormalView(bool NeedShowNormals) {
 		showNormals = NeedShowNormals;
 	}
 
-	bool GetNormalView() {
+	bool GetFaceNormalView() {
 		return showNormals;
 	}
 

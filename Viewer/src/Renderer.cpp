@@ -227,21 +227,18 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
 
-	if (model->GetNormalView()) {
-		glm::vec3 estNormal = GetEstimatedNormal(vect0, vect1, vect2);
-		glm::vec4 estNormal4 = glm::vec4(estNormal.x, estNormal.y, estNormal.z, 1);
-		glm::vec4 scaled4 = Trans::getScale4x4(NORMAL_LENGTH)*estNormal4;
-		glm::vec3 scaled3 = glm::vec3(scaled4.x, scaled4.y, scaled4.z);
-		glm::vec3 normalColor = glm::vec3(255, 0, 0);
-		DrawLine(estNormal.x, scaled3.x, estNormal.y, scaled3.y, normalColor);
+	if (model->GetFaceNormalView()) {
+		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
+		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2);
+		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(0, 0, 0));
 	}
 }
 
-glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
-	glm::vec3 n0 = glm::cross(vec0 - vec1,vec0 - vec2)*(1.0f / 3);
-	glm::vec3 n1 = glm::cross(vec1 - vec0,vec1 - vec2)*(1.0f / 3);
-	glm::vec3 n2 = glm::cross(vec2 - vec0,vec2 - vec1)*(1.0f / 3);
-	return glm::vec3(n0 + n1 + n2);
+glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
+	glm::vec3 u0 = vec1 - vec0;
+	glm::vec3 u1 = vec2 - vec0;
+	glm::vec3 v = glm::cross(u0, u1) + basePoint;
+	return glm::vec3(v.x, v.y, v.z);
 }
 
 void Renderer::Render(const Scene& scene, const ImGuiIO& io)
