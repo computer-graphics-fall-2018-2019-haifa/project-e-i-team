@@ -49,39 +49,39 @@ const char* getLoadedModels(Scene scene) {
 }
 
 void buildTransformationsWindow(Scene scene) {
-	ImGui::Begin("Transformations Window", &showTransWindow);
-	ImGui::Text("Transformations window:");
-	const char* items = getLoadedModels(scene);
-	static int modelIndex = 0;
-	ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
-	std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
-	static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
-	static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
-	ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
-	glm::mat4x4 scaling = Trans::getScale4x4(fScale);
-	ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
-	ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
-	glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
-	ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
-	ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
-	glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
-	ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
-	glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
-	ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
-	glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
-	ImGui::Checkbox("Show Normals", &showNormals);
-	m->SetFaceNormalView(showNormals);
-	if (m != nullptr) {
-		glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-		glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
-		m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
-	}
-	if (ImGui::Button("Dismiss")) {
-		showTransWindow = false;
-	}
-	ImGui::End();
+	//ImGui::Begin("Transformations Window", &showTransWindow);
+	//ImGui::Text("Transformations window:");
+	//const char* items = getLoadedModels(scene);
+	//static int modelIndex = 0;
+	//ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
+	//std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
+	//static float fScale = 1.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
+	//static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
+	//ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 100.0f);
+	//glm::mat4x4 scaling = Trans::getScale4x4(fScale);
+	//ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
+	//glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
+	//ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
+	//glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
+	//ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
+	//glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
+	//ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
+	//glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
+	//ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
+	//glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
+	//ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
+	//glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
+	//ImGui::Checkbox("Show Normals", &showNormals);
+	//m->SetFaceNormalView(showNormals);
+	//if (m != nullptr) {
+	//	glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
+	//	glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
+	//	m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
+	//}
+	//if (ImGui::Button("Dismiss")) {
+	//	showTransWindow = false;
+	//}
+	//ImGui::End();
 }
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene){
