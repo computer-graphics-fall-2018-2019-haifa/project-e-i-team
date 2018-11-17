@@ -21,7 +21,8 @@ private:
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
-	bool showNormals;
+	bool showFaceNormals;
+	bool showVertexNormals;
 
 public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
@@ -49,11 +50,19 @@ public:
 	}
 
 	void SetFaceNormalView(bool NeedShowNormals) {
-		showNormals = NeedShowNormals;
+		showFaceNormals = NeedShowNormals;
 	}
 
 	bool GetFaceNormalView() {
-		return showNormals;
+		return showFaceNormals;
+	}
+
+	void SetVertexNormalView(bool NeedShowNormals) {
+		showVertexNormals = NeedShowNormals;
+	}
+
+	bool GetVertexNormalView() {
+		return showVertexNormals;
 	}
 
 	// Add more methods/functionality as needed...

@@ -11,7 +11,9 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	vertices(vertices),
 	faces(faces),
 	normals(normals),
-	worldTransform(glm::mat4x4(1))
+	worldTransform(glm::mat4x4(1)),
+	showFaceNormals(false),
+	showVertexNormals(false)
 {
 
 }

@@ -17,7 +17,8 @@
 #include <list>
 
 
-bool showNormals = false;
+bool showFaceNormals = false;
+bool showVertexNormals = false;
 bool showTransWindow = false;
 bool showDemoWindow = false;
 bool showAnotherWindow = false;
@@ -35,7 +36,8 @@ const glm::vec4& GetClearColor(){
 const char* getLoadedModels(Scene scene) {
 	int length = scene.GetModelCount();
 	if (length == 0) {
-		return '\0';
+		char* empty = new char[1]{'\0'};
+		return empty;
 	}
 	string cStr = "";
 	for (size_t i = 0; i < length; i++) {
@@ -45,6 +47,7 @@ const char* getLoadedModels(Scene scene) {
 	cStr += '\0';
 	int listLength = cStr.length();
 	char* comboList = new char[listLength];
+	if (listLength == 1) { comboList[0] = cStr.at(0); }
 	for (size_t i = 0; i < listLength; i++) {
 		comboList[i] = cStr.at(i);
 	}
@@ -85,32 +88,22 @@ void buildTransformationsWindow(Scene scene) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImGui::Text("Transformations window:");
 
-
 	if (ImGui::CollapsingHeader("Cameras")) {
 		
 		static int camera_current = 0;
 		static int number_of_cameras = 1;
 		const char* cameras = getCamerasNames(number_of_cameras);
-
-
 		if (ImGui::Button("Add camera")) {
 			number_of_cameras++;
 			//Camera c = Camera(glm::vec4(200,200,0,1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
 			//scene.AddCamera(c);
 		}
-	
-		
-		
-		ImGui::Combo("Active Camera", &camera_current, cameras, IM_ARRAYSIZE(cameras));
 
+		ImGui::Combo("Active Camera", &camera_current, cameras, IM_ARRAYSIZE(cameras));
 		static int Transform_type = 0;
 		ImGui::RadioButton("Perspective", &Transform_type, 0);
 		ImGui::RadioButton("Orthographic", &Transform_type, 1);
 		
-
-		
-
-
 		/*static list<float> ffovy(1, 1.0f);
 		static list<float> fnear(1, 1.0f);
 		static list<float> ffar(1, 1.0f);*/
@@ -118,19 +111,11 @@ void buildTransformationsWindow(Scene scene) {
 		static float ffovy = 1.0f;
 		static float fnear = 1.0f;
 		static float ffar = 1.0f;
-		
-		
+
 		ImGui::SliderFloat("Fovy", &ffovy, 0.0f, 3.142f);
 		ImGui::SliderFloat("Near", &fnear, 1.0f, 10.0f);
 		ImGui::SliderFloat("Far", &ffar, 1.0f, 10.0f);
-		
-
 	}
-
-
-
-
-
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getLoadedModels(scene);
 		static int modelIndex = 0;
@@ -152,17 +137,16 @@ void buildTransformationsWindow(Scene scene) {
 		glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
 		ImGui::SliderFloat("Translate By Z", &fTranslatez, -100.0f, 100.0f);
 		glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
-		ImGui::Checkbox("Show Normals", &showNormals);
-
-		cout << "showNormals => " << showNormals << endl;
-		m->SetNormalView(showNormals);
+		ImGui::Checkbox("Show Face Normals", &showFaceNormals);
+		ImGui::Checkbox("Show Vectex Normals", &showVertexNormals);
 		if (m != nullptr) {
+			m->SetFaceNormalView(showFaceNormals);
+			m->SetVertexNormalView(showVertexNormals);
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 			glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
 			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 		}
 	}
-
 
 	ImGui::Text("");
 	ImGui::Text("");

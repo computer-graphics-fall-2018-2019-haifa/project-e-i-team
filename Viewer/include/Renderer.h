@@ -23,7 +23,7 @@ private:
 
 	void putPixel(int x, int y, const glm::vec3& color);
 	void createBuffers(int viewportWidth, int viewportHeight);
-	void BresenhamLine(float p1, float p2, float q1, float q2);
+	//void BresenhamLine(float p1, float p2, float q1, float q2);
 	
 	// Elias Function Implementation:
 	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color);
@@ -32,13 +32,13 @@ private:
 	// Elias Function Implementation:
 	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
 	// Itay Function Implementation:
-	void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, int k, const ImGuiIO& io);
+	void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io);
 	// Itay Function Implementation:
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2);
-	// Itay Function Implementation:
-	unsigned int getNorm(glm::vec3 v) {
-		return pow(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2), 1 / 2);
-	}
+
+	double Renderer::maxValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
+
+	double Renderer::minValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
 
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

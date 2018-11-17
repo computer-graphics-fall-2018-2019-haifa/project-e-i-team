@@ -186,7 +186,11 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 }
 
 
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int k, const ImGuiIO& io) {
+double Renderer::maxValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) {}
+
+double Renderer::minValue(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2) {}
+
+void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals,int k, const ImGuiIO& io) {
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
@@ -215,11 +219,22 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
 	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
 	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
+	glm::vec3 n0 = vNormals.at(0);
+	glm::vec4 nt0 = model->GetWorldTransformation()*glm::vec4(n0.x,n0.y,n0.z,1);
+	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
+	glm::vec3 n1 = vNormals.at(1);
+	glm::vec4 nt1 = model->GetWorldTransformation()*glm::vec4(n1.x, n1.y, n1.z, 1);
+	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
+	glm::vec3 n2 = vNormals.at(2);
+	glm::vec4 nt2 = model->GetWorldTransformation()*glm::vec4(n2.x, n2.y, n2.z, 1);
+	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 	
-	//if ((maxX(points) >= viewportWidth) || (minX(points) <= -viewportWidth)
-	//	|| (maxY(points) >= viewportHeight) || (minY(points) <= -viewportHeight)) {
-	//	return;
-	//}
+
+	// height = 720 & width = 1280 on my laptop constantly
+	if (maxValue(vect0.x, vect1.x, vect2.x) > (viewportWidth / 2) ||
+		minValue(vect0.x, vect1.x, vect2.x) < (-viewportWidth / 2) ||
+		maxValue(vect0.y, vect1.y, vect2.y) > (viewportHeight / 2) ||
+		minValue(vect0.y, vect1.y, vect2.y) < (-viewportHeight / 2))) {}
 
 	// it is at the valid scope:
 	glm::vec3 color = glm::vec3(0, 0, 0);
@@ -231,6 +246,12 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
 		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2);
 		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(230, 0, 0));
+	}
+
+	if (model->GetVertexNormalView()) {
+		DrawLine(vect0.x, n0.x, vect0.y, n0.y, glm::vec3(0, 230, 0));
+		DrawLine(vect1.x, n1.x, vect1.y, n1.y, glm::vec3(0, 230, 0));
+		DrawLine(vect2.x, n2.x, vect2.y, n2.y, glm::vec3(0, 230, 0));
 	}
 }
 
@@ -252,8 +273,9 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelfaces(k);
+			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				showMeshObject(scene, face, k,io);
+				showMeshObject(scene, face, vNormals,k,io);
 			}
 		}
 	}
