@@ -230,7 +230,7 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face,int 
 	if (model->GetFaceNormalView()) {
 		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
 		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2);
-		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(0, 0, 0));
+		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, glm::vec3(230, 0, 0));
 	}
 }
 
