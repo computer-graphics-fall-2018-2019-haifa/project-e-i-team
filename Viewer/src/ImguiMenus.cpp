@@ -95,18 +95,12 @@ void buildTransformationsWindow(Scene scene) {
 		const char* cameras = getCamerasNames(number_of_cameras);
 		if (ImGui::Button("Add camera")) {
 			number_of_cameras++;
-			//Camera c = Camera(glm::vec4(200,200,0,1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
-			//scene.AddCamera(c);
 		}
 
 		ImGui::Combo("Active Camera", &camera_current, cameras, IM_ARRAYSIZE(cameras));
 		static int Transform_type = 0;
 		ImGui::RadioButton("Perspective", &Transform_type, 0);
 		ImGui::RadioButton("Orthographic", &Transform_type, 1);
-		
-		/*static list<float> ffovy(1, 1.0f);
-		static list<float> fnear(1, 1.0f);
-		static list<float> ffar(1, 1.0f);*/
 		
 		static float ffovy = 1.0f;
 		static float fnear = 1.0f;

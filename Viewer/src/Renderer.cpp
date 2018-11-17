@@ -20,12 +20,9 @@ static float p1 = -50, q1 = 50;
 
 static float p2 = -50, q2 = -100;
 
-static glm::vec3 lastVect0;
-static glm::vec3 lastVect1;
-static glm::vec3 lastVect2;
-static glm::vec3 lastVn0;
-static glm::vec3 lastVn1;
-static glm::vec3 lastVn2;
+static glm::vec3 lastVect0, lastVect1, lastVect2;
+static glm::vec3 lastVn0, lastVn1, lastVn2;
+
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -270,11 +267,10 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 	
 
 	// height = 720 & width = 1280 on my laptop constantly
-	printf("max vect_x=%f\n", maxValue(vect0.x, vect1.x, vect2.x));
-	printf("min vect_x=%f\n", minValue(vect0.x, vect1.x, vect2.x));
-	printf("max vect_y=%f\n", maxValue(vect0.y, vect1.y, vect2.y));
-	printf("min vect_y=%f\n", minValue(vect0.y, vect1.y, vect2.y));
-	printf("\n");
+	cout << "max vect_x = " << maxValue(vect0.x, vect1.x, vect2.x) << endl
+	<< "min vect_x = " << minValue(vect0.x, vect1.x, vect2.x) << endl
+	<< "max vect_y = " << maxValue(vect0.y, vect1.y, vect2.y) << endl
+	<< "min vect_y = " << minValue(vect0.y, vect1.y, vect2.y) << endl;
 
 	if (maxValue(vect0.x, vect1.x, vect2.x) > (viewportWidth / 2) ||
 		minValue(vect0.x, vect1.x, vect2.x) < (-viewportWidth / 2) ||
@@ -282,14 +278,13 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 		minValue(vect0.y, vect1.y, vect2.y) < (-viewportHeight / 2)) {
 		return;
 	}
-	else {
-		lastVect0 = vect0;
-		lastVn0 = n0;
-		lastVect1 = vect1;
-		lastVn1 = n1;
-		lastVect2 = vect2;
-		lastVn2 = n2;
-	}
+	
+	lastVect0 = vect0;
+	lastVn0 = n0;
+	lastVect1 = vect1;
+	lastVn1 = n1;
+	lastVect2 = vect2;
+	lastVn2 = n2;
 
 	// it is at the valid scope:
 	glm::vec3 color = glm::vec3(0, 0, 0);
