@@ -38,8 +38,8 @@ private:
 	double Renderer::maxValue(double v0, double v1, double v2);
 	double Renderer::minValue(double v0, double v1, double v2);
 	bool Renderer::isBounderyExceeded(glm::vec3 v);
-	glm::vec3 normalizeNormal(glm::vec3 v, glm::vec3 n);
-	glm::vec4 normalizeNormal(glm::vec4 v, glm::vec4 n, float length = NORMAL_LENGTH);
+	glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length);
+	glm::vec4 Renderer::normalizeNormal(glm::vec4 v, glm::vec4 n, float length);
 	// Itay Function Implementations: END
 
 	GLuint glScreenTex;

@@ -233,8 +233,8 @@ double Renderer::minValue(double v0, double v1, double v2) {
 	return v1;
 }
 
-glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n) {
-	return NORMAL_LENGTH * glm::normalize(v + n) + v;
+glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length = NORMAL_LENGTH) {
+	return length*glm::normalize(v + n) + v;
 }
 
 glm::vec4 Renderer::normalizeNormal(glm::vec4 v,glm::vec4 n,float length = NORMAL_LENGTH) {
