@@ -84,7 +84,7 @@ const char* getCamerasNames(int length) {
 
 
 
-void buildTransformationsWindow(Scene scene) {
+void buildTransformationsWindow(Scene scene,int winWidth,int winHeight) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImGui::Text("Transformations window:");
 
@@ -121,11 +121,20 @@ void buildTransformationsWindow(Scene scene) {
 		glm::mat4x4 scaling = Trans::getScale4x4(fScale);
 		ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
 		glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
-		ImGui::SliderFloat("Translate By X", &fTranslatex, -100.0f, 100.0f);
+
+		float fscaleAsAxisFactor = fScale;
+		bool DECS = false;
+		if (fabs(fScale) < 1.0f) {
+			DECS = true;
+		}
+		if (DECS) {
+			fscaleAsAxisFactor = -fscaleAsAxisFactor;
+		}
+		ImGui::SliderFloat("Translate By X", &fTranslatex, (-winWidth/2) + fscaleAsAxisFactor/2, (winWidth/2) - fscaleAsAxisFactor)/2;
 		glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
 		ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
 		glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
-		ImGui::SliderFloat("Translate By Y", &fTranslatey, -100.0f, 100.0f);
+		ImGui::SliderFloat("Translate By Y", &fTranslatey, (-winHeight/2) + fscaleAsAxisFactor/2, (winHeight/2) - fscaleAsAxisFactor/2);
 		glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
 		ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
 		glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
@@ -150,7 +159,7 @@ void buildTransformationsWindow(Scene scene) {
 	ImGui::End();
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene){
+void DrawImguiMenus(ImGuiIO& io, Scene& scene,int winWidth,int winHeight){
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){
 		ImGui::ShowDemoWindow(&showDemoWindow);
@@ -270,6 +279,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 	// 3. Show transformations window.
 	if (showTransWindow){
 		// Itay's implementation:
-		buildTransformationsWindow(scene);
+		buildTransformationsWindow(scene,winWidth,winHeight);
 	}
 }
