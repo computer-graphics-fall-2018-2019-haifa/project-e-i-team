@@ -229,6 +229,15 @@ void buildAboutUsWindow() {
 }
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene){
+	static int grid_counter = 0;
+
+	if (grid_counter == 0) {
+		MeshModel k = Utils::LoadGridModel();
+		scene.AddModel(std::make_shared<MeshModel>(k));
+		grid_counter++;
+	}
+	
+
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){
 		ImGui::ShowDemoWindow(&showDemoWindow);
@@ -236,6 +245,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
+		
 		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
 
 		//ImGui::Text("This is some useful text.");						// Display some text (you can use a format strings too)

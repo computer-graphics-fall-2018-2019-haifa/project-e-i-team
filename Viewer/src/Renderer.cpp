@@ -304,6 +304,97 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 	}
 }
 
+
+void Renderer::showGridObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
+	int v0 = face->GetVertexIndex(0) - 1;
+	int v1 = face->GetVertexIndex(1) - 1;
+	int v2 = face->GetVertexIndex(2) - 1;
+	int v3 = face->GetVertexIndex(3) - 1;
+
+	// v0,v1,v2 => 1,13,4
+
+	float x0 = scene.getModelVertices(k, v0).x;
+	float y0 = scene.getModelVertices(k, v0).y;
+	float z0 = scene.getModelVertices(k, v0).z;
+	glm::vec4 vec0(x0, y0, z0, 1);
+	// => (x0,y0,zo)
+
+	float x1 = scene.getModelVertices(k, v1).x;
+	float y1 = scene.getModelVertices(k, v1).y;
+	float z1 = scene.getModelVertices(k, v1).z;
+	glm::vec4 vec1(x1, y1, z1, 1);
+	// => (x1,y1,z1)
+
+	float x2 = scene.getModelVertices(k, v2).x;
+	float y2 = scene.getModelVertices(k, v2).y;
+	float z2 = scene.getModelVertices(k, v2).z;
+	glm::vec4 vec2(x2, y2, z2, 1);
+	// => (x2,y2,z2)
+
+	float x3 = scene.getModelVertices(k, v3).x;
+	float y3 = scene.getModelVertices(k, v3).y;
+	float z3 = scene.getModelVertices(k, v3).z;
+	glm::vec4 vec3(x3, y3, z3, 1);
+	// => (x3,y3,z3)
+
+
+	// transform face as world transform view:
+	std::shared_ptr<MeshModel> model = scene.GetModel(k);
+	glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
+	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
+	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
+	glm::vec4 vect3 = model->GetWorldTransformation()*vec3;
+
+	float vNlength = model->GetVertexNormalLength();
+
+	// transform and normalize vertex normals:
+	glm::vec3 n0 = vNormals.at(0);
+	glm::vec4 nt0 = model->GetWorldTransformation()*glm::vec4(n0.x, n0.y, n0.z, 1);
+	// return the normal as length of length
+	nt0 = normalizeNormal(vect0, nt0, vNlength);
+	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
+
+	glm::vec3 n1 = vNormals.at(1);
+	glm::vec4 nt1 = model->GetWorldTransformation()*glm::vec4(n1.x, n1.y, n1.z, 1);
+	nt1 = normalizeNormal(vect1, nt1, vNlength);
+	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
+
+	glm::vec3 n2 = vNormals.at(2);
+	glm::vec4 nt2 = model->GetWorldTransformation()*glm::vec4(n2.x, n2.y, n2.z, 1);
+	nt2 = normalizeNormal(vect2, nt2, vNlength);
+	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
+
+	glm::vec3 n3 = vNormals.at(3);
+	glm::vec4 nt3 = model->GetWorldTransformation()*glm::vec4(n3.x, n3.y, n3.z, 1);
+	nt3 = normalizeNormal(vect3, nt3, vNlength);
+	n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
+
+	// determined already the values at "main" section => height = 720 & width = 1280
+
+	// draw the object as triangles collection:
+
+	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, BLACK_COLOR_LINE);
+	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
+	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, BLACK_COLOR_LINE);
+	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, BLACK_COLOR_LINE);
+
+	// up to the checkbox sign:
+	if (model->GetFaceNormalView()) {
+		float fVlength = model->GetFaceNormalLength();
+		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x + vect3.x) / 4, (vect0.y + vect1.y + vect2.y + vect3.y) / 4, (vect0.z + vect1.z + vect2.z + vect3.z) / 4);
+		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
+	}
+
+	if (model->GetVertexNormalView()) {
+		glm::vec4 vertexColor = model->GetVertexNormalColor();
+		DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
+		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
+		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
+	}
+}
+
+
 glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2,float fNlength) {
 	glm::vec3 u0 = vec1 - vec0;
 	glm::vec3 u1 = vec2 - vec0;
@@ -325,14 +416,19 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				showMeshObject(scene, face, vNormals,k,io);
+				if (scene.GetModel(k)->GetModelName() == "Grid") {
+					showGridObject(scene, face, vNormals, k, io);
+				}
+				else {
+					showMeshObject(scene, face, vNormals, k, io);
+				}
+				
 			}
 		}
 	}
 
-	// Draw X and Y axis lines:
-	DrawLine(-(viewportWidth/2), (viewportWidth / 2), 0, 0, glm::vec3(0, 0, 0));
-	DrawLine(0, 0, (viewportHeight / 2), -(viewportHeight / 2), glm::vec3(0, 0, 0));
+
+
 }
 
 //##############################
