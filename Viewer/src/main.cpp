@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
+	ImGui::CaptureKeyboardFromApp(true);
 
 	// Register a mouse scroll-wheel callback
 	glfwSetScrollCallback(window, ScrollCallback);
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
 		StartFrame();
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene, windowWidth, windowHeight);
+		DrawImguiMenus(io, scene);
 
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);

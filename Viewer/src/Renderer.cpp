@@ -14,11 +14,9 @@
 
 using namespace std;
 
-#define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
-#define NORMAL_LENGTH 80.0f
-#define VERTEX_NORMAL_COLOR glm::vec3(0, 150, 50)
-#define FACE_NORMAL_COLOR glm::vec3(150, 50, 0)
+#define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
 static float p1 = -50, q1 = 50;
 
@@ -189,14 +187,6 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
-
-bool Renderer::isBounderyExceeded(glm::vec3 v) {
-	if (v.x > 500 || v.x < -500 || v.y > 250 || v.y < -250) {
-		return true;
-	}
-	return false;
-}
-
 double Renderer::maxValue(double v0, double v1, double v2) {
 	if (v0 > v1) {
 		if (v0 > v2) {
@@ -233,11 +223,11 @@ double Renderer::minValue(double v0, double v1, double v2) {
 	return v1;
 }
 
-glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length = NORMAL_LENGTH) {
+glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length) {
 	return length*glm::normalize(v + n) + v;
 }
 
-glm::vec4 Renderer::normalizeNormal(glm::vec4 v,glm::vec4 n,float length = NORMAL_LENGTH) {
+glm::vec4 Renderer::normalizeNormal(glm::vec4 v,glm::vec4 n,float length) {
 	return length*glm::normalize(v + n) + v;
 }
 
@@ -272,50 +262,53 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
 	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
 
+	float vNlength = model->GetVertexNormalLength();
+
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);
 	glm::vec4 nt0 = model->GetWorldTransformation()*glm::vec4(n0.x,n0.y,n0.z,1);
 	// return the normal as length of length
-	nt0 = normalizeNormal(vect0,nt0);
+	nt0 = normalizeNormal(vect0,nt0, vNlength);
 	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
 
 	glm::vec3 n1 = vNormals.at(1);
 	glm::vec4 nt1 = model->GetWorldTransformation()*glm::vec4(n1.x, n1.y, n1.z, 1);
-	nt1 = normalizeNormal(vect1,nt1);
+	nt1 = normalizeNormal(vect1,nt1, vNlength);
 	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
 	
 	glm::vec3 n2 = vNormals.at(2);
 	glm::vec4 nt2 = model->GetWorldTransformation()*glm::vec4(n2.x, n2.y, n2.z, 1);
-	nt2 = normalizeNormal(vect2,nt2);
+	nt2 = normalizeNormal(vect2,nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 	
 	// determined already the values at "main" section => height = 720 & width = 1280
 
 	// draw the object as triangles collection:
-	glm::vec3 color = glm::vec3(0, 0, 0);
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, color);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, color);
-	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, color);
+	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, BLACK_COLOR_LINE);
+	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
+	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, BLACK_COLOR_LINE);
 
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
+		float fVlength = model->GetFaceNormalLength();
 		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
-		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2);
-		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, FACE_NORMAL_COLOR);
+		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
 	}
 
 	if (model->GetVertexNormalView()) {
-		DrawLine(vect0.x, n0.x, vect0.y, n0.y, VERTEX_NORMAL_COLOR);
-		DrawLine(vect1.x, n1.x, vect1.y, n1.y, VERTEX_NORMAL_COLOR);
-		DrawLine(vect2.x, n2.x, vect2.y, n2.y, VERTEX_NORMAL_COLOR);
+		glm::vec4 vertexColor = model->GetVertexNormalColor();
+		DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
+		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
+		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
 	}
 }
 
-glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2) {
+glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2,float fNlength) {
 	glm::vec3 u0 = vec1 - vec0;
 	glm::vec3 u1 = vec2 - vec0;
 	// return the normal as length of length
-	glm::vec3 v = normalizeNormal(basePoint,glm::cross(u0, u1));
+	glm::vec3 v = normalizeNormal(basePoint,glm::cross(u0, u1), fNlength);
 	return v;
 }
 

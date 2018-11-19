@@ -34,10 +34,9 @@ private:
 	
 	// Itay Function Implementations: START
 	void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io);
-	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2);
+	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	double Renderer::maxValue(double v0, double v1, double v2);
 	double Renderer::minValue(double v0, double v1, double v2);
-	bool Renderer::isBounderyExceeded(glm::vec3 v);
 	glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length);
 	glm::vec4 Renderer::normalizeNormal(glm::vec4 v, glm::vec4 n, float length);
 	// Itay Function Implementations: END
