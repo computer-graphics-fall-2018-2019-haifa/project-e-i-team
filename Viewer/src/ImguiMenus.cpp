@@ -17,41 +17,16 @@
 #include <list>
 #include <conio.h>
 
-#define NORMAL_LENGTH 20.0f
-#define VERTEX_NORMAL_COLOR glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
-#define FACE_NORMAL_COLOR glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
-
-#define MAX_SCALE_FACTOR 500.0f
-#define MIN_SCALE_FACTOR 50.0f
-#define SCALE_OBJ_FACTOR 1.0f
-
-#define MAX_TRANSLATION_LENGTH 10.f
-#define MIN_TRANSLATION_LENGTH -10.f
-
-// smooth moving:
-#define XTRANS_FACTOR 0.1f
-#define YTRANS_FACTOR 0.1f
-
-static float fScale = 80.0f, fRotatex = 0.0f, fRotatey = 0.0f, fRotatez = 0.0f;
-static float fTranslatex = 0.0f, fTranslatey = 0.0f, fTranslatez = 0.0f;
-
+static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
-bool showFaceNormals = false;
-bool showVertexNormals = false;
 bool showTransWindow = false;
 bool showDemoWindow = false;
-//bool showAnotherWindow = false;
 bool showSimpleWindow = true;
+
+//bool showAnotherWindow = false;
 //bool DL = false;
 //static int drawLineCounter = 0;
 //static bool DrawLine = false;
-
-glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
-glm::vec4 faceNColor = FACE_NORMAL_COLOR;
-glm::vec4 vertexNColor = VERTEX_NORMAL_COLOR;
-
-float fNlength = NORMAL_LENGTH;
-float vNlength = NORMAL_LENGTH;
 
 const glm::vec4& GetClearColor(){
 	return backgroundColor;
@@ -106,35 +81,35 @@ const char* getCamerasNames(int length) {
 }
 
 
-void handleKeyboardInputs() {
+void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
-		if(fScale < MAX_SCALE_FACTOR){
-			fScale += SCALE_OBJ_FACTOR;
+		if(model->fScale < MAX_SCALE_FACTOR){
+			model->fScale += SCALE_OBJ_FACTOR;
 		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown))){
-		if(fScale > MIN_SCALE_FACTOR){
-			fScale -= SCALE_OBJ_FACTOR;
+		if(model->fScale > MIN_SCALE_FACTOR){
+			model->fScale -= SCALE_OBJ_FACTOR;
 		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))){
-		if(fTranslatex > MIN_TRANSLATION_LENGTH){
-			fTranslatex -= XTRANS_FACTOR;
+		if (model->fTranslatex > MIN_TRANSLATION_LENGTH) {
+			model->fTranslatex -= XTRANS_FACTOR;
 		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))){
-		if(fTranslatex < MAX_TRANSLATION_LENGTH){
-			fTranslatex += XTRANS_FACTOR;
+		if(model->fTranslatex < MAX_TRANSLATION_LENGTH){
+			model->fTranslatex += XTRANS_FACTOR;
 		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
-		if(fTranslatey < MAX_TRANSLATION_LENGTH){
-			fTranslatey += YTRANS_FACTOR;
+		if(model->fTranslatey < MAX_TRANSLATION_LENGTH){
+			model->fTranslatey += YTRANS_FACTOR;
 		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))){
-		if(fTranslatey > MIN_TRANSLATION_LENGTH){
-			fTranslatey -= YTRANS_FACTOR;
+		if(model->fTranslatey > MIN_TRANSLATION_LENGTH){
+			model->fTranslatey -= YTRANS_FACTOR;
 		}
 	}
 }
@@ -172,38 +147,35 @@ void buildTransformationsWindow(ImGuiIO& io,Scene scene) {
 		ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
 		
-		// determine the parameters initialize if required from the user: [changing scale graph online]
-		handleKeyboardInputs();
-
-		ImGui::SliderFloat("Scale Object", &fScale, 1.0f, 150.0f);
-		glm::mat4x4 scaling = Trans::getScale4x4(fScale);
-		ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &fRotatex, -2.0f*M_PI, 2.0f*M_PI);
-		glm::mat4x4 xRotateMat = Trans::getxRotate4x4(fRotatex);
-		ImGui::SliderFloat("Translate By X", &fTranslatex, -10.0f, 10.0f);
-		glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatex, 0.0f);
-		ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &fRotatey, -2.0f*M_PI, 2.0f*M_PI);
-		glm::mat4x4 yRotateMat = Trans::getyRotate4x4(fRotatey);
-		ImGui::SliderFloat("Translate By Y", &fTranslatey, -10.0f, 10.0f);
-		glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, fTranslatey, 0.0f);
-		ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &fRotatez, -2.0f*M_PI, 2.0f*M_PI);
-		glm::mat4x4 zRotateMat = Trans::getzRotate4x4(fRotatez);
-		ImGui::SliderFloat("Translate By Z", &fTranslatez, -10.0f, 10.0f);
-		glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, fTranslatez);
-		ImGui::Checkbox("Show Face Normals", &showFaceNormals);
-		ImGui::ColorEdit3("Face Normal Color", (float*)&faceNColor);
-		ImGui::SliderFloat("Face Normal Length", &fNlength, 1.0f, 2*NORMAL_LENGTH);
-		ImGui::Checkbox("Show Vectex Normals", &showVertexNormals);
-		ImGui::ColorEdit3("Vertex Normal Color", (float*)&vertexNColor);
-		ImGui::SliderFloat("Vertex Normal Length", &vNlength, 1.0f, 2*NORMAL_LENGTH);
 		if (m != nullptr) {
-			m->SetFaceNormalLength(fNlength);
-			m->SetFaceNormalColor(faceNColor);
-			m->SetFaceNormalView(showFaceNormals);
-			m->SetVertexNormalLength(vNlength);
-			m->SetVertexNormalColor(vertexNColor);
-			m->SetVertexNormalView(showVertexNormals);
+			// determine the parameters initialize if required from the user: [changing scale graph online]
+			handleKeyboardInputs(m);
+			// each field is belonging to each mesh model object due to this issue, 
+			// we need them public and to referenced always the app is running:
+			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 150.0f);
+			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
+			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
+			ImGui::SliderFloat("Translate By X", &(m->fTranslatex), -10.0f, 10.0f);
+			glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatex, 0.0f);
+			ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &(m->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			glm::mat4x4 yRotateMat = Trans::getyRotate4x4(m->fRotatey);
+			ImGui::SliderFloat("Translate By Y", &(m->fTranslatey), -10.0f, 10.0f);
+			glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatey, 0.0f);
+			ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &(m->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			glm::mat4x4 zRotateMat = Trans::getzRotate4x4(m->fRotatez);
+			ImGui::SliderFloat("Translate By Z", &(m->fTranslatez), -10.0f, 10.0f);
+			glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, m->fTranslatez);
+			ImGui::Checkbox("Show Face Normals", &(m->showFaceNormals));
+			ImGui::ColorEdit3("Face Normal Color", (float*)&(m->fNcolor));
+			ImGui::SliderFloat("Face Normal Length", &(m->fNlength), 1.0f, 2*NORMAL_LENGTH);
+			ImGui::Checkbox("Show Vectex Normals", &(m->showVertexNormals));
+			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(m->vNcolor));
+			ImGui::SliderFloat("Vertex Normal Length", &(m->vNlength), 1.0f, 2*NORMAL_LENGTH);
+
+			// transformations to the space:
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-			glm::mat4x4 nextPosition = Trans::getTranslate4x4(fTranslatex, fTranslatey, fTranslatez);
+			glm::mat4x4 nextPosition = Trans::getTranslate4x4(m->fTranslatex, m->fTranslatey, m->fTranslatez);
 			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 		}
 	}

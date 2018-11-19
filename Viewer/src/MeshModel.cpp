@@ -14,10 +14,17 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	worldTransform(glm::mat4x4(1)),
 	showFaceNormals(false),
 	showVertexNormals(false),
-	fNcolor(glm::vec4(0.0f,0.0f,0.0f,0.0f)),
-	vNcolor(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)),
-	vNlength(20.0f),
-	fNlength(20.0f)
+	fNcolor(FACE_NORMAL_COLOR),
+	vNcolor(VERTEX_NORMAL_COLOR),
+	vNlength(NORMAL_LENGTH),
+	fNlength(NORMAL_LENGTH),
+	fScale(80.0f),
+	fRotatex(0.0f),
+	fRotatey(0.0f),
+	fRotatez(0.0f),
+	fTranslatex(0.0f),
+	fTranslatey(0.0f),
+	fTranslatez(0.0f)
 {
 
 }

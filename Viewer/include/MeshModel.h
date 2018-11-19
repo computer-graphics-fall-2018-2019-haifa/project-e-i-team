@@ -7,6 +7,22 @@
 
 using namespace std;
 
+static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
+static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
+
+#define NORMAL_LENGTH 20.0f
+
+#define MAX_SCALE_FACTOR 500.0f
+#define MIN_SCALE_FACTOR 50.0f
+#define SCALE_OBJ_FACTOR 1.0f
+
+#define MAX_TRANSLATION_LENGTH 10.f
+#define MIN_TRANSLATION_LENGTH -10.f
+
+// smooth moving:
+#define XTRANS_FACTOR 0.1f
+#define YTRANS_FACTOR 0.1f
+
 /*
  * MeshModel class.
  * This class represents a mesh model (with faces and normals informations).
@@ -21,14 +37,15 @@ private:
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
+public:
 	bool showFaceNormals;
 	bool showVertexNormals;
 	glm::vec4 fNcolor;
 	glm::vec4 vNcolor;
-	int fNlength;
-	int vNlength;
+	float fScale, fRotatex, fRotatey, fRotatez;
+	float fTranslatex, fTranslatey, fTranslatez;
+	float fNlength, vNlength;
 
-public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
 	virtual ~MeshModel();
 
