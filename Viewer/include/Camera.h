@@ -3,6 +3,15 @@
 #include <glm/glm.hpp>
 #include "MeshModel.h"
 
+#define MIN_FFOVY 0.0f
+#define MAX_FFOVY 3.142f
+
+#define MIN_FNEAR 1.0f
+#define MAX_FNEAR 10.0f
+
+#define MIN_FFAR 1.0f
+#define MAX_FFAR 10.0f
+
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  *
@@ -31,12 +40,12 @@ private:
 	glm::mat4x4 viewTransformation; // Mc
 	glm::mat4x4 projectionTransformation; // Mp
 	float zoom;
+
 public:
 	int transType;
 	float ffovy,fnear,ffar;
 	Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
-
 
 	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
 	float Camera::aucDistance(glm::vec4 vec);

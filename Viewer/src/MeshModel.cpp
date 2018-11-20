@@ -10,28 +10,13 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	modelName(modelName),
 	vertices(vertices),
 	faces(faces),
-	normals(normals),
-	worldTransform(glm::mat4x4(1)),
-	showFaceNormals(false),
-	showVertexNormals(false),
-	fNcolor(FACE_NORMAL_COLOR),
-	vNcolor(VERTEX_NORMAL_COLOR),
-	vNlength(NORMAL_LENGTH),
-	fNlength(NORMAL_LENGTH),
-	fScale(80.0f),
-	fRotatex(0.0f),
-	fRotatey(0.0f),
-	fRotatez(0.0f),
-	fTranslatex(0.0f),
-	fTranslatey(0.0f),
-	fTranslatez(0.0f)
+	normals(normals)
 {
-
+	resetModel();
 }
 
 MeshModel::~MeshModel()
 {
-
 }
 
 void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)

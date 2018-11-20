@@ -115,33 +115,32 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
-
+// it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
-	string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
+	//string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
 
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations window:");
 	if (ImGui::CollapsingHeader("Cameras")) {
-		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		if (ImGui::Button("Add camera")) {
-			(scene->activeCameraIndex)++;
+			scene->AddCamera();
 		}
+		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		// BUG: changing camera's index yielding reading RadioButton violation
-		ImGui::Combo("Active Camera", &(scene->current_active_camera), cameras, IM_ARRAYSIZE(cameras));
-		Camera* currentCam = scene->GetCamera(scene->current_active_camera);
-		ImGui::RadioButton("Perspective", &(currentCam->transType));
-		ImGui::RadioButton("Orthographic", &(currentCam->transType));
-		
-		ImGui::SliderFloat("Fovy", &(currentCam->ffovy), 0.0f, 3.142f);
-		ImGui::SliderFloat("Near", &(currentCam->fnear), 1.0f, 10.0f);
-		ImGui::SliderFloat("Far", &(currentCam->ffar), 1.0f, 10.0f);
+		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
+		Camera* currentCam = scene->GetCamera(scene->currentActiveCamera);
+		ImGui::RadioButton("Perspective", &(currentCam->transType),0);
+		ImGui::RadioButton("Orthographic", &(currentCam->transType),1);
+
+		ImGui::SliderFloat("Fovy", &(currentCam->ffovy),MIN_FFOVY, MAX_FFOVY);
+		ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
+		ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
 	}
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getLoadedModels(*scene);
-		static int modelIndex = 0;
-		ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
-		std::shared_ptr<MeshModel> m = scene->GetModel(modelIndex);
+		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
+		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
 		
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
@@ -196,30 +195,26 @@ void buildAboutUsWindow() {
 	ImGui::End();
 }
 
+void loadGrid(Scene& scene) {
+	MeshModel k = Utils::LoadGridModel();
+	scene.AddModel(std::make_shared<MeshModel>(k));
+	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, 0.0f, 0.0f);
+	scene.gridCounter++;
+}
+
 void DrawImguiMenus(ImGuiIO& io, Scene& scene){
-	static int grid_counter = 0;
-
-	if (grid_counter == 0) {
-		MeshModel k = Utils::LoadGridModel();
-		scene.AddModel(std::make_shared<MeshModel>(k));
-		grid_counter++;
-	}
-	
-
+	if (scene.gridCounter == 0) { loadGrid(scene); }
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (showDemoWindow){
-		ImGui::ShowDemoWindow(&showDemoWindow);
-	}
-
+	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
-		
 		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
-
+		
 		//ImGui::Text("This is some useful text.");						// Display some text (you can use a format strings too)
 		//ImGui::Checkbox("Demo Window", &showDemoWindow);				// Edit bools storing our window open/close state
 		//ImGui::Checkbox("Another Window", &showAnotherWindow);
-
+		
 		ImGui::Checkbox("Transformations Window", &showTransWindow);
 		ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 		
@@ -232,22 +227,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 		//}
 		
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
-
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
 
 	// Show transformations window:
-	if (showTransWindow) {
-		// Itay's implementation:
-		buildTransformationsWindow(io, &scene);
-	}
-
+	// Itay's implementation:
+	if (showTransWindow) { buildTransformationsWindow(io, &scene); }
 	// Show about us window:
-	if (showAboutUsWindow) {
-		// Itay's implementation:
-		buildAboutUsWindow();
-	}
+	if (showAboutUsWindow) { buildAboutUsWindow(); }
 
 	//if (DL){
 	//	ImGui::Begin("Draw Line:", &DL);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
@@ -277,8 +265,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 	//			//DL = false;
 	//		}
 	//	}
-
-
 
 	//	if (ImGui::Button("Cancel")){
 	//		DL = false;

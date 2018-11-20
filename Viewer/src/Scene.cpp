@@ -2,10 +2,9 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() : current_active_camera(0),activeCameraIndex(1),activeModelIndex(0)
+Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0)
 {
-	Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
-	cameras.push_back(c);
+	AddCamera();
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
@@ -18,13 +17,24 @@ const int Scene::GetModelCount() const
 	return models.size();
 }
 
-void Scene::AddCamera(const Camera& camera)
+void Scene::AddCamera()
 {
-	cout << activeCameraIndex << endl;
-	this->activeCameraIndex++;
-	cout << activeCameraIndex << endl;
+	//1.
+	//previous camera position, is that aim to be the correct form?!?
+	//Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
 
-	(this->cameras).push_back(camera);
+	//2.
+	//picking camera random position on space:
+	Camera c = Camera(glm::vec4(rand() % 201, rand() % 201, rand() % 201, 1),
+					  glm::vec4(rand() % 201, rand() % 201, rand() % 201, 1),
+					  glm::vec4(rand() % 201, rand() % 201, rand() % 201, 1));
+
+	//3.
+	//TODO: need to really adding new camera which is beloging to "Camera i" string at Cameras section
+	//all of this with out putting camera at the View side (transformations)! [part of the excercise]
+
+	cameras.push_back(c);
+	this->activeCameraIndex++;
 }
 
 const int Scene::GetCameraCount() const
@@ -45,7 +55,7 @@ Camera* Scene::GetCamera(int index) {
 	if (index  < 0 || index >= cameras.size()) {
 		return NULL;
 	}
-	return &(cameras[index]);
+	return &cameras[index];
 }
 
 const int Scene::GetActiveCameraIndex() const

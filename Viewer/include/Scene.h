@@ -17,15 +17,16 @@ private:
 	std::vector<std::shared_ptr<MeshModel>> models;
 	std::vector<Camera> cameras;
 public:
-	int current_active_camera;
+	int currentActiveCamera;
 	int activeCameraIndex;
 	int activeModelIndex;
+	int gridCounter;
 	Scene();
 
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
 
-	void AddCamera(const Camera& camera);
+	void AddCamera();
 	const int GetCameraCount() const;
 
 	Camera* GetCamera(int index);

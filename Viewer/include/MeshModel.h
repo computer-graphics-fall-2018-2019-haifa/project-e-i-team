@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define FSCALE_DEF 80.0f
+
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 
@@ -59,6 +61,27 @@ public:
 
 	std::vector<glm::vec3> GetNormals() {
 		return normals;
+	}
+
+	void resetModel(float fScaleDef = FSCALE_DEF,
+					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
+					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
+					float vertexNlength = NORMAL_LENGTH,
+					float faceNlength = NORMAL_LENGTH) {
+		worldTransform = glm::mat4x4(1);
+		showFaceNormals = false;
+		showVertexNormals = false;
+		fNcolor = fcolorDef;
+		vNcolor = vcolorDef;
+		vNlength = vertexNlength;
+		fNlength = faceNlength;
+		fScale = fScaleDef;
+		fRotatex = 0.0f;
+		fRotatey = 0.0f;
+		fRotatez = 0.0f;
+		fTranslatex = 0.0f;
+		fTranslatey = 0.0f;
+		fTranslatez = 0.0f;
 	}
 
 	//Elias emplementation:
