@@ -14,8 +14,22 @@
 class Camera
 {
 private:
-	glm::mat4x4 viewTransformation;
-	glm::mat4x4 projectionTransformation;
+	/*
+	Pseudo:
+	if Orthogonal:
+		M_projectionTransformation = SetOrthographicProjection()
+	if perspective:
+		M_projectionTransformation = SetPerspectiveProjection()
+	M_viewTransformation = SetCameraLookAt()
+	newVector = M_projectionTransformation*M_viewTransformation*M_worldTransform*vector
+	newVector -> newVector/newVector[w]
+	newVector = (x/w , y/w , z/w , 1)
+	remove z/w and 1
+	newVector = (x/w , y/w)
+	bresenham(x/w , y/w)
+	*/
+	glm::mat4x4 viewTransformation; // Mc
+	glm::mat4x4 projectionTransformation; // Mp
 	float zoom;
 
 public:
@@ -25,6 +39,7 @@ public:
 
 	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
 	float Camera::aucDistance(glm::vec4 vec);
+
 
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
