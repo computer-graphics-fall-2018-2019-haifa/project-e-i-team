@@ -16,6 +16,7 @@
 #include <iostream>
 #include <list>
 #include <conio.h>
+#include <string>
 
 #define NORMAL_LENGTH 20.0f
 #define VERTEX_NORMAL_COLOR glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
@@ -141,6 +142,8 @@ void handleKeyboardInputs() {
 
 
 void buildTransformationsWindow(ImGuiIO& io,Scene scene) {
+	string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
+
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations window:");
