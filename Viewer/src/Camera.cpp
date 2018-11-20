@@ -9,11 +9,12 @@
 
 //Elias emplementation:
 Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
-	zoom(1.0)
+	projectionTransformation(glm::mat4x4(1)),
+	zoom(1.0),
+	transType(0),
+	ffovy(1.0f), fnear(1.0f), ffar(1.0f)
 {
 	SetCameraLookAt(eye, at, up);
-	projectionTransformation = glm::mat4x4(1);
-	zoom = 1.0;
 }
 
 Camera::~Camera()

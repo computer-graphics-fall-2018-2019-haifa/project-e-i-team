@@ -2,10 +2,8 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene()
+Scene::Scene() : current_active_camera(0),activeCameraIndex(1),activeModelIndex(0)
 {
-	activeCameraIndex = 1;
-	activeModelIndex = 0;
 	Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
 	cameras.push_back(c);
 }
@@ -41,6 +39,13 @@ void Scene::SetActiveCameraIndex(int index)
 	{
 		activeCameraIndex = index;
 	}
+}
+
+Camera* Scene::GetCamera(int index) {
+	if (index  < 0 || index >= cameras.size()) {
+		return NULL;
+	}
+	return &(cameras[index]);
 }
 
 const int Scene::GetActiveCameraIndex() const

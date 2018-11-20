@@ -116,39 +116,32 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 }
 
 
-void buildTransformationsWindow(ImGuiIO& io,Scene scene) {
+void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 	string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
 
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations window:");
 	if (ImGui::CollapsingHeader("Cameras")) {
-		
-		static int camera_current = 0;
-		static int number_of_cameras = 1;
-		const char* cameras = getCamerasNames(number_of_cameras);
+		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		if (ImGui::Button("Add camera")) {
-			number_of_cameras++;
+			(scene->activeCameraIndex)++;
 		}
-
-		ImGui::Combo("Active Camera", &camera_current, cameras, IM_ARRAYSIZE(cameras));
-		static int Transform_type = 0;
-		ImGui::RadioButton("Perspective", &Transform_type, 0);
-		ImGui::RadioButton("Orthographic", &Transform_type, 1);
+		// BUG: changing camera's index yielding reading RadioButton violation
+		ImGui::Combo("Active Camera", &(scene->current_active_camera), cameras, IM_ARRAYSIZE(cameras));
+		Camera* currentCam = scene->GetCamera(scene->current_active_camera);
+		ImGui::RadioButton("Perspective", &(currentCam->transType));
+		ImGui::RadioButton("Orthographic", &(currentCam->transType));
 		
-		static float ffovy = 1.0f;
-		static float fnear = 1.0f;
-		static float ffar = 1.0f;
-
-		ImGui::SliderFloat("Fovy", &ffovy, 0.0f, 3.142f);
-		ImGui::SliderFloat("Near", &fnear, 1.0f, 10.0f);
-		ImGui::SliderFloat("Far", &ffar, 1.0f, 10.0f);
+		ImGui::SliderFloat("Fovy", &(currentCam->ffovy), 0.0f, 3.142f);
+		ImGui::SliderFloat("Near", &(currentCam->fnear), 1.0f, 10.0f);
+		ImGui::SliderFloat("Far", &(currentCam->ffar), 1.0f, 10.0f);
 	}
 	if (ImGui::CollapsingHeader("Models")) {
-		const char* items = getLoadedModels(scene);
+		const char* items = getLoadedModels(*scene);
 		static int modelIndex = 0;
 		ImGui::Combo("Model Name", &modelIndex, items, IM_ARRAYSIZE(items));
-		std::shared_ptr<MeshModel> m = scene.GetModel(modelIndex);
+		std::shared_ptr<MeshModel> m = scene->GetModel(modelIndex);
 		
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
@@ -247,7 +240,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 	// Show transformations window:
 	if (showTransWindow) {
 		// Itay's implementation:
-		buildTransformationsWindow(io, scene);
+		buildTransformationsWindow(io, &scene);
 	}
 
 	// Show about us window:
