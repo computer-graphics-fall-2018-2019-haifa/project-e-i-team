@@ -1,5 +1,10 @@
 #include "Face.h"
 
+Face::Face(std::vector<int> VIndex) {
+	vertexIndices = VIndex;
+}
+
+
 Face::Face(std::istream& issLine)
 {
 	vertexIndices =  { 0, 0, 0 };

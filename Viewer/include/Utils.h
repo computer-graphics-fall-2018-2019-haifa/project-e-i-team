@@ -13,7 +13,7 @@ public:
 	static glm::vec3 Vec3fFromStream(std::istream& issLine);
 	static glm::vec2 Vec2fFromStream(std::istream& issLine);
 	static MeshModel LoadMeshModel(const std::string& filePath);
-
+	static MeshModel Utils::LoadGridModel();
 	// Add here more static utility functions...
 	// For example:
 	//	1. function that gets an angle, and returns a rotation matrix around a certian axis

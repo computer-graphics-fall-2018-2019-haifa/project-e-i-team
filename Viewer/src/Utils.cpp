@@ -21,12 +21,49 @@ glm::vec2 Utils::Vec2fFromStream(std::istream& issLine)
 	return glm::vec2(x, y);
 }
 
+MeshModel Utils::LoadGridModel() {
+
+	std::vector<Face> grid_faces;
+	std::vector<glm::vec3> grid_vertices;
+
+	int counter = 0;
+	for (int y = -10; y < 10; y++) {
+		for (int x = -9; x < 11; x++) {
+
+			glm::vec3 v1 = glm::vec3(x - 1, y, 0);
+			glm::vec3 v2 = glm::vec3(x, y, 0);
+			glm::vec3 v3 = glm::vec3(x - 1, y + 1, 0);
+			glm::vec3 v4 = glm::vec3(x, y + 1, 0);
+
+			v1 *= 30;
+			v2 *= 30;
+			v3 *= 30;
+			v4 *= 30;
+
+
+			grid_vertices.push_back(v1);
+			grid_vertices.push_back(v2);
+			grid_vertices.push_back(v3);
+			grid_vertices.push_back(v4);
+
+			std::vector<int> vertexIndices = { 1 + counter  , 2 + counter ,3 + counter ,4 + counter };
+
+			grid_faces.push_back(vertexIndices);
+
+			counter += 4;
+		}
+	}
+	return MeshModel(grid_faces, grid_vertices, grid_vertices, "Grid");
+}
+
+
 MeshModel Utils::LoadMeshModel(const std::string& filePath)
 {
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::ifstream ifile(filePath.c_str());
+	
 
 	// while not end of file
 	while (!ifile.eof())

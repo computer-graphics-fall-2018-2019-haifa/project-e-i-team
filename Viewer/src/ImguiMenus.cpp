@@ -16,6 +16,7 @@
 #include <iostream>
 #include <list>
 #include <conio.h>
+#include <string>
 
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
@@ -116,6 +117,8 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 
 
 void buildTransformationsWindow(ImGuiIO& io,Scene scene) {
+	string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
+
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations window:");
@@ -201,6 +204,15 @@ void buildAboutUsWindow() {
 }
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene){
+	static int grid_counter = 0;
+
+	if (grid_counter == 0) {
+		MeshModel k = Utils::LoadGridModel();
+		scene.AddModel(std::make_shared<MeshModel>(k));
+		grid_counter++;
+	}
+	
+
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){
 		ImGui::ShowDemoWindow(&showDemoWindow);
@@ -208,6 +220,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
+		
 		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
 
 		//ImGui::Text("This is some useful text.");						// Display some text (you can use a format strings too)

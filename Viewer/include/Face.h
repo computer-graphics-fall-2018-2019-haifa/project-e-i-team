@@ -12,6 +12,7 @@ private:
 	std::vector<int> textureIndices;
 
 public:
+	Face(std::vector<int> VIndex);
 	Face(std::istream& issLine);
 	virtual ~Face();
 	const int Face::GetVertexIndex(int index);
