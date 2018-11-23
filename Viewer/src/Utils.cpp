@@ -4,8 +4,28 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+//#include <windows.h> 
 
 using namespace std;
+
+//#define PROJECT_NAME "project-e-i-team"
+//
+//string ExePath() {
+//	char buffer[MAX_PATH];
+//	GetModuleFileName(NULL, buffer, MAX_PATH);
+//	std::string projectName(PROJECT_NAME);
+//	string::size_type pos = string(buffer).find_last_of(std::string(projectName + "\\"));
+//	return string(buffer).substr(0, pos);
+//}
+//
+//std::string Utils::GetFilenamePath(std::string filename) {
+//	//TCHAR full_path[MAX_PATH];
+//	//GetFullPathName(filename.c_str(), MAX_PATH, full_path, NULL);
+//	return std::string(ExePath() + "Data\\" + filename);
+//}
+
+
+
 
 glm::vec3 Utils::Vec3fFromStream(std::istream& issLine)
 {

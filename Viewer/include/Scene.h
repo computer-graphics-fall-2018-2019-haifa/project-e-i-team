@@ -26,7 +26,8 @@ public:
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
 
-	void AddCamera();
+	void Scene::AddCamera(std::shared_ptr<MeshModel> model);
+
 	const int GetCameraCount() const;
 
 	Camera* GetCamera(int index);
@@ -45,6 +46,14 @@ public:
 	std::vector<glm::vec3> getModelNormals(int indexModel) const {
 		return models[indexModel]->GetNormals();
 	}
+
+	//std::vector<Face> getCamerafaces(int indexCamera) const {
+	//	return cameras.at(indexCamera).GetFaces();
+	//}
+
+	//std::vector<glm::vec3> getCameraNormals(int indexCamera) const {
+	//	return cameras.at(indexCamera).GetNormals();
+	//}
 
 	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
 		return models[indexModel]->GetVerticeByIndex(indexVertex);

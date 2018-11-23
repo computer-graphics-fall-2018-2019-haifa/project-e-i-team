@@ -10,6 +10,7 @@
 class Utils
 {
 public:
+	static std::string Utils::GetFilenamePath(std::string filename);
 	static glm::vec3 Vec3fFromStream(std::istream& issLine);
 	static glm::vec2 Vec2fFromStream(std::istream& issLine);
 	static MeshModel LoadMeshModel(const std::string& filePath);

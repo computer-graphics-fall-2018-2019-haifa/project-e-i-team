@@ -403,14 +403,8 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 	return v;
 }
 
-void Renderer::Render(const Scene& scene, const ImGuiIO& io)
-{
-	// Get mouse position:
-	p2 = io.MousePos.x - (viewportWidth/2);
-	q2 = (viewportHeight/2) - io.MousePos.y;
-
+void Renderer::showAllMeshModels(const Scene &scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
-
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::vector<Face> faces = scene.getModelfaces(k);
@@ -422,11 +416,45 @@ void Renderer::Render(const Scene& scene, const ImGuiIO& io)
 				else {
 					showMeshObject(scene, face, vNormals, k, io);
 				}
-				
+
 			}
 		}
 	}
 
+	int camerasCount = scene.GetCameraCount();
+	//Render All cameras in scene **Except the current camera!!!**
+	if (camerasCount > 0) {
+		for (int k = 0; k < camerasCount; k++) {
+			if (scene.activeCameraIndex != k) {
+				std::vector<Face> faces = scene.getModelfaces(k);
+				std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
+				for (auto face = faces.begin(); face != faces.end(); ++face) {
+					showMeshObject(scene, face, vNormals, k, io);
+				}
+
+			}
+			
+		}
+	}
+}
+
+void Renderer::Render(const Scene& scene, const ImGuiIO& io)
+{
+	// Get mouse position:
+	p2 = io.MousePos.x - (viewportWidth/2);
+	q2 = (viewportHeight/2) - io.MousePos.y;
+	
+	//Render All Models in scene
+	showAllMeshModels(scene,io);
+
+	//Each camera j  has:
+	//1. mc , mp -> we use them in case curr_camera == j
+	//2. Meshmodel -> we use it otherwise
+
+	//Update -- for each new transformation on the camera we update:
+	//1. mc , mp
+	//2. worldtransform
+	
 
 
 }

@@ -7,12 +7,12 @@
 #define PI 3.14159265
 
 
-//Elias emplementation:
-Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
+Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	projectionTransformation(glm::mat4x4(1)),
 	zoom(1.0),
 	transType(0),
-	ffovy(1.0f), fnear(1.0f), ffar(1.0f)
+	ffovy(1.0f), fnear(1.0f), ffar(1.0f),
+	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
 }
@@ -21,7 +21,7 @@ Camera::~Camera()
 {
 }
 
-//Elias emplementation:
+//Elias emplementation: // glm::cross(v0,v1)
 glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1) {
 	float x = vec0.x * (vec1.x + vec1.y + vec1.z + vec1.w);
 	float y = vec0.y * (vec1.x + vec1.y + vec1.z + vec1.w);

@@ -124,18 +124,35 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 	ImGui::TextColored(textColor,"Transformations window:");
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
-			scene->AddCamera();
+			string cameraName = "camera.obj";
+			//cout << "camera name = " << Utils::GetFilenamePath(cameraName) << endl;
+			std::shared_ptr<MeshModel> New_camera(&Utils::LoadMeshModel("C:\\Users\\user\\Documents\\GitHub\\project-e-i-team\\Data\\camera.obj"));
+			scene->AddCamera(New_camera);
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		// BUG: changing camera's index yielding reading RadioButton violation
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		Camera* currentCam = scene->GetCamera(scene->currentActiveCamera);
-		ImGui::RadioButton("Perspective", &(currentCam->transType),0);
-		ImGui::RadioButton("Orthographic", &(currentCam->transType),1);
+		float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
+		int transType = 0;
+		if (currentCam != NULL) {
+			transType = currentCam->transType;
+			ffovy_tmp = currentCam->ffovy;
+			fnear_tmp = currentCam->fnear;
+			ffar_tmp = currentCam->ffar;
+		}
+		ImGui::RadioButton("Perspective", &transType, 0);
+		ImGui::RadioButton("Orthographic", &transType, 1);
 
-		ImGui::SliderFloat("Fovy", &(currentCam->ffovy),MIN_FFOVY, MAX_FFOVY);
-		ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
-		ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
+		ImGui::SliderFloat("Fovy", &ffovy_tmp, MIN_FFOVY, MAX_FFOVY);
+		ImGui::SliderFloat("Near", &fnear_tmp, MIN_FNEAR, MAX_FNEAR);
+		ImGui::SliderFloat("Far", &ffar_tmp, MIN_FFAR, MAX_FFAR);
+		if (currentCam != NULL) {
+			currentCam->transType = transType;
+			currentCam->ffovy = ffovy_tmp;
+			currentCam->fnear = fnear_tmp;
+			currentCam->ffar = ffar_tmp;
+		}
 	}
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getLoadedModels(*scene);

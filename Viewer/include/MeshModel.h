@@ -48,8 +48,11 @@ public:
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
 
+	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
+	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
+
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;
@@ -59,8 +62,21 @@ public:
 
 	const std::string& GetModelName();
 
+
 	std::vector<glm::vec3> GetNormals() {
 		return normals;
+	}
+
+	std::vector<Face> GetFaces() {
+		return faces;
+	}
+
+	std::vector<glm::vec3> GetVertices() {
+		return vertices;
+	}
+
+	std::string GetmodelName() {
+		return modelName;
 	}
 
 	void resetModel(float fScaleDef = FSCALE_DEF,
@@ -88,10 +104,7 @@ public:
 	glm::vec3 GetVerticeByIndex(int index) {
 		return vertices[index];
 	}
-	//Elias emplementation:
-	std::vector<Face> GetFaces() {
-		return faces;
-	}
+	
 
 	void SetFaceNormalLength(float length) {
 		fNlength = length;
