@@ -18,9 +18,6 @@
 #include <conio.h>
 #include <string>
 
-#define MESH_MODEL_TYPE 0
-#define CAMERA_MODEL_TYPE 1
-
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
 bool showTransWindow = false;
@@ -47,17 +44,21 @@ const char* getModelNames(Scene* scene,int modelType=MESH_MODEL_TYPE) {
 		char* empty = new char[1]{ '\0' };
 		return empty;
 	}
-	std::string cStr;
+	std::string cStr = "";
 	for (size_t i = 0; i < length; i++) {
 		if (modelType == MESH_MODEL_TYPE) {
 			std::string modelName = scene->GetModel(i)->GetModelName();
-			cStr = cStr + modelName + '\0';
+			cStr += modelName;
+			cStr += '\0';
 		} else { /* CAMERA_MODEL_TYPE */
 			std::string cam(scene->GetCamera(i)->GetModelName());
-			cStr = cStr + cam.substr(0, cam.length() - sizeof(".obj") + 1) + std::string(" " + i + '\0');
+			cStr += cam.substr(0, cam.length() - sizeof(".obj") + 1);
+			cStr += " ";
+			cStr += i;
+			cStr += '\0';
 		}
 	}
-	cStr = cStr + '\0';
+	cStr += '\0';
 	int listLength = cStr.length();
 	char* comboList = new char[listLength];
 	if (listLength == 1) { comboList[0] = cStr.at(0); }
@@ -111,7 +112,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 			MeshModel New_camera = Utils::LoadMeshModel(path);
 			scene->AddCamera(&New_camera);
 		}
-		const char* cameras = getModelNames(scene);
+		const char* cameras = getModelNames(scene,CAMERA_MODEL_TYPE);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		Camera* currentCam = scene->GetCamera(scene->currentActiveCamera);
 		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;

@@ -42,7 +42,7 @@ private:
 	double Renderer::minValue(double v0, double v1, double v2);
 	glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length);
 	glm::vec4 Renderer::normalizeNormal(glm::vec4 v, glm::vec4 n, float length);
-	void Renderer::showAllMeshModels(const Scene &scene, const ImGuiIO& io);
+	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
 	// Itay Function Implementations: END
 
 	GLuint glScreenTex;
@@ -55,7 +55,7 @@ public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
 
-	void Render(const Scene& scene, const ImGuiIO& io);
+	void Render(Scene& scene, const ImGuiIO& io);
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);

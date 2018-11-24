@@ -7,6 +7,9 @@
 
 using namespace std;
 
+#define MESH_MODEL_TYPE 0
+#define CAMERA_MODEL_TYPE 1
+
 #define FSCALE_DEF 80.0f
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);

@@ -47,6 +47,14 @@ public:
 		return models[indexModel]->GetNormals();
 	}
 
+	std::vector<Face> getCamerafaces(int indexModel) {
+		return cameras.at(indexModel).GetFaces();
+	}
+
+	std::vector<glm::vec3> getCameraNormals(int indexModel) {
+		return cameras.at(indexModel).GetNormals();
+	}
+
 	//std::vector<Face> getCamerafaces(int indexCamera) const {
 	//	return cameras.at(indexCamera).GetFaces();
 	//}

@@ -8,6 +8,7 @@
 
 
 Camera::Camera(MeshModel* model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
+	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	zoom(1.0),
 	transType(0),

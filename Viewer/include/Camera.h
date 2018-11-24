@@ -50,6 +50,7 @@ public:
 	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
 	float Camera::aucDistance(glm::vec4 vec);
 
+
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
 	void SetOrthographicProjection(
@@ -63,6 +64,11 @@ public:
 		const float aspect,
 		const float near,
 		const float far);
+
+
+	glm::mat4x4 Getview() { return viewTransformation; }
+
+	glm::mat4x4 GetProjection() { return projectionTransformation;  }
 
 	void SetZoom(const float zoom);
 
