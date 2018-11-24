@@ -15,7 +15,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	resetModel();
 }
 
-MeshModel::MeshModel(std::shared_ptr<MeshModel> model) :
+MeshModel::MeshModel(MeshModel* model) :
 	modelName(model->GetModelName()),
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
@@ -46,9 +46,4 @@ void MeshModel::SetColor(const glm::vec4& color)
 const glm::vec4& MeshModel::GetColor() const
 {
 	return color;
-}
-
-const std::string& MeshModel::GetModelName()
-{
-	return modelName;
 }

@@ -50,7 +50,7 @@ public:
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
-	MeshModel(std::shared_ptr<MeshModel> model);
+	MeshModel(MeshModel* model);
 	virtual ~MeshModel();
 
 
@@ -59,9 +59,6 @@ public:
 
 	const glm::vec4& GetColor() const;
 	void SetColor(const glm::vec4& color);
-
-	const std::string& GetModelName();
-
 
 	std::vector<glm::vec3> GetNormals() {
 		return normals;
@@ -75,7 +72,7 @@ public:
 		return vertices;
 	}
 
-	std::string GetmodelName() {
+	std::string GetModelName() {
 		return modelName;
 	}
 

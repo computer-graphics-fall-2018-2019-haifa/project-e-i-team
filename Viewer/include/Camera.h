@@ -20,7 +20,7 @@
  * Make the Camera class be a subclass of MeshModel, so you can easily and elegantly render 
  * the cameras you have added to the scene.
  */
-class Camera : MeshModel
+class Camera : public MeshModel
 {
 private:
 	/*
@@ -44,7 +44,7 @@ private:
 public:
 	int transType;
 	float ffovy,fnear,ffar;
-	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
+	Camera(MeshModel* model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
 
 	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);

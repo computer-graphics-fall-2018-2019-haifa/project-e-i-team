@@ -29,7 +29,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 	
-	// Handle mouse scrolling here...
+	//TODO: Handle mouse scrolling here... [for cameras zoomin and zoomout functionality]
 }
 
 int main(int argc, char **argv)

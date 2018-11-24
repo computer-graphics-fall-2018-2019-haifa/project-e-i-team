@@ -18,6 +18,9 @@
 #include <conio.h>
 #include <string>
 
+#define MESH_MODEL_TYPE 0
+#define CAMERA_MODEL_TYPE 1
+
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
 bool showTransWindow = false;
@@ -33,18 +36,28 @@ const glm::vec4& GetClearColor(){
 	return backgroundColor;
 }
 
-const char* getLoadedModels(Scene scene) {
-	int length = scene.GetModelCount();
+const char* getModelNames(Scene* scene,int modelType=MESH_MODEL_TYPE) {
+	int length = 0;
+	if (modelType == MESH_MODEL_TYPE) {
+		length = scene->GetModelCount();
+	} else { /* CAMERA_MODEL_TYPE */
+		length = scene->GetCameraCount();
+	}
 	if (length == 0) {
-		char* empty = new char[1]{'\0'};
+		char* empty = new char[1]{ '\0' };
 		return empty;
 	}
-	string cStr = "";
+	std::string cStr;
 	for (size_t i = 0; i < length; i++) {
-		cStr += scene.GetModel(i)->GetModelName();
-		cStr += '\0';
+		if (modelType == MESH_MODEL_TYPE) {
+			std::string modelName = scene->GetModel(i)->GetModelName();
+			cStr = cStr + modelName + '\0';
+		} else { /* CAMERA_MODEL_TYPE */
+			std::string cam(scene->GetCamera(i)->GetModelName());
+			cStr = cStr + cam.substr(0, cam.length() - sizeof(".obj") + 1) + std::string(" " + i + '\0');
+		}
 	}
-	cStr += '\0';
+	cStr = cStr + '\0';
 	int listLength = cStr.length();
 	char* comboList = new char[listLength];
 	if (listLength == 1) { comboList[0] = cStr.at(0); }
@@ -53,34 +66,6 @@ const char* getLoadedModels(Scene scene) {
 	}
 	return comboList;
 }
-
-
-
-//Elias emplementation:
-const char* getCamerasNames(int length) {
-	string cStr = "";
-	for (size_t i = 0; i < length; i++) {
-
-		cStr += "Camera ";
-		if (i < 10) {
-			cStr += '0' + i;
-		}
-		else {
-			cStr += '0' + int(i / 10);
-			cStr += '0' + int(i % 10);
-		}
-		cStr += '\0';
-	}
-	cStr += '\0';
-	int listLength = cStr.length();
-
-	char* comboList = new char[listLength];
-	for (size_t i = 0; i < listLength; i++) {
-		comboList[i] = cStr.at(i);
-	}
-	return comboList;
-}
-
 
 void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
@@ -117,24 +102,20 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 
 // it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
-	//string path_camera = "C:\\Users\\user\\Documents\\GitHub\\project - e - i - team\\Data\\camera.obj";
-
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	ImGui::TextColored(textColor,"Transformations window:");
+	ImGui::TextColored(textColor,"Transformations Window:");
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
-			string cameraName = "camera.obj";
-			//cout << "camera name = " << Utils::GetFilenamePath(cameraName) << endl;
-			std::shared_ptr<MeshModel> New_camera(&Utils::LoadMeshModel("C:\\Users\\user\\Documents\\GitHub\\project-e-i-team\\Data\\camera.obj"));
-			scene->AddCamera(New_camera);
+			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
+			MeshModel New_camera = Utils::LoadMeshModel(path);
+			scene->AddCamera(&New_camera);
 		}
-		const char* cameras = getCamerasNames(scene->activeCameraIndex);
-		// BUG: changing camera's index yielding reading RadioButton violation
+		const char* cameras = getModelNames(scene);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		Camera* currentCam = scene->GetCamera(scene->currentActiveCamera);
-		float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
-		int transType = 0;
+		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
+		static int transType = 0;
 		if (currentCam != NULL) {
 			transType = currentCam->transType;
 			ffovy_tmp = currentCam->ffovy;
@@ -143,7 +124,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 		}
 		ImGui::RadioButton("Perspective", &transType, 0);
 		ImGui::RadioButton("Orthographic", &transType, 1);
-
+		
 		ImGui::SliderFloat("Fovy", &ffovy_tmp, MIN_FFOVY, MAX_FFOVY);
 		ImGui::SliderFloat("Near", &fnear_tmp, MIN_FNEAR, MAX_FNEAR);
 		ImGui::SliderFloat("Far", &ffar_tmp, MIN_FFAR, MAX_FFAR);
@@ -154,8 +135,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 			currentCam->ffar = ffar_tmp;
 		}
 	}
-	if (ImGui::CollapsingHeader("Models")) {
-		const char* items = getLoadedModels(*scene);
+	if (ImGui::CollapsingHeader("Viewers")) {
+		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
 		

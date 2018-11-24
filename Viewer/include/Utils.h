@@ -2,6 +2,12 @@
 #include <glm/glm.hpp>
 #include <string>
 #include "MeshModel.h"
+#include <direct.h>
+#include <windows.h>
+
+#define PROJECT_NAME "project-e-i-team"
+
+#define Get_Root_Project_Dir(X) std::string(_getcwd(NULL, 0)).substr(0, std::string(_getcwd(NULL, 0)).find(PROJECT_NAME) + sizeof(PROJECT_NAME)) + X;
 
 /*
  * Utils class.
@@ -10,7 +16,7 @@
 class Utils
 {
 public:
-	static std::string Utils::GetFilenamePath(std::string filename);
+	static std::string Utils::GetRootProjectDir();
 	static glm::vec3 Vec3fFromStream(std::istream& issLine);
 	static glm::vec2 Vec2fFromStream(std::istream& issLine);
 	static MeshModel LoadMeshModel(const std::string& filePath);

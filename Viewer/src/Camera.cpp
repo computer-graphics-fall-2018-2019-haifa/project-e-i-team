@@ -7,7 +7,7 @@
 #define PI 3.14159265
 
 
-Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
+Camera::Camera(MeshModel* model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	projectionTransformation(glm::mat4x4(1)),
 	zoom(1.0),
 	transType(0),
