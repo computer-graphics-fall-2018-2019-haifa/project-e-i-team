@@ -24,11 +24,6 @@ bool showTransWindow = false;
 bool showDemoWindow = false;
 bool showSimpleWindow = true;
 
-//bool showAnotherWindow = false;
-//bool DL = false;
-//static int drawLineCounter = 0;
-//static bool DrawLine = false;
-
 const glm::vec4& GetClearColor(){
 	return backgroundColor;
 }
@@ -125,8 +120,21 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
+void handleZoomByYscrolling(float* fScale,int y_scroll_offset) {
+	if (y_scroll_offset > 1) {
+		for (int i = 0; i < y_scroll_offset; i++) {
+			*fScale += SCALE_OBJ_FACTOR;
+		}
+	}
+	else if (y_scroll_offset < -1) {
+		for (int i = 0; i < y_scroll_offset; i++) {
+			*fScale -= SCALE_OBJ_FACTOR;
+		}
+	}
+}
+
 // it is important to use public variable for lite reading and writing values from object's fields
-void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
+void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations Window:");
@@ -142,6 +150,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
 		static int transType = 0;
 		if (currentCam != NULL) {
+			//float yoffset = y_scroll_offset;
+			//glm::vec3 eye = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
+			//glm::vec3 at = glm::vec3(0,0,0);
+			//glm::vec3 up = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
+			//currentCam->SetCameraLookAt(eye,at,up);
 			transType = currentCam->transType;
 			ffovy_tmp = currentCam->ffovy;
 			fnear_tmp = currentCam->fnear;
@@ -169,31 +182,35 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 			handleKeyboardInputs(m);
 			// each field is belonging to each mesh model object due to this issue, 
 			// we need them public and to referenced always the app is running:
-			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 150.0f);
+
+			// as response to y scrolling value we control the zoom in and zoom out world models:
+			handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
+
+			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 1000.0f);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
-			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
-			ImGui::SliderFloat("Translate By X", &(m->fTranslatex), -10.0f, 10.0f);
+			ImGui::SliderFloat("Translate By X", &(m->fTranslatex), -1000.0f, 1000.0f);
 			glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatex, 0.0f);
-			ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &(m->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &(m->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 yRotateMat = Trans::getyRotate4x4(m->fRotatey);
-			ImGui::SliderFloat("Translate By Y", &(m->fTranslatey), -10.0f, 10.0f);
+			ImGui::SliderFloat("Translate By Y", &(m->fTranslatey), -1000.0f, 1000.0f);
 			glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatey, 0.0f);
-			ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &(m->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &(m->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 zRotateMat = Trans::getzRotate4x4(m->fRotatez);
-			ImGui::SliderFloat("Translate By Z", &(m->fTranslatez), -10.0f, 10.0f);
+			ImGui::SliderFloat("Translate By Z", &(m->fTranslatez), -1000.0f, 1000.0f);
 			glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, m->fTranslatez);
 			ImGui::Checkbox("Show Face Normals", &(m->showFaceNormals));
 			ImGui::ColorEdit3("Face Normal Color", (float*)&(m->fNcolor));
-			ImGui::SliderFloat("Face Normal Length", &(m->fNlength), 1.0f, 2*NORMAL_LENGTH);
+			ImGui::SliderFloat("Face Normal Length", &(m->fNlength), 1.0f, 4*NORMAL_LENGTH);
 			ImGui::Checkbox("Show Vectex Normals", &(m->showVertexNormals));
 			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(m->vNcolor));
-			ImGui::SliderFloat("Vertex Normal Length", &(m->vNlength), 1.0f, 2*NORMAL_LENGTH);
+			ImGui::SliderFloat("Vertex Normal Length", &(m->vNlength), 1.0f, 4*NORMAL_LENGTH);
 
 			// transformations to the space:
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 			glm::mat4x4 nextPosition = Trans::getTranslate4x4(m->fTranslatex, m->fTranslatey, m->fTranslatez);
-			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
+			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition); //TODO: scaling matrix doesn't effect!!!
 		}
 	}
 
@@ -225,29 +242,15 @@ void loadGrid(Scene& scene) {
 	scene.gridCounter++;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene){
+void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 	if (scene.gridCounter == 0) { loadGrid(scene); }
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
 		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
-		
-		//ImGui::Text("This is some useful text.");						// Display some text (you can use a format strings too)
-		//ImGui::Checkbox("Demo Window", &showDemoWindow);				// Edit bools storing our window open/close state
-		//ImGui::Checkbox("Another Window", &showAnotherWindow);
-		
 		ImGui::Checkbox("Transformations Window", &showTransWindow);
 		ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
-		
-		//if (ImGui::Button("Draw Line")) {
-		//	DrawLine = true;
-		//	showDemoWindow = false;
-		//	showAnotherWindow = false;
-		//	showSimpleWindow = false;
-		//	DL = true;
-		//}
-		
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
@@ -255,56 +258,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene){
 
 	// Show transformations window:
 	// Itay's implementation:
-	if (showTransWindow) { buildTransformationsWindow(io, &scene); }
+	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset); }
 	// Show about us window:
 	if (showAboutUsWindow) { buildAboutUsWindow(); }
-
-	//if (DL){
-	//	ImGui::Begin("Draw Line:", &DL);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-	//	ImGui::Text("Point1:");
-	//	float p1, q1, p2, q2;
-	//	if (DrawLine == true) {
-	//		ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y);
-	//		if (ImGui::IsMouseClicked(0) && drawLineCounter == 0){
-	//			p1 = io.MousePos.x;
-	//			q1 = io.MousePos.y;
-	//			printf("point1: (%f, %f)\n", io.MousePos.x, io.MousePos.y);
-	//			drawLineCounter++;
-	//		}
-	//		else if (ImGui::IsMouseClicked(0) && drawLineCounter == 1){
-	//			p2 = io.MousePos.x;
-	//			q2 = io.MousePos.y;
-	//			printf("point2: (%f, %f)\n", io.MousePos.x, io.MousePos.y);
-	//			drawLineCounter++;
-	//		}
-	//		if (drawLineCounter == 1) {
-	//			ImGui::Text("point1: (%g, %g)\n", io.MousePos.x, io.MousePos.y);
-	//		}
-	//		if (drawLineCounter == 2) {
-	//			drawLineCounter = 0;
-	//			DrawLine = false;
-	//			showSimpleWindow = true;
-	//			//DL = false;
-	//		}
-	//	}
-
-	//	if (ImGui::Button("Cancel")){
-	//		DL = false;
-	//	}
-	//	ImGui::End();
-	//}
-
-	// Show another simple window:
-	//if (showAnotherWindow)
-	//{
-	//	ImGui::Begin("Another Window", &showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-	//	ImGui::Text("Hello from another window!");
-	//	if (ImGui::Button("Dismiss"))
-	//	{
-	//		showAnotherWindow = false;
-	//	}
-	//	ImGui::End();
-	//}
 
 	// Demonstrate creating a fullscreen menu bar and populating it:
 	{
