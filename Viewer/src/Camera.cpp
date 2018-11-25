@@ -37,19 +37,24 @@ glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1) {
 //Elias emplementation:
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
-	glm::vec3 n = glm::normalize(eye - at);
-	glm::vec3 u = glm::normalize(glm::cross(up,n));
-	glm::vec3 v = glm::normalize(glm::cross(n,u));
-	
-	glm::vec4 n4(n.x, n.y, n.z, 1);
+	glm::vec3 z = glm::normalize(eye - at);
+	glm::vec3 x = glm::normalize(glm::cross(up,z));
+	glm::vec3 y = glm::normalize(glm::cross(z,x));
+	glm::mat4 mat(1);
+	mat[0][0] = x.x; mat[0][1] = y.x; mat[0][2] = z.x; mat[3][0] = glm::dot(x, eye);
+	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; mat[3][1] = glm::dot(y, eye);
+	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
+
+	/*glm::vec4 n4(n.x, n.y, n.z, 1);
 	glm::vec4 u4(u.x, u.y, u.z, 1);
 	glm::vec4 v4(v.x, v.y, v.z, 1);
 
 	glm::vec4 t = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	glm::mat4 c = glm::mat4(u4, v4, n4, t);
-
 	glm::mat4x4 translation = Trans::getTranslate4x4(-eye.x, -eye.y, -eye.z);
 	viewTransformation = c*translation;
+	*/
+	viewTransformation = mat;
 }
 
 
