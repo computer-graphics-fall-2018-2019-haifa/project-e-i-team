@@ -16,7 +16,7 @@ const int Scene::GetModelCount() const
 	return models.size();
 }
 
-void Scene::AddCamera(MeshModel* model)
+void Scene::AddCamera(std::shared_ptr<MeshModel> model)
 {	
 	//1.
 	//previous camera position, is that aim to be the correct form?!?
@@ -24,7 +24,9 @@ void Scene::AddCamera(MeshModel* model)
 
 	//2.
 	//picking camera random position on space:
-	cameras.push_back(Camera(model, glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1)));
+	Camera c(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
+
+	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
 
 	//3.
@@ -46,11 +48,11 @@ void Scene::SetActiveCameraIndex(int index)
 	}
 }
 
-Camera* Scene::GetCamera(int index) {
+std::shared_ptr<Camera> Scene::GetCamera(int index) {
 	if (index  < 0 || index >= cameras.size()) {
 		return NULL;
 	}
-	return &cameras[index];
+	return cameras[index];
 }
 
 const int Scene::GetActiveCameraIndex() const

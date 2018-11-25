@@ -68,6 +68,30 @@ const char* getModelNames(Scene* scene,int modelType=MESH_MODEL_TYPE) {
 	return comboList;
 }
 
+const char* getCamerasNames(int length) {
+	string cStr = "";
+	for (size_t i = 0; i < length; i++) {
+
+		cStr += "Camera ";
+		if (i < 10) {
+			cStr += '0' + i;
+		}
+		else {
+			cStr += '0' + int(i / 10);
+			cStr += '0' + int(i % 10);
+		}
+		cStr += '\0';
+	}
+	cStr += '\0';
+	int listLength = cStr.length();
+
+	char* comboList = new char[listLength];
+	for (size_t i = 0; i < listLength; i++) {
+		comboList[i] = cStr.at(i);
+	}
+	return comboList;
+}
+
 void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
 		if(model->fScale < MAX_SCALE_FACTOR){
@@ -109,12 +133,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-			MeshModel New_camera = Utils::LoadMeshModel(path);
-			scene->AddCamera(&New_camera);
+			cout << "camera path = " << path << endl;
+			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)));
 		}
-		const char* cameras = getModelNames(scene,CAMERA_MODEL_TYPE);
+		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
-		Camera* currentCam = scene->GetCamera(scene->currentActiveCamera);
+		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
 		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
 		static int transType = 0;
 		if (currentCam != NULL) {
@@ -125,7 +149,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene) {
 		}
 		ImGui::RadioButton("Perspective", &transType, 0);
 		ImGui::RadioButton("Orthographic", &transType, 1);
-		
 		ImGui::SliderFloat("Fovy", &ffovy_tmp, MIN_FFOVY, MAX_FFOVY);
 		ImGui::SliderFloat("Near", &fnear_tmp, MIN_FNEAR, MAX_FNEAR);
 		ImGui::SliderFloat("Far", &ffar_tmp, MIN_FFAR, MAX_FFAR);

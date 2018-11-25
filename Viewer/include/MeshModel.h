@@ -53,7 +53,7 @@ public:
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
-	MeshModel(MeshModel* model);
+	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
 

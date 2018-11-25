@@ -36,12 +36,10 @@ private:
 	
 	
 	// Itay Function Implementations: START
-	void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io);
+	void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io, bool isCameraModel=false);
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	double Renderer::maxValue(double v0, double v1, double v2);
 	double Renderer::minValue(double v0, double v1, double v2);
-	glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length);
-	glm::vec4 Renderer::normalizeNormal(glm::vec4 v, glm::vec4 n, float length);
 	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
 	// Itay Function Implementations: END
 
@@ -52,6 +50,14 @@ private:
 	void initOpenGLRendering();
 
 public:
+	static glm::vec3 Renderer::normalizeVector(glm::vec3 v, glm::vec3 n, float length) {
+		return length * glm::normalize(v + n) + v;
+	}
+
+	static glm::vec4 Renderer::normalizeVector(glm::vec4 v, glm::vec4 n, float length) {
+		return length * glm::normalize(v + n) + v;
+
+	}
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
 

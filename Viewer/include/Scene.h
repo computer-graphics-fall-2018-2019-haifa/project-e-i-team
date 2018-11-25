@@ -15,7 +15,7 @@
 class Scene {
 private:
 	std::vector<std::shared_ptr<MeshModel>> models;
-	std::vector<Camera> cameras;
+	std::vector< std::shared_ptr<Camera>> cameras;
 public:
 	int currentActiveCamera;
 	int activeCameraIndex;
@@ -26,11 +26,11 @@ public:
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
 
-	void Scene::AddCamera(MeshModel* model);
+	void Scene::AddCamera(std::shared_ptr<MeshModel> model);
 
 	const int GetCameraCount() const;
 
-	Camera* GetCamera(int index);
+	std::shared_ptr<Camera> GetCamera(int index);
 
 	void SetActiveCameraIndex(int index);
 	const int GetActiveCameraIndex() const;
@@ -48,20 +48,16 @@ public:
 	}
 
 	std::vector<Face> getCamerafaces(int indexModel) {
-		return cameras.at(indexModel).GetFaces();
+		return cameras.at(indexModel)->GetFaces();
 	}
 
 	std::vector<glm::vec3> getCameraNormals(int indexModel) {
-		return cameras.at(indexModel).GetNormals();
+		return cameras.at(indexModel)->GetNormals();
 	}
 
-	//std::vector<Face> getCamerafaces(int indexCamera) const {
-	//	return cameras.at(indexCamera).GetFaces();
-	//}
-
-	//std::vector<glm::vec3> getCameraNormals(int indexCamera) const {
-	//	return cameras.at(indexCamera).GetNormals();
-	//}
+	glm::vec3 getCameraVertices(int indexModel, int indexVertex) {
+		return cameras.at(indexModel)->GetVerticeByIndex(indexVertex);
+	}
 
 	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
 		return models[indexModel]->GetVerticeByIndex(indexVertex);

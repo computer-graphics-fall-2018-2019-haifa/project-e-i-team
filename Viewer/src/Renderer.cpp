@@ -14,13 +14,13 @@
 
 using namespace std;
 
+
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
-static float p1 = -50, q1 = 50;
-
-static float p2 = -50, q2 = -100;
+//static float p1 = -50, q1 = 50;
+//static float p2 = -50, q2 = -100;
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -223,56 +223,73 @@ double Renderer::minValue(double v0, double v1, double v2) {
 	return v1;
 }
 
-glm::vec3 Renderer::normalizeNormal(glm::vec3 v, glm::vec3 n, float length) {
-	return length*glm::normalize(v + n) + v;
-}
+void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
 
-glm::vec4 Renderer::normalizeNormal(glm::vec4 v,glm::vec4 n,float length) {
-	return length*glm::normalize(v + n) + v;
-}
-
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals,int k, const ImGuiIO& io) {
 	
-	Camera* active_camera = scene.GetCamera(scene.currentActiveCamera);
-	glm::mat4x4 Mc = glm::mat4x4(1); 
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(0);
+	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
+
 	if (active_camera != NULL) {
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
+	
+
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
 
 	// v0,v1,v2 => 1,13,4
 
-	float x0 = scene.getModelVertices(k, v0).x;
-	float y0 = scene.getModelVertices(k, v0).y;
-	float z0 = scene.getModelVertices(k, v0).z;
+	glm::vec3 modelVec;
+	if (isCameraModel) {
+		modelVec = scene.getCameraVertices(k, v0);
+	} else {
+		modelVec = scene.getModelVertices(k, v0);
+	}
+	float x0 = modelVec.x;
+	float y0 = modelVec.y;
+	float z0 = modelVec.z;
 	glm::vec4 vec0(x0, y0, z0, 1);
 	// => (x0,y0,zo)
 
-	float x1 = scene.getModelVertices(k, v1).x;
-	float y1 = scene.getModelVertices(k, v1).y;
-	float z1 = scene.getModelVertices(k, v1).z;
+	if (isCameraModel) {
+		modelVec = scene.getCameraVertices(k, v1);
+	} else {
+		modelVec = scene.getModelVertices(k, v1);
+	}
+	float x1 = modelVec.x;
+	float y1 = modelVec.y;
+	float z1 = modelVec.z;
 	glm::vec4 vec1(x1, y1, z1, 1);
 	// => (x1,y1,z1)
 
-	float x2 = scene.getModelVertices(k, v2).x;
-	float y2 = scene.getModelVertices(k, v2).y;
-	float z2 = scene.getModelVertices(k, v2).z;
+	if (isCameraModel) {
+		modelVec = scene.getCameraVertices(k, v2);
+	} else {
+		modelVec = scene.getModelVertices(k, v2);
+	}
+	float x2 = modelVec.x;
+	float y2 = modelVec.y;
+	float z2 = modelVec.z;
 	glm::vec4 vec2(x2, y2, z2, 1);
 	// => (x2,y2,z2)
 
 	// transform face as world transform view:
-	std::shared_ptr<MeshModel> model = scene.GetModel(k);
-	glm::mat4x4 seriesTransform = Mp*Mc*model->GetWorldTransformation();
+	std::shared_ptr<MeshModel> model = NULL;
+	if(isCameraModel){
+		model = scene.GetCamera(k);
+	} else {
+		model = scene.GetModel(k);
+	}
+	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
-	//vect0 = vect0 / vect0.w;
+	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;
-	//vect1 = vect1 / vect1.w;
+	vect1 = vect1 / vect1.w;
 	glm::vec4 vect2 = seriesTransform*vec2;
-	//vect2 = vect2 / vect2.w;
+	vect2 = vect2 / vect2.w;
 
 	float vNlength = model->GetVertexNormalLength();
 
@@ -281,19 +298,19 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 	glm::vec4 nt0 = seriesTransform*glm::vec4(n0.x,n0.y,n0.z,1);
 	//nt0 = nt0 / nt0.w;
 	// return the normal as length of length
-	nt0 = normalizeNormal(vect0,nt0, vNlength);
+	nt0 = normalizeVector(vect0, nt0, vNlength);
 	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
 
 	glm::vec3 n1 = vNormals.at(1);
 	glm::vec4 nt1 = seriesTransform*glm::vec4(n1.x, n1.y, n1.z, 1);
 	//nt1 = nt1 / nt1.w;
-	nt1 = normalizeNormal(vect1,nt1, vNlength);
+	nt1 = normalizeVector(vect1,nt1, vNlength);
 	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
 	
 	glm::vec3 n2 = vNormals.at(2);
 	glm::vec4 nt2 = seriesTransform*glm::vec4(n2.x, n2.y, n2.z, 1);
 	//nt2 = nt2 / nt2.w;
-	nt2 = normalizeNormal(vect2,nt2, vNlength);
+	nt2 = normalizeVector(vect2,nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 	
 	// determined already the values at "main" section => height = 720 & width = 1280
@@ -321,6 +338,17 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 
 
 void Renderer::showGridObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
+
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(0);
+	glm::mat4x4 Mc = glm::mat4x4(1);
+	glm::mat4x4 Mp = glm::mat4x4(1);
+
+	if (active_camera != NULL) {
+		Mc = active_camera->Getview();
+		Mp = active_camera->GetProjection();
+	}
+
+	
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
@@ -355,33 +383,40 @@ void Renderer::showGridObject(Scene scene, std::vector<Face>::iterator face, std
 
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = scene.GetModel(k);
-	glm::vec4 vect0 = model->GetWorldTransformation()*vec0;
-	glm::vec4 vect1 = model->GetWorldTransformation()*vec1;
-	glm::vec4 vect2 = model->GetWorldTransformation()*vec2;
-	glm::vec4 vect3 = model->GetWorldTransformation()*vec3;
+	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
+	
+
+	glm::vec4 vect0 = seriesTransform * vec0;
+	vect0 = vect0 / vect0.w;
+	glm::vec4 vect1 = seriesTransform * vec1;
+	vect1 = vect1 / vect1.w;
+	glm::vec4 vect2 = seriesTransform * vec2;
+	vect2 = vect2 / vect2.w;
+	glm::vec4 vect3 = seriesTransform * vec3;
+	vect3 = vect3 / vect3.w;
 
 	float vNlength = model->GetVertexNormalLength();
 
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);
-	glm::vec4 nt0 = model->GetWorldTransformation()*glm::vec4(n0.x, n0.y, n0.z, 1);
+	glm::vec4 nt0 = seriesTransform * glm::vec4(n0.x, n0.y, n0.z, 1);
 	// return the normal as length of length
-	nt0 = normalizeNormal(vect0, nt0, vNlength);
+	nt0 = normalizeVector(vect0, nt0, vNlength);
 	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
 
 	glm::vec3 n1 = vNormals.at(1);
-	glm::vec4 nt1 = model->GetWorldTransformation()*glm::vec4(n1.x, n1.y, n1.z, 1);
-	nt1 = normalizeNormal(vect1, nt1, vNlength);
+	glm::vec4 nt1 = seriesTransform * glm::vec4(n1.x, n1.y, n1.z, 1);
+	nt1 = normalizeVector(vect1, nt1, vNlength);
 	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
 
 	glm::vec3 n2 = vNormals.at(2);
-	glm::vec4 nt2 = model->GetWorldTransformation()*glm::vec4(n2.x, n2.y, n2.z, 1);
-	nt2 = normalizeNormal(vect2, nt2, vNlength);
+	glm::vec4 nt2 = seriesTransform * glm::vec4(n2.x, n2.y, n2.z, 1);
+	nt2 = normalizeVector(vect2, nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 
 	glm::vec3 n3 = vNormals.at(3);
-	glm::vec4 nt3 = model->GetWorldTransformation()*glm::vec4(n3.x, n3.y, n3.z, 1);
-	nt3 = normalizeNormal(vect3, nt3, vNlength);
+	glm::vec4 nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
+	nt3 = normalizeVector(vect3, nt3, vNlength);
 	n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
 
 	// determined already the values at "main" section => height = 720 & width = 1280
@@ -392,6 +427,11 @@ void Renderer::showGridObject(Scene scene, std::vector<Face>::iterator face, std
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
 	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, BLACK_COLOR_LINE);
 	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, BLACK_COLOR_LINE);
+
+	//cout << "( " << vect0.x << " , " << vect0.y << " , " << vect0.z  << " )" << endl;
+	//cout << "( " << vect1.x << " , " << vect1.y << " , " << vect1.z << " )" << endl;
+	//cout << "( " << vect2.x << " , " << vect2.y << " , " << vect2.z << " )" << endl;
+
 
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
@@ -414,11 +454,12 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 	glm::vec3 u0 = vec1 - vec0;
 	glm::vec3 u1 = vec2 - vec0;
 	// return the normal as length of length
-	glm::vec3 v = normalizeNormal(basePoint,glm::cross(u0, u1), fNlength);
+	glm::vec3 v = normalizeVector(basePoint,glm::cross(u0, u1), fNlength);
 	return v;
 }
 
 void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
+	
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
@@ -435,29 +476,30 @@ void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
 			}
 		}
 	}
-
+	
+	/*
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene **Except the current camera!!!**
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
-			if (scene.activeCameraIndex != k) {
+			if (scene.currentActiveCamera != k) {
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
-					showMeshObject(scene, face, vNormals, k, io);
+					showMeshObject(scene, face, vNormals, k, io,true);
 				}
-
 			}
 			
 		}
 	}
+	*/
 }
 
 void Renderer::Render(Scene& scene, const ImGuiIO& io)
 {
 	// Get mouse position:
-	p2 = io.MousePos.x - (viewportWidth/2);
-	q2 = (viewportHeight/2) - io.MousePos.y;
+	//p2 = io.MousePos.x - (viewportWidth/2);
+	//q2 = (viewportHeight/2) - io.MousePos.y;
 	
 	//Render All Models in scene
 	showAllMeshModels(scene,io);
