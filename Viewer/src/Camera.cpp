@@ -55,6 +55,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	viewTransformation = c*translation;
 	*/
 	viewTransformation = mat;
+	SetWorldTransformation(glm::inverse(mat));
 }
 
 

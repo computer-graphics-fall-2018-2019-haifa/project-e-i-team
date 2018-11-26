@@ -4,7 +4,9 @@
 class Trans {
 public:
 	static glm::mat4x4 getScale4x4(int factor) {
-		return glm::mat4x4(factor);
+		glm::mat4x4 m = glm::mat4x4(factor);
+		m[3][3] = 1;
+		return m;
 	}
 	static glm::mat4x4 getxRotate4x4(int teta) {
 		return glm::mat4x4(glm::highp_mat4::col_type(1.0f, 0.0f, 0.0f, 0.0f),

@@ -223,10 +223,10 @@ double Renderer::minValue(double v0, double v1, double v2) {
 	return v1;
 }
 
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
+void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
 
 	
-	std::shared_ptr<Camera> active_camera = scene.GetCamera(0);
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
 
@@ -337,9 +337,9 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 }
 
 
-void Renderer::showGridObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
+void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
 
-	std::shared_ptr<Camera> active_camera = scene.GetCamera(0);
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
 
@@ -458,7 +458,7 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 	return v;
 }
 
-void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
+void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
@@ -477,12 +477,13 @@ void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
 		}
 	}
 	
-	/*
+	
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene **Except the current camera!!!**
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
+				cout << "We rendered a camera!" << endl;
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
@@ -492,7 +493,7 @@ void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
 			
 		}
 	}
-	*/
+	
 }
 
 void Renderer::Render(Scene& scene, const ImGuiIO& io)
