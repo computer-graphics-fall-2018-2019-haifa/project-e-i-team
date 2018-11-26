@@ -153,6 +153,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			//glm::vec3 at = glm::vec3(0,0,0);
 			//glm::vec3 up = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
 			//currentCam->SetCameraLookAt(eye,at,up);
+			//cout << "io.MouseDown[0] = " << io.MouseDown[0] << endl;
+			//cout << "io.MouseDown[2] = " << io.MouseDown[2] << endl;
 			transType = currentCam->transType;
 			ffovy_tmp = currentCam->ffovy;
 			fnear_tmp = currentCam->fnear;
@@ -185,8 +187,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
 			// handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
-			m->SetAllWorldTransformation(y_scroll_offset);
-			
+			MeshModel::SetAllWorldTransformation(y_scroll_offset);
+
 			ImGui::TextColored(textColor, "Model Transformations:");
 			ImGui::SliderFloat("Scale Object", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);

@@ -228,7 +228,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if(isCameraModel){ model = scene.GetCamera(k); } 
 	else { model = scene.GetModel(k); }
 	
-	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
+	glm::mat4x4 seriesTransform = Mc * MeshModel::GetAllWorldTransformation() * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;
@@ -393,7 +393,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
-			cout << "model " << k << endl;
+			//cout << "model " << k << endl;
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
@@ -413,7 +413,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
-				cout << "camera " << k << endl;
+				//cout << "camera " << k << endl;
 				std::shared_ptr<Camera> camera = scene.GetCamera(k);
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);

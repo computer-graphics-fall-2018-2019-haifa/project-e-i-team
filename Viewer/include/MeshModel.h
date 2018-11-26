@@ -18,15 +18,17 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define NORMAL_LENGTH 40.0f
 
 #define MAX_SCALE_FACTOR 2000.0f
-#define MIN_SCALE_FACTOR 50.0f
+#define MIN_SCALE_FACTOR 1.0f
 #define SCALE_OBJ_FACTOR 4.0f
 
 #define MAX_TRANSLATION_LENGTH 20.f
 #define MIN_TRANSLATION_LENGTH -20.f
 
 // smooth moving:
-#define XTRANS_FACTOR 0.5f
-#define YTRANS_FACTOR 0.5f
+#define XTRANS_FACTOR 4.0f
+#define YTRANS_FACTOR 4.0f
+
+static glm::mat4x4 allWorldTransform(1);
 
 /*
  * MeshModel class.
@@ -40,7 +42,6 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	glm::mat4x4 worldTransform;
-	glm::mat4x4 allWorldTransform;
 	glm::vec4 color;
 	std::string modelName;
 public:
@@ -57,14 +58,16 @@ public:
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
-	void SetAllWorldTransformation(float fAllScale) {
+	static void SetAllWorldTransformation(float fAllScale) {
 		if (fAllScale < 0) {
-			fAllScale = 1 / -fAllScale;
+			fAllScale = (1 / -fAllScale);
 		}
+		cout << "fAllScale = " << fAllScale << endl;
 		allWorldTransform[0][0] * fAllScale; allWorldTransform[1][1] * fAllScale; allWorldTransform[2][2] * fAllScale;
 	}
 
-	glm::mat4x4 GetAllWorldTransformation() {
+	static glm::mat4x4 GetAllWorldTransformation() {
+		cout << "allWorldTransform[0][0] = " << allWorldTransform[0][0] << endl;
 		return allWorldTransform;
 	}
 
@@ -96,7 +99,6 @@ public:
 					float vertexNlength = NORMAL_LENGTH,
 					float faceNlength = NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
-		allWorldTransform = glm::mat4x4(1);
 		showFaceNormals = false;
 		showVertexNormals = false;
 		fNcolor = fcolorDef;
