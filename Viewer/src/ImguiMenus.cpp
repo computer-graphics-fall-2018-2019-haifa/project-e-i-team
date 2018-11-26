@@ -135,9 +135,7 @@ void handleZoomByYscrolling(float* fScale,int y_scroll_offset) {
 
 // it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
-	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	ImGui::TextColored(textColor,"Transformations Window:");
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
@@ -160,6 +158,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			fnear_tmp = currentCam->fnear;
 			ffar_tmp = currentCam->ffar;
 		}
+		ImGui::TextColored(textColor, "Projections:");
 		ImGui::RadioButton("Perspective", &transType, 0);
 		ImGui::RadioButton("Orthographic", &transType, 1);
 		ImGui::SliderFloat("Fovy", &ffovy_tmp, MIN_FFOVY, MAX_FFOVY);
@@ -172,7 +171,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			currentCam->ffar = ffar_tmp;
 		}
 	}
-	if (ImGui::CollapsingHeader("Viewers")) {
+	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
@@ -180,14 +179,16 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
 			handleKeyboardInputs(m);
+
 			// each field is belonging to each mesh model object due to this issue, 
 			// we need them public and to referenced always the app is running:
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
 			// handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
 			m->SetAllWorldTransformation(y_scroll_offset);
-
-			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 1000.0f);
+			
+			ImGui::TextColored(textColor, "Model Transformations:");
+			ImGui::SliderFloat("Scale Object", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
 			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
@@ -211,15 +212,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			// transformations to the space:
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 			glm::mat4x4 nextPosition = Trans::getTranslate4x4(m->fTranslatex, m->fTranslatey, m->fTranslatez);
-			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition); //TODO: scaling matrix doesn't effect!!!
+			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 		}
 	}
-
-	ImGui::Text("");
-	if (ImGui::Button("Dismiss")) {
-		showTransWindow = false;
-	}
-	ImGui::End();
 }
 
 void buildAboutUsWindow() {
@@ -249,8 +244,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
-		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
-		ImGui::Checkbox("Transformations Window", &showTransWindow);
+		ImGui::Begin("Task 1 - Cameras VS. Models");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
+		//ImGui::Checkbox("Transformations Window", &showTransWindow);
+		buildTransformationsWindow(io,&scene,y_scroll_offset);
 		ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

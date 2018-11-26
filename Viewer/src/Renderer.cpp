@@ -187,13 +187,11 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
-
 	if (active_camera != NULL) {
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
 	
-
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
@@ -201,33 +199,24 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	// v0,v1,v2 => 1,13,4
 
 	glm::vec3 modelVec;
-	if (isCameraModel) {
-		modelVec = scene.getCameraVertices(k, v0);
-	} else {
-		modelVec = scene.getModelVertices(k, v0);
-	}
+	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v0); }
+	else { modelVec = scene.getModelVertices(k, v0); }
 	float x0 = modelVec.x;
 	float y0 = modelVec.y;
 	float z0 = modelVec.z;
 	glm::vec4 vec0(x0, y0, z0, 1);
 	// => (x0,y0,zo)
 
-	if (isCameraModel) {
-		modelVec = scene.getCameraVertices(k, v1);
-	} else {
-		modelVec = scene.getModelVertices(k, v1);
-	}
+	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v1); }
+	else { modelVec = scene.getModelVertices(k, v1); }
 	float x1 = modelVec.x;
 	float y1 = modelVec.y;
 	float z1 = modelVec.z;
 	glm::vec4 vec1(x1, y1, z1, 1);
 	// => (x1,y1,z1)
 
-	if (isCameraModel) {
-		modelVec = scene.getCameraVertices(k, v2);
-	} else {
-		modelVec = scene.getModelVertices(k, v2);
-	}
+	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v2); } 
+	else { modelVec = scene.getModelVertices(k, v2); }
 	float x2 = modelVec.x;
 	float y2 = modelVec.y;
 	float z2 = modelVec.z;
@@ -236,11 +225,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = NULL;
-	if(isCameraModel){
-		model = scene.GetCamera(k);
-	} else {
-		model = scene.GetModel(k);
-	}
+	if(isCameraModel){ model = scene.GetCamera(k); } 
+	else { model = scene.GetModel(k); }
+	
 	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
@@ -250,7 +237,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect2 = vect2 / vect2.w;
 
 	float vNlength = model->GetVertexNormalLength();
-
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);
 	glm::vec4 nt0 = seriesTransform*glm::vec4(n0.x,n0.y,n0.z,1);
@@ -299,18 +285,15 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
-
 	if (active_camera != NULL) {
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
 
-	
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
 	int v3 = face->GetVertexIndex(3) - 1;
-
 	// v0,v1,v2 => 1,13,4
 
 	float x0 = scene.getModelVertices(k, v0).x;
@@ -337,12 +320,10 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	glm::vec4 vec3(x3, y3, z3, 1);
 	// => (x3,y3,z3)
 
-
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = scene.GetModel(k);
 	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
 	
-
 	glm::vec4 vect0 = seriesTransform * vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform * vec1;
@@ -353,7 +334,6 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect3 = vect3 / vect3.w;
 
 	float vNlength = model->GetVertexNormalLength();
-
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);
 	glm::vec4 nt0 = seriesTransform * glm::vec4(n0.x, n0.y, n0.z, 1);
@@ -379,7 +359,6 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	// determined already the values at "main" section => height = 720 & width = 1280
 
 	// draw the object as triangles collection:
-
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, BLACK_COLOR_LINE);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
 	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, BLACK_COLOR_LINE);
@@ -411,20 +390,20 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 }
 
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
-	
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
+			cout << "model " << k << endl;
+			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				if (scene.GetModel(k)->GetModelName().compare("Grid") == 0) {
+				if (model->GetModelName().compare("Grid") == 0) {
 					showGridObject(scene, face, vNormals, k, io);
 				}
 				else {
 					showMeshObject(scene, face, vNormals, k, io);
 				}
-
 			}
 		}
 	}
@@ -434,7 +413,8 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
-				cout << "We rendered a camera!" << endl;
+				cout << "camera " << k << endl;
+				std::shared_ptr<Camera> camera = scene.GetCamera(k);
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {

@@ -15,18 +15,18 @@ using namespace std;
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 
-#define NORMAL_LENGTH 20.0f
+#define NORMAL_LENGTH 40.0f
 
-#define MAX_SCALE_FACTOR 500.0f
+#define MAX_SCALE_FACTOR 2000.0f
 #define MIN_SCALE_FACTOR 50.0f
-#define SCALE_OBJ_FACTOR 1.0f
+#define SCALE_OBJ_FACTOR 4.0f
 
-#define MAX_TRANSLATION_LENGTH 10.f
-#define MIN_TRANSLATION_LENGTH -10.f
+#define MAX_TRANSLATION_LENGTH 20.f
+#define MIN_TRANSLATION_LENGTH -20.f
 
 // smooth moving:
-#define XTRANS_FACTOR 0.1f
-#define YTRANS_FACTOR 0.1f
+#define XTRANS_FACTOR 0.5f
+#define YTRANS_FACTOR 0.5f
 
 /*
  * MeshModel class.
@@ -58,7 +58,10 @@ public:
 	virtual ~MeshModel();
 
 	void SetAllWorldTransformation(float fAllScale) {
-		allWorldTransform = allWorldTransform * fAllScale;
+		if (fAllScale < 0) {
+			fAllScale = 1 / -fAllScale;
+		}
+		allWorldTransform[0][0] * fAllScale; allWorldTransform[1][1] * fAllScale; allWorldTransform[2][2] * fAllScale;
 	}
 
 	glm::mat4x4 GetAllWorldTransformation() {
