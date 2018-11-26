@@ -487,7 +487,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
-					showMeshObject(scene, face, vNormals, k, io,true);é
+					showMeshObject(scene, face, vNormals, k, io,true);
 				}
 			}
 			
