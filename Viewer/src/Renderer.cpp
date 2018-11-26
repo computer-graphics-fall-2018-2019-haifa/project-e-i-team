@@ -432,9 +432,8 @@ void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
 		}
 	}
 	
-	/*
 	int camerasCount = scene.GetCameraCount();
-	//Render All cameras in scene **Except the current camera!!!**
+	//Render All cameras in scene ** Except the current camera **
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
@@ -447,7 +446,6 @@ void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io) {
 			
 		}
 	}
-	*/
 }
 
 void Renderer::Render(Scene& scene, const ImGuiIO& io)
