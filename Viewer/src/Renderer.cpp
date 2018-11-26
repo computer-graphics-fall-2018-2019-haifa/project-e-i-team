@@ -14,13 +14,9 @@
 
 using namespace std;
 
-
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
-
-//static float p1 = -50, q1 = 50;
-//static float p2 = -50, q2 = -100;
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -187,6 +183,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
+<<<<<<< HEAD
 double Renderer::maxValue(double v0, double v1, double v2) {
 	if (v0 > v1) {
 		if (v0 > v2) {
@@ -224,6 +221,9 @@ double Renderer::minValue(double v0, double v1, double v2) {
 }
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
+=======
+void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
+>>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
 
 	
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
@@ -296,20 +296,20 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);
 	glm::vec4 nt0 = seriesTransform*glm::vec4(n0.x,n0.y,n0.z,1);
-	//nt0 = nt0 / nt0.w;
+	nt0 = nt0 / nt0.w;
 	// return the normal as length of length
 	nt0 = normalizeVector(vect0, nt0, vNlength);
 	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
 
 	glm::vec3 n1 = vNormals.at(1);
 	glm::vec4 nt1 = seriesTransform*glm::vec4(n1.x, n1.y, n1.z, 1);
-	//nt1 = nt1 / nt1.w;
+	nt1 = nt1 / nt1.w;
 	nt1 = normalizeVector(vect1,nt1, vNlength);
 	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
 	
 	glm::vec3 n2 = vNormals.at(2);
 	glm::vec4 nt2 = seriesTransform*glm::vec4(n2.x, n2.y, n2.z, 1);
-	//nt2 = nt2 / nt2.w;
+	nt2 = nt2 / nt2.w;
 	nt2 = normalizeVector(vect2,nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 	
@@ -428,11 +428,6 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, BLACK_COLOR_LINE);
 	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, BLACK_COLOR_LINE);
 
-	//cout << "( " << vect0.x << " , " << vect0.y << " , " << vect0.z  << " )" << endl;
-	//cout << "( " << vect1.x << " , " << vect1.y << " , " << vect1.z << " )" << endl;
-	//cout << "( " << vect2.x << " , " << vect2.y << " , " << vect2.z << " )" << endl;
-
-
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
 		float fVlength = model->GetFaceNormalLength();
@@ -477,7 +472,10 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 	
+<<<<<<< HEAD
 	
+=======
+>>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene ** Except the current camera **
 	if (camerasCount > 0) {
@@ -493,7 +491,10 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			
 		}
 	}
+<<<<<<< HEAD
 	
+=======
+>>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
 }
 
 void Renderer::Render(Scene& scene, const ImGuiIO& io)

@@ -16,6 +16,8 @@
 #include "Camera.h"
 #include "ImguiMenus.h"
 
+static int y_scroll_offset;
+
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
 GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name);
@@ -28,8 +30,10 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
-	
-	//TODO: Handle mouse scrolling here... [for cameras zoomin and zoomout functionality]
+
+	// yoffset = {1,2,...} where it is positive y scrolling [up]
+	// yoffset = {-1,-2,...} where it is negtive y scrolling [down]
+	y_scroll_offset = yoffset;
 }
 
 int main(int argc, char **argv)
@@ -67,7 +71,7 @@ int main(int argc, char **argv)
 		StartFrame();
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene);
+		DrawImguiMenus(io, scene, y_scroll_offset);
 
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
