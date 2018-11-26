@@ -24,18 +24,13 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model)
 
 	//2.
 	//picking camera random position on space:
-<<<<<<< HEAD
 	cout << "activeCameraIndex = " << activeCameraIndex << endl;
 	Camera c(model, glm::vec4(-1, -1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(-1, -1, 1, 1));
 	if (activeCameraIndex == 0) {
 		c = Camera(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
 	}
 	
-	
-
-=======
-	Camera c(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
->>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
+	c = Camera(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
 

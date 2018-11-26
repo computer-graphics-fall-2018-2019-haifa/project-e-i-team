@@ -40,6 +40,7 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	glm::mat4x4 worldTransform;
+	glm::mat4x4 allWorldTransform;
 	glm::vec4 color;
 	std::string modelName;
 public:
@@ -56,6 +57,13 @@ public:
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
+	void SetAllWorldTransformation(float fAllScale) {
+		allWorldTransform = allWorldTransform * fAllScale;
+	}
+
+	glm::mat4x4 GetAllWorldTransformation() {
+		return allWorldTransform;
+	}
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;
@@ -85,6 +93,7 @@ public:
 					float vertexNlength = NORMAL_LENGTH,
 					float faceNlength = NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
+		allWorldTransform = glm::mat4x4(1);
 		showFaceNormals = false;
 		showVertexNormals = false;
 		fNcolor = fcolorDef;

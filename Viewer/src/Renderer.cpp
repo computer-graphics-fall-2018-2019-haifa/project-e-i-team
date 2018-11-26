@@ -183,49 +183,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
-<<<<<<< HEAD
-double Renderer::maxValue(double v0, double v1, double v2) {
-	if (v0 > v1) {
-		if (v0 > v2) {
-			return v0;
-		}
-		else if (v2 > v1) {
-			return v2;
-		}
-		else {
-			v1;
-		}
-	}
-	else if (v2 > v1) {
-		return v2;
-	}
-	return v1;
-}
-
-double Renderer::minValue(double v0, double v1, double v2) {
-	if (v0 < v1) {
-		if (v0 < v2) {
-			return v0;
-		}
-		else if (v2 < v1) {
-			return v2;
-		}
-		else {
-			v1;
-		}
-	}
-	else if (v2 < v1) {
-		return v2;
-	}
-	return v1;
-}
-
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
-=======
-void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
->>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
-
-	
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
@@ -338,7 +296,6 @@ void Renderer::showMeshObject(Scene scene, std::vector<Face>::iterator face, std
 
 
 void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
-
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
@@ -472,10 +429,6 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 	
-<<<<<<< HEAD
-	
-=======
->>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene ** Except the current camera **
 	if (camerasCount > 0) {
@@ -491,10 +444,6 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			
 		}
 	}
-<<<<<<< HEAD
-	
-=======
->>>>>>> ItayDev_Sync_25_11_18_LoadedOneCameraView
 }
 
 void Renderer::Render(Scene& scene, const ImGuiIO& io)

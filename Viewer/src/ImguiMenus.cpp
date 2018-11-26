@@ -184,7 +184,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			// we need them public and to referenced always the app is running:
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
-			handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
+			// handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
+			m->SetAllWorldTransformation(y_scroll_offset);
 
 			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 1000.0f);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
