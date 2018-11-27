@@ -121,13 +121,6 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
-void handleZoomByYscrolling(float* zoomByZ,int y_scroll_offset) {
-	if (y_scroll_offset < 0) {
-		*zoomByZ = (1/(-(*zoomByZ)));
-	} 
-	else { *zoomByZ = y_scroll_offset; }
-}
-
 void handleMouseMovement(ImGuiIO& io,std::shared_ptr<Camera> currentCam, int frameBufferWidth, int frameBufferHeight) {
 	float p2 = io.MousePos.x - (frameBufferWidth / 2);
 	float q2 = (frameBufferHeight / 2) - io.MousePos.y;
@@ -154,23 +147,19 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
 		if (currentCam != NULL) {
-			ImGui::ColorEdit3("Cam Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
+			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
 		}
 		
-		if (currentCam != NULL) {
-			//float yoffset = y_scroll_offset;
-			//glm::vec3 eye = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
-			//glm::vec3 at = glm::vec3(0,0,0);
-			//glm::vec3 up = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
-			//currentCam->SetCameraLookAt(eye,at,up);
-			
-		
+		if (currentCam != NULL) {		
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 0);
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 1);
 			ImGui::SliderFloat("Fovy", &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
-			float aspectratio = float(frameBufferWidth) / float(frameBufferHeight);
+			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (currentCam->transType) {
 				//Orthographic
 				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
@@ -182,7 +171,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			
 		}
 	}
-	if (ImGui::CollapsingHeader("Viewers")) {
+	if (ImGui::CollapsingHeader("Models")) {
 		
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
@@ -198,20 +187,19 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// we need them public and to referenced always the app is running:
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
-			 handleZoomByYscrolling(&(zoomByZ),y_scroll_offset);
 
 			ImGui::TextColored(textColor, "Model Transformations:");
-			ImGui::SliderFloat("Scale Object", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+			ImGui::SliderFloat("Model Scale", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
-			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
 			ImGui::SliderFloat("Translate By X", &(m->fTranslatex), -1000.0f, 1000.0f);
 			glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatex, 0.0f);
-			ImGui::SliderFloat("Rotate By Y [-2PI,2PI]", &(m->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(m->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 yRotateMat = Trans::getyRotate4x4(m->fRotatey);
 			ImGui::SliderFloat("Translate By Y", &(m->fTranslatey), -1000.0f, 1000.0f);
 			glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatey, 0.0f);
-			ImGui::SliderFloat("Rotate By Z [-2PI,2PI]", &(m->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(m->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 zRotateMat = Trans::getzRotate4x4(m->fRotatez);
 			ImGui::SliderFloat("Translate By Z", &(m->fTranslatez), -1000.0f, 1000.0f);
 			glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, m->fTranslatez);
@@ -228,11 +216,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 		}
 	}
-
-	/*ImGui::Text("");
-	if (ImGui::Button("Dismiss")) {
-		showTransWindow = false;
-	}*/
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }
@@ -264,8 +247,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	if(showSimpleWindow){
-		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
-		ImGui::Checkbox("Transformations Window", &showTransWindow);
+		ImGui::Begin("Task 1 - Cameras View VS. Models View");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
+		ImGui::Checkbox("Camera Projections & Transformations", &showTransWindow);
 		
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
 		ImGui::End();

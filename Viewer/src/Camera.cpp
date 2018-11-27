@@ -6,9 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-
 #define PI 3.14159265
-
 
 Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	viewTransformation(glm::mat4x4(1)),
@@ -41,7 +39,8 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; mat[3][1] = glm::dot(y, eye);
 	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
 
-	/*glm::vec4 n4(n.x, n.y, n.z, 1);
+	/*
+	glm::vec4 n4(n.x, n.y, n.z, 1);
 	glm::vec4 u4(u.x, u.y, u.z, 1);
 	glm::vec4 v4(v.x, v.y, v.z, 1);
 
@@ -50,6 +49,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::mat4x4 translation = Trans::getTranslate4x4(-eye.x, -eye.y, -eye.z);
 	viewTransformation = c*translation;
 	*/
+
 	viewTransformation = mat;
 	SetWorldTransformation(glm::inverse(mat));
 
@@ -73,14 +73,14 @@ void Camera::SetOrthographicProjection(
 	float left = -right;
 
 
-	float x = -1 * ((right + left) / (right - left));
-	float y = -1 * ((top + botton) / (top - botton));
-	float z = -1 * ((sfar + snear) / (sfar - snear));
+	float x = -1.0f * ((right + left) / (right - left));
+	float y = -1.0f * ((top + botton) / (top - botton));
+	float z = -1.0f * ((sfar + snear) / (sfar - snear));
 
-	glm::vec4 v1 = glm::vec4(2 / (right - left) , 0, 0, 0);
-	glm::vec4 v2 = glm::vec4(0 , 2/(top - botton), 0, 0);
-	glm::vec4 v3 = glm::vec4(0, 0, 2/(snear - sfar), 0);
-	glm::vec4 v4 = glm::vec4(x, y, z, 1);
+	glm::vec4 v1 = glm::vec4(2.0f / (right - left) , 0.0f, 0.0f, 0.0f);
+	glm::vec4 v2 = glm::vec4(0 , 2.0f / (top - botton), 0.0f, 0.0f);
+	glm::vec4 v3 = glm::vec4(0, 0, 2.0f / (snear - sfar), 0.0f);
+	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
 	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
 }
@@ -97,20 +97,20 @@ void Camera::SetPerspectiveProjection(
 {
 	//float top = tan((fovy / 2) * PI / 180.0) * pnear;
 
-	float top = tan(fovy / 2) * pnear;
-	float botton = -1 * top;
+	float top = tanf(fovy / 2) * pnear;
+	float botton = -1.0f * top;
 	float right = aspectRatio * top;
 	float left = -right;
 
 
 	float x = (right + left) / (right - left);
 	float y = (top + botton) / (top - botton);
-	float z = -1 * ((pfar + pnear) / (pfar - pnear));
+	float z = -1.0f * ((pfar + pnear) / (pfar - pnear));
 
-	glm::vec4 v1 = glm::vec4( (2*pnear) / (right - left), 0, 0, 0);
-	glm::vec4 v2 = glm::vec4(0, (2 * pnear) / (top - botton), 0, 0);
-	glm::vec4 v3 = glm::vec4(x, y, z, -1);
-	glm::vec4 v4 = glm::vec4(0, 0, -1 * ((2*pfar*pnear) / (pfar - pnear)), 0);
+	glm::vec4 v1 = glm::vec4( (2.0f * pnear) / (right - left), 0.0f, 0.0f, 0.0f);
+	glm::vec4 v2 = glm::vec4(0, (2.0f * pnear) / (top - botton), 0.0f, 0.0f);
+	glm::vec4 v3 = glm::vec4(x, y, z, -1.0f);
+	glm::vec4 v4 = glm::vec4(0, 0, -1.0f * ((2.0f * pfar * pnear) / (pfar - pnear)), 0.0f);
 
 	projectionTransformation = glm::mat4(v1, v2, v3, v4);
 }

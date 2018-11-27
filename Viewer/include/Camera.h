@@ -37,6 +37,7 @@ private:
 	newVector = (x/w , y/w)
 	bresenham(x/w , y/w)
 	*/
+
 	glm::mat4x4 viewTransformation; // Mc
 	glm::mat4x4 projectionTransformation; // Mp
 	float zoom;
@@ -50,24 +51,11 @@ public:
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
 
-	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
-
-	glm::vec3 GetEye() {
-		return _eye;
-	}
-
-	glm::vec3 GetAt() {
-		return _at;
-	}
-
-	glm::vec3 GetUp() {
-		return _up;
-	}
-
-	void Camera::SetCameraLookAt(glm::mat4x4 newMat) {
-		viewTransformation = newMat;
-	}
-
+	glm::vec3 GetEye() { return _eye; }
+	glm::vec3 GetAt() { return _at; }
+	glm::vec3 GetUp() { return _up; }
+	void Camera::SetCameraLookAt(glm::mat4x4 newMat) { viewTransformation = newMat; }
+	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
 	void SetOrthographicProjection(
@@ -84,10 +72,7 @@ public:
 
 
 	glm::mat4x4 Getview() { return viewTransformation; }
-
 	glm::mat4x4 GetProjection() { return projectionTransformation;  }
 
 	void SetZoom(const float zoom);
-
-	// Add more methods/functionality as needed...
 };

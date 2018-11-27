@@ -15,7 +15,6 @@
 using namespace std;
 
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
-
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
@@ -28,10 +27,7 @@ Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int vie
 
 Renderer::~Renderer()
 {
-	if (colorBuffer)
-	{
-		delete[] colorBuffer;
-	}
+	if (colorBuffer) { delete[] colorBuffer; }
 }
 
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
@@ -45,34 +41,20 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 {
-	if (colorBuffer)
-	{
-		delete[] colorBuffer;
-	}
-
+	if (colorBuffer){ delete[] colorBuffer; }
 	colorBuffer = new float[3* viewportWidth * viewportHeight];
-	for (int x = 0; x < viewportWidth; x++)
-	{
-		for (int y = 0; y < viewportHeight; y++)
-		{
-			putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f));
-		}
+	for (int x = 0; x < viewportWidth; x++) {
+		for (int y = 0; y < viewportHeight; y++) { putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f)); }
 	}
 }
 
-void Renderer::ClearColorBuffer(const glm::vec3& color)
-{
-	for (int i = 0; i < viewportWidth; i++)
-	{
-		for (int j = 0; j < viewportHeight; j++)
-		{
-			putPixel(i, j, color);
-		}
+void Renderer::ClearColorBuffer(const glm::vec3& color) {
+	for (int i = 0; i < viewportWidth; i++) {
+		for (int j = 0; j < viewportHeight; j++) { putPixel(i, j, color); }
 	}
 }
 
-void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY)
-{
+void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY){
 	this->viewportX = viewportX;
 	this->viewportY = viewportY;
 	this->viewportWidth = viewportWidth;
@@ -81,10 +63,8 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-
 // Elias Function Implementation:
-void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color)
-{
+void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
 	float m = delta_q / delta_p;
@@ -94,8 +74,7 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 	if (p1 < p2) {
 		x = p1;
 		to = p2;
-	}
-	else {
+	} else {
 		x = p2;
 		to = p1;
 	}
@@ -108,40 +87,31 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 // Elias Function Implementation:
 void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float a = (q1 - q2) / (p1 - p2);
-
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
 			BresenhamAlg(p1, p2, q1, q2, false, false, false, color);
-		}
-		else {
+		} else {
 			BresenhamAlg(p2, p1, q2, q1, false, false, false, color);
 		}
-	}
-	else if (a > 1) {
+	} else if (a > 1) {
 		if (q1 < q2) {
 			BresenhamAlg(q1, q2, p1, p2, true, false, false, color);
-		}
-		else {
+		} else {
 			BresenhamAlg(q2, q1, p2, p1, true, false, false, color);
 		}
-	}
-	else if (a < 0 && a >= -1) {
+	} else if (a < 0 && a >= -1) {
 		if (p1 < p2) {
 			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false, color);
-		}
-		else {
+		} else {
 			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false, color);
 		}
-	}
-	else if (a < -1) {
+	} else if (a < -1) {
 		if (q1 < q2) {
 			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false, color);
-		}
-		else {
+		} else {
 			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true, color);
 		}
 	}
-
 }
 
 // Elias Function Implementation:
@@ -156,28 +126,23 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 
 	while (x <= p2) {
 		if (e > 0) {
-
 			if (NegX) {
 				y--;
-			}
-			else {
+			} else {
 				y++;
 			}
 			e = e - 2 * delta_p;
 		}
-		
+
 		if (switch_print) {
 			if (NegY) {
 				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, color);
-			}
-			else {
+			} else {
 				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x,color);
 			}
-		}
-		else {
+		} else {
 			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, color);
 		}
-		
 		x++;
 		e = e + 2 * delta_q;
 	}
@@ -195,7 +160,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
-
 	// v0,v1,v2 => 1,13,4
 
 	glm::vec3 modelVec;
