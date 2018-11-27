@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+
+
 MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName) :
 	modelName(modelName),
 	vertices(vertices),
@@ -43,7 +45,7 @@ void MeshModel::SetColor(const glm::vec4& color)
 	this->color = color;
 }
 
-const glm::vec4& MeshModel::GetColor() const
-{
-	return color;
-}
+//const glm::vec3& MeshModel::GetColor() const
+//{
+//	return color;
+//}

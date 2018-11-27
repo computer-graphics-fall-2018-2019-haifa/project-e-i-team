@@ -27,6 +27,7 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 // smooth moving:
 #define XTRANS_FACTOR 0.1f
 #define YTRANS_FACTOR 0.1f
+#define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
 /*
  * MeshModel class.
@@ -41,9 +42,9 @@ private:
 	std::vector<glm::vec3> normals;
 	glm::mat4x4 worldTransform;
 	glm::mat4x4 allWorldTransform;
-	glm::vec4 color;
 	std::string modelName;
 public:
+	glm::vec3 color;
 	bool showFaceNormals;
 	bool showVertexNormals;
 	glm::vec4 fNcolor;
@@ -68,7 +69,7 @@ public:
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;
 
-	const glm::vec4& GetColor() const;
+	//const glm::vec4& GetColor() const;
 	void SetColor(const glm::vec4& color);
 
 	std::vector<glm::vec3> GetNormals() {
@@ -98,6 +99,7 @@ public:
 		showVertexNormals = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
+		color = BLACK_COLOR_LINE;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
 		fScale = fScaleDef;

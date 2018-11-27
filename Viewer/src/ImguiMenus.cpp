@@ -20,9 +20,9 @@
 
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
-bool showTransWindow = false;
+bool showTransWindow = true;
 bool showDemoWindow = false;
-bool showSimpleWindow = true;
+bool showSimpleWindow = false;
 
 const glm::vec4& GetClearColor(){
 	return backgroundColor;
@@ -138,7 +138,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations Window:");
-	if (ImGui::CollapsingHeader("Cameras")) {
+
+	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
+	
+if (ImGui::CollapsingHeader("Cameras")) {
+		
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			cout << "camera path = " << path << endl;
@@ -147,6 +151,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
+		if (currentCam != NULL) {
+			ImGui::ColorEdit3("Cam Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
+		}
 		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
 		static int transType = 0;
 		if (currentCam != NULL) {
@@ -173,10 +180,13 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 		}
 	}
 	if (ImGui::CollapsingHeader("Viewers")) {
+		
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
 		
+		ImGui::ColorEdit3("Model Color", (float*)&(m->color)); // Edit 3 floats representing a color
+
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
 			handleKeyboardInputs(m);
@@ -215,10 +225,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 		}
 	}
 
-	ImGui::Text("");
+	/*ImGui::Text("");
 	if (ImGui::Button("Dismiss")) {
 		showTransWindow = false;
-	}
+	}*/
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }
 
@@ -251,9 +262,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 	if(showSimpleWindow){
 		ImGui::Begin("Task 1 - Cameras VS. Viewers");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
 		ImGui::Checkbox("Transformations Window", &showTransWindow);
-		ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
+		
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
 

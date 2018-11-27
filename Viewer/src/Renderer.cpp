@@ -274,9 +274,10 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	// determined already the values at "main" section => height = 720 & width = 1280
 
 	// draw the object as triangles collection:
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, BLACK_COLOR_LINE);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
-	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, BLACK_COLOR_LINE);
+	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
+	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
+	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, model->color);
+	
 
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
@@ -380,10 +381,10 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	// draw the object as triangles collection:
 
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, BLACK_COLOR_LINE);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, BLACK_COLOR_LINE);
-	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, BLACK_COLOR_LINE);
-	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, BLACK_COLOR_LINE);
+	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
+	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
+	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
+	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
