@@ -38,7 +38,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-
 	// Create GLFW window
 	int windowWidth = 1250, windowHeight = 750;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
 		StartFrame();
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene, y_scroll_offset);
+		DrawImguiMenus(io, scene, y_scroll_offset , frameBufferWidth , frameBufferHeight);
 
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
@@ -79,7 +78,6 @@ int main(int argc, char **argv)
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
-
 	
 	
     return 0;

@@ -30,7 +30,7 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model)
 		c = Camera(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
 	}
 	
-	c = Camera(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
+	
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
 

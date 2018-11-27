@@ -241,7 +241,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	} else {
 		model = scene.GetModel(k);
 	}
-	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
+	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;
@@ -341,7 +341,7 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = scene.GetModel(k);
-	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
+	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	
 
 	glm::vec4 vect0 = seriesTransform * vec0;
@@ -435,7 +435,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
-				cout << "We rendered a camera!" << endl;
+				
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {

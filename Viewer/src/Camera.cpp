@@ -25,14 +25,7 @@ Camera::~Camera()
 {
 }
 
-//Elias emplementation: // glm::cross(v0,v1)
-glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1) {
-	float x = vec0.x * (vec1.x + vec1.y + vec1.z + vec1.w);
-	float y = vec0.y * (vec1.x + vec1.y + vec1.z + vec1.w);
-	float z = vec0.z * (vec1.x + vec1.y + vec1.z + vec1.w);
-	float w = vec0.w * (vec1.x + vec1.y + vec1.z + vec1.w);
-	return glm::vec4(x, y, z, w);
-}
+
 
 //Elias emplementation:
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
@@ -56,33 +49,37 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	*/
 	viewTransformation = mat;
 	SetWorldTransformation(glm::inverse(mat));
+
 }
 
 
 //Elias emplementation:
 //aspectRatio = width / height
 void Camera::SetOrthographicProjection(
-	const float height,
+	//const float height,
+	const float fovy,
 	const float aspectRatio,
-	const float near,
-	const float far)
+	const float snear,
+	const float sfar)
 {
-//	float top = height / 2;
-//	float botton = -1 * top;
-//	float right = (aspectRatio * height) / 2;
-//	float left = -right;
-//
-//
-//	float x = -1 * ((right + left) / (right - left));
-//	float y = -1 * ((top + botton) / (top - botton));
-//	float z = -1 * ((far + near) / (far - near));
-//
-//	glm::vec4 v1 = glm::vec4(2 / (right - left) , 0, 0, 0);
-//	glm::vec4 v2 = glm::vec4(0 , 2/(top - botton), 0, 0);
-//	glm::vec4 v3 = glm::vec4(0, 0, 2/(near - far), 0);
-//	glm::vec4 v4 = glm::vec4(x, y, z, 1);
-//
-//	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
+	//float top = height / 2;
+	//float top = tan((fovy / 2) * PI / 180.0) * snear;
+	float top = tan(fovy / 2) * snear;
+	float botton = -1 * top;
+	float right = aspectRatio * top;
+	float left = -right;
+
+
+	float x = -1 * ((right + left) / (right - left));
+	float y = -1 * ((top + botton) / (top - botton));
+	float z = -1 * ((sfar + snear) / (sfar - snear));
+
+	glm::vec4 v1 = glm::vec4(2 / (right - left) , 0, 0, 0);
+	glm::vec4 v2 = glm::vec4(0 , 2/(top - botton), 0, 0);
+	glm::vec4 v3 = glm::vec4(0, 0, 2/(snear - sfar), 0);
+	glm::vec4 v4 = glm::vec4(x, y, z, 1);
+
+	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
 
@@ -92,25 +89,27 @@ void Camera::SetOrthographicProjection(
 void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,
-	const float near,
-	const float far)
+	const float pnear,
+	const float pfar)
 {
-	//float top = tan((fovy / 2) * PI / 180.0) * near;
-	//float botton = -1 * top;
-	//float right = aspectRatio * top;
-	//float left = -right;
+	//float top = tan((fovy / 2) * PI / 180.0) * pnear;
+
+	float top = tan(fovy / 2) * pnear;
+	float botton = -1 * top;
+	float right = aspectRatio * top;
+	float left = -right;
 
 
-	//float x = (right + left) / (right - left);
-	//float y = (top + botton) / (top - botton);
-	//float z = -1 * ((far + near) / (far - near));
+	float x = (right + left) / (right - left);
+	float y = (top + botton) / (top - botton);
+	float z = -1 * ((pfar + pnear) / (pfar - pnear));
 
-	//glm::vec4 v1 = glm::vec4( (2*near) / (right - left), 0, 0, 0);
-	//glm::vec4 v2 = glm::vec4(0, (2 * near) / (top - botton), 0, 0);
-	//glm::vec4 v3 = glm::vec4(x, y, z, -1);
-	//glm::vec4 v4 = glm::vec4(0, 0, -1 * ((2*far*near) / (far - near)), 0);
+	glm::vec4 v1 = glm::vec4( (2*pnear) / (right - left), 0, 0, 0);
+	glm::vec4 v2 = glm::vec4(0, (2 * pnear) / (top - botton), 0, 0);
+	glm::vec4 v3 = glm::vec4(x, y, z, -1);
+	glm::vec4 v4 = glm::vec4(0, 0, -1 * ((2*pfar*pnear) / (pfar - pnear)), 0);
 
-	//projectionTransformation = glm::mat4(v1, v2, v3, v4);
+	projectionTransformation = glm::mat4(v1, v2, v3, v4);
 }
 
 

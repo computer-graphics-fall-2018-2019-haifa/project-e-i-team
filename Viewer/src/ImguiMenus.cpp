@@ -134,14 +134,14 @@ void handleZoomByYscrolling(float* fScale,int y_scroll_offset) {
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
-void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
+void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Transformations Window:");
 
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	
-if (ImGui::CollapsingHeader("Cameras")) {
+	if (ImGui::CollapsingHeader("Cameras")) {
 		
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
@@ -154,29 +154,30 @@ if (ImGui::CollapsingHeader("Cameras")) {
 		if (currentCam != NULL) {
 			ImGui::ColorEdit3("Cam Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
 		}
-		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
-		static int transType = 0;
+		
 		if (currentCam != NULL) {
 			//float yoffset = y_scroll_offset;
 			//glm::vec3 eye = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
 			//glm::vec3 at = glm::vec3(0,0,0);
 			//glm::vec3 up = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
 			//currentCam->SetCameraLookAt(eye,at,up);
-			transType = currentCam->transType;
-			ffovy_tmp = currentCam->ffovy;
-			fnear_tmp = currentCam->fnear;
-			ffar_tmp = currentCam->ffar;
-		}
-		ImGui::RadioButton("Perspective", &transType, 0);
-		ImGui::RadioButton("Orthographic", &transType, 1);
-		ImGui::SliderFloat("Fovy", &ffovy_tmp, MIN_FFOVY, MAX_FFOVY);
-		ImGui::SliderFloat("Near", &fnear_tmp, MIN_FNEAR, MAX_FNEAR);
-		ImGui::SliderFloat("Far", &ffar_tmp, MIN_FFAR, MAX_FFAR);
-		if (currentCam != NULL) {
-			currentCam->transType = transType;
-			currentCam->ffovy = ffovy_tmp;
-			currentCam->fnear = fnear_tmp;
-			currentCam->ffar = ffar_tmp;
+			
+		
+			ImGui::RadioButton("Perspective", &(currentCam->transType), 0);
+			ImGui::RadioButton("Orthographic", &(currentCam->transType), 1);
+			ImGui::SliderFloat("Fovy", &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
+			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
+			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
+			float aspectratio = float(frameBufferWidth) / float(frameBufferHeight);
+			if (currentCam->transType) {
+				//Orthographic
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
+			}
+			else {
+				//Perspective
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
+			}
+			
 		}
 	}
 	if (ImGui::CollapsingHeader("Viewers")) {
@@ -254,7 +255,7 @@ void loadGrid(Scene& scene) {
 	scene.gridCounter++;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
+void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
 	if (scene.gridCounter == 0) { loadGrid(scene); }
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
@@ -269,7 +270,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 
 	// Show transformations window:
 	// Itay's implementation:
-	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset); }
+	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset ,frameBufferWidth, frameBufferHeight); }
 	// Show about us window:
 	if (showAboutUsWindow) { buildAboutUsWindow(); }
 
