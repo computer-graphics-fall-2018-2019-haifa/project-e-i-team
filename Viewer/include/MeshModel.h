@@ -28,7 +28,7 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define XTRANS_FACTOR 4.0f
 #define YTRANS_FACTOR 4.0f
 
-static glm::mat4x4 allWorldTransform(1);
+static float zoomByZ;
 
 /*
  * MeshModel class.
@@ -57,19 +57,6 @@ public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
-
-	static void SetAllWorldTransformation(float fAllScale) {
-		if (fAllScale < 0) {
-			fAllScale = (1 / -fAllScale);
-		}
-		cout << "fAllScale = " << fAllScale << endl;
-		allWorldTransform[0][0] * fAllScale; allWorldTransform[1][1] * fAllScale; allWorldTransform[2][2] * fAllScale;
-	}
-
-	static glm::mat4x4 GetAllWorldTransformation() {
-		cout << "allWorldTransform[0][0] = " << allWorldTransform[0][0] << endl;
-		return allWorldTransform;
-	}
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;

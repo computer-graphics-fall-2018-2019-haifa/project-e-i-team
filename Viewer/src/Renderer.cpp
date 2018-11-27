@@ -228,7 +228,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if(isCameraModel){ model = scene.GetCamera(k); } 
 	else { model = scene.GetModel(k); }
 	
-	glm::mat4x4 seriesTransform = Mc * MeshModel::GetAllWorldTransformation() * model->GetWorldTransformation();
+	glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;

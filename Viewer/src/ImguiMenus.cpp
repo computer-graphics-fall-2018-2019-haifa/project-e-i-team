@@ -17,6 +17,7 @@
 #include <list>
 #include <conio.h>
 #include <string>
+#include "Renderer.h"
 
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
@@ -120,21 +121,22 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
-void handleZoomByYscrolling(float* fScale,int y_scroll_offset) {
-	if (y_scroll_offset > 1) {
-		for (int i = 0; i < y_scroll_offset; i++) {
-			*fScale += SCALE_OBJ_FACTOR;
-		}
-	}
-	else if (y_scroll_offset < -1) {
-		for (int i = 0; i < y_scroll_offset; i++) {
-			*fScale -= SCALE_OBJ_FACTOR;
-		}
-	}
+void handleZoomByYscrolling(float* zoomByZ,int y_scroll_offset) {
+	if (y_scroll_offset < 0) {
+		*zoomByZ = (1/(-(*zoomByZ)));
+	} 
+	else { *zoomByZ = y_scroll_offset; }
+}
+
+void handleMouseMovement(ImGuiIO& io,std::shared_ptr<Camera> currentCam, int frameBufferWidth, int frameBufferHeight) {
+	float p2 = io.MousePos.x - (frameBufferWidth / 2);
+	float q2 = (frameBufferHeight / 2) - io.MousePos.y;
+	cout << "x = " << p2 << " , y = " << q2 << endl;
+	currentCam->SetCameraLookAt(Trans::getTranslate4x4(p2, q2,0) * currentCam->Getview());
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
-void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
+void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, int frameBufferWidth,int frameBufferHeight) {
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
@@ -148,13 +150,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 		static float ffovy_tmp = 1.0f, fnear_tmp = 1.0f, ffar_tmp = 1.0f;
 		static int transType = 0;
 		if (currentCam != NULL) {
-			//float yoffset = y_scroll_offset;
-			//glm::vec3 eye = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
-			//glm::vec3 at = glm::vec3(0,0,0);
-			//glm::vec3 up = glm::vec3(io.MousePos.x, io.MousePos.y, 0);
-			//currentCam->SetCameraLookAt(eye,at,up);
-			//cout << "io.MouseDown[0] = " << io.MouseDown[0] << endl;
-			//cout << "io.MouseDown[2] = " << io.MouseDown[2] << endl;
+			if (io.MouseDown[0]) {
+				handleMouseMovement(io,currentCam, frameBufferWidth, frameBufferHeight);
+			}
 			transType = currentCam->transType;
 			ffovy_tmp = currentCam->ffovy;
 			fnear_tmp = currentCam->fnear;
@@ -186,8 +184,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset) {
 			// we need them public and to referenced always the app is running:
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
-			// handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
-			MeshModel::SetAllWorldTransformation(y_scroll_offset);
+			 handleZoomByYscrolling(&(zoomByZ),y_scroll_offset);
 
 			ImGui::TextColored(textColor, "Model Transformations:");
 			ImGui::SliderFloat("Scale Object", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
@@ -240,7 +237,7 @@ void loadGrid(Scene& scene) {
 	scene.gridCounter++;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
+void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset,int frameBufferWidth, int frameBufferHeight){
 	if (scene.gridCounter == 0) { loadGrid(scene); }
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
@@ -248,7 +245,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 	if(showSimpleWindow){
 		ImGui::Begin("Task 1 - Cameras VS. Models");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
 		//ImGui::Checkbox("Transformations Window", &showTransWindow);
-		buildTransformationsWindow(io,&scene,y_scroll_offset);
+		buildTransformationsWindow(io,&scene,y_scroll_offset, frameBufferWidth, frameBufferHeight);
 		ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 		ImGui::Checkbox("About Us", &showAboutUsWindow);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -257,7 +254,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset){
 
 	// Show transformations window:
 	// Itay's implementation:
-	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset); }
+	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset, frameBufferWidth, frameBufferHeight); }
 	// Show about us window:
 	if (showAboutUsWindow) { buildAboutUsWindow(); }
 
