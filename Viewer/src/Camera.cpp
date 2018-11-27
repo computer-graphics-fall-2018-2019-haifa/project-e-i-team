@@ -11,7 +11,7 @@
 Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
-	zoom(1.0),
+	fZoomz(1.0),
 	transType(0),
 	ffovy(1.0f), fnear(1.0f), ffar(1.0f),
 	MeshModel(model)
@@ -51,7 +51,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	*/
 
 	viewTransformation = mat;
-	SetWorldTransformation(glm::inverse(mat));
+	SetWorldTransformation(glm::inverse(viewTransformation));
 
 }
 
@@ -83,6 +83,7 @@ void Camera::SetOrthographicProjection(
 	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
 	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
+	SetWorldTransformation(glm::inverse(projectionTransformation));
 }
 
 
@@ -113,11 +114,4 @@ void Camera::SetPerspectiveProjection(
 	glm::vec4 v4 = glm::vec4(0, 0, -1.0f * ((2.0f * pfar * pnear) / (pfar - pnear)), 0.0f);
 
 	projectionTransformation = glm::mat4(v1, v2, v3, v4);
-}
-
-
-//Elias emplementation:
-void Camera::SetZoom(const float zoom)
-{
-	this->zoom = zoom;
 }

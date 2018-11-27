@@ -121,13 +121,6 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
-void handleMouseMovement(ImGuiIO& io,std::shared_ptr<Camera> currentCam, int frameBufferWidth, int frameBufferHeight) {
-	float p2 = io.MousePos.x - (frameBufferWidth / 2);
-	float q2 = (frameBufferHeight / 2) - io.MousePos.y;
-	cout << "x = " << p2 << " , y = " << q2 << endl;
-	currentCam->SetCameraLookAt(Trans::getTranslate4x4(p2, q2,0) * currentCam->Getview());
-}
-
 // it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
@@ -146,13 +139,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
-		if (currentCam != NULL) {
-			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
-			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
-			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
-			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
-		}
-		
 		if (currentCam != NULL) {		
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 0);
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 1);
@@ -168,7 +154,17 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				//Perspective
 				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
 			}
-			
+			ImGui::SliderFloat("Camera Zoom-in/Zoom-out", &(currentCam->fZoomz), 1.0f, 2000.0f);
+			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
+			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
+			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
+			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);
+			glm::mat4x4 axisRotate = glm::mat4x4(1); // cameraZRotate * cameraYRotate * cameraXRotate * Trans::getScale4x4(currentCam->fZoomz);
+			//currentCam->SetCameraLookAt(axisRotate * currentCam->Getview(), axisRotate * currentCam->GetProjection());
+			// TODO: make grid to be as disappeared!
 		}
 	}
 	if (ImGui::CollapsingHeader("Models")) {

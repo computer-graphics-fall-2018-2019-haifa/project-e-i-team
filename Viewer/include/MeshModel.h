@@ -28,7 +28,6 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define XTRANS_FACTOR 0.1f
 #define YTRANS_FACTOR 0.1f
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
-static float zoomByZ;
 
 /*
  * MeshModel class.
@@ -156,6 +155,4 @@ public:
 	glm::vec4 GetVertexNormalColor() {
 		return vNcolor;
 	}
-
-	// Add more methods/functionality as needed...
 };

@@ -381,7 +381,6 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
-				
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
@@ -406,7 +405,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//1. mc , mp -> we use them in case curr_camera == j
 	//2. Meshmodel -> we use it otherwise
 
-	//Update -- for each new transformation on the camera we update:
+	//Update - for each new transformation on the camera we update:
 	//1. mc , mp
 	//2. worldtransform
 	

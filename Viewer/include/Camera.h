@@ -40,12 +40,12 @@ private:
 
 	glm::mat4x4 viewTransformation; // Mc
 	glm::mat4x4 projectionTransformation; // Mp
-	float zoom;
 	glm::vec3 _eye;
 	glm::vec3 _at;
 	glm::vec3 _up;
 
 public:
+	float fZoomz;
 	int transType;
 	float ffovy,fnear,ffar;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
@@ -54,7 +54,13 @@ public:
 	glm::vec3 GetEye() { return _eye; }
 	glm::vec3 GetAt() { return _at; }
 	glm::vec3 GetUp() { return _up; }
-	void Camera::SetCameraLookAt(glm::mat4x4 newMat) { viewTransformation = newMat; }
+
+	void Camera::SetCameraLookAt(glm::mat4x4 newViewTransformation, glm::mat4x4 newProjectionTransformation) {
+		viewTransformation = newViewTransformation;
+		SetWorldTransformation(glm::inverse(viewTransformation));
+		projectionTransformation = newProjectionTransformation;
+		SetWorldTransformation(glm::inverse(projectionTransformation));
+	}
 	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
@@ -73,6 +79,4 @@ public:
 
 	glm::mat4x4 Getview() { return viewTransformation; }
 	glm::mat4x4 GetProjection() { return projectionTransformation;  }
-
-	void SetZoom(const float zoom);
 };
