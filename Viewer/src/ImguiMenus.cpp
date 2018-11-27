@@ -171,11 +171,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			float aspectratio = float(frameBufferWidth) / float(frameBufferHeight);
 			if (currentCam->transType) {
 				//Orthographic
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, -1 *currentCam->fnear, -1 *currentCam->ffar);
 			}
 			else {
 				//Perspective
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, -1 * currentCam->fnear, -1 *currentCam->ffar);
 			}
 			
 		}
@@ -218,6 +218,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::Checkbox("Show Vectex Normals", &(m->showVertexNormals));
 			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(m->vNcolor));
 			ImGui::SliderFloat("Vertex Normal Length", &(m->vNlength), 1.0f, 4*NORMAL_LENGTH);
+			ImGui::Checkbox("Show Bounding Box", &(m->showBoundingBox));
+			ImGui::ColorEdit3("Bounding Box Color", (float*)&(m->BoundingBoxColor));
+			
 
 			// transformations to the space:
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);

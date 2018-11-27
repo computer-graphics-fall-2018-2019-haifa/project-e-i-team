@@ -183,6 +183,101 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
+
+void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool isCameraModel) {
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
+	glm::mat4x4 Mc = glm::mat4x4(1);
+	glm::mat4x4 Mp = glm::mat4x4(1);
+
+	if (active_camera != NULL) {
+		Mc = active_camera->Getview();
+		Mp = active_camera->GetProjection();
+	}
+	
+	std::vector<Face> faces = scene.getModelfaces(k);
+	
+	float min_x = 2000 , min_y = 2000 , min_z = 2000;
+	float max_x = -2000, max_y = -2000, max_z = -2000;
+	
+	for (auto face = faces.begin(); face != faces.end(); ++face) {
+		
+		glm::vec3 modelVec;	
+		for (int i = 0; i < 3; i++) {
+			
+			int v = face->GetVertexIndex(i) - 1;
+			if (isCameraModel) {
+				modelVec = scene.getCameraVertices(k, v);
+			}
+			else {
+				modelVec = scene.getModelVertices(k, v);
+			}
+			float x = modelVec.x;
+			float y = modelVec.y;
+			float z = modelVec.z;
+
+			if (x < min_x) min_x = x;
+			if (y < min_y) min_y = y;
+			if (z < min_z) min_z = z;
+
+			if (x > max_x) max_x = x;
+			if (y > max_y) max_y = y;
+			if (z > max_z) max_z = z;
+		}
+	}
+	
+	glm::vec4 vec0(min_x, min_y, min_z, 1);
+	glm::vec4 vec1(min_x, min_y, max_z, 1);
+	glm::vec4 vec2(min_x, max_y, min_z, 1);
+	glm::vec4 vec3(min_x, max_y, max_z, 1);
+	glm::vec4 vec4(max_x, min_y, min_z, 1);
+	glm::vec4 vec5(max_x, min_y, max_z, 1);
+	glm::vec4 vec6(max_x, max_y, min_z, 1);
+	glm::vec4 vec7(max_x, max_y, max_z, 1);
+
+	std::shared_ptr<MeshModel> model = NULL;
+	if (isCameraModel) {
+		model = scene.GetCamera(k);
+	}
+	else {
+		model = scene.GetModel(k);
+	}
+	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
+	
+	glm::vec4 vect0 = seriesTransform * vec0;
+	vect0 = vect0 / vect0.w;
+	glm::vec4 vect1 = seriesTransform * vec1;
+	vect1 = vect1 / vect1.w;
+	glm::vec4 vect2 = seriesTransform * vec2;
+	vect2 = vect2 / vect2.w;
+	glm::vec4 vect3 = seriesTransform * vec3;
+	vect3 = vect3 / vect3.w;
+	glm::vec4 vect4 = seriesTransform * vec4;
+	vect4 = vect4 / vect4.w;
+	glm::vec4 vect5 = seriesTransform * vec5;
+	vect5 = vect5 / vect5.w;
+	glm::vec4 vect6 = seriesTransform * vec6;
+	vect6 = vect6 / vect6.w;
+	glm::vec4 vect7 = seriesTransform * vec7;
+	vect7 = vect7 / vect7.w;
+
+	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->BoundingBoxColor);
+	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->BoundingBoxColor);
+	DrawLine(vect0.x, vect4.x, vect0.y, vect4.y, model->BoundingBoxColor);
+
+	DrawLine(vect3.x, vect2.x, vect3.y, vect2.y, model->BoundingBoxColor);
+	DrawLine(vect3.x, vect1.x, vect3.y, vect1.y, model->BoundingBoxColor);
+	DrawLine(vect3.x, vect7.x, vect3.y, vect7.y, model->BoundingBoxColor);
+
+	DrawLine(vect6.x, vect7.x, vect6.y, vect7.y, model->BoundingBoxColor);
+	DrawLine(vect6.x, vect2.x, vect6.y, vect2.y, model->BoundingBoxColor);
+	DrawLine(vect6.x, vect4.x, vect6.y, vect4.y, model->BoundingBoxColor);
+
+	DrawLine(vect5.x, vect7.x, vect5.y, vect7.y, model->BoundingBoxColor);
+	DrawLine(vect5.x, vect1.x, vect5.y, vect1.y, model->BoundingBoxColor);
+	DrawLine(vect5.x, vect4.x, vect5.y, vect4.y, model->BoundingBoxColor);
+
+}
+
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
@@ -293,6 +388,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
 		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
 	}
+
+	
+
 }
 
 
@@ -424,6 +522,10 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 				}
 				else {
 					showMeshObject(scene, face, vNormals, k, io);
+					std::shared_ptr<MeshModel> model = scene.GetModel(k);
+					if (model->showBoundingBox) {
+						RenderBoundingBox(scene, io, k);
+					}
 				}
 
 			}

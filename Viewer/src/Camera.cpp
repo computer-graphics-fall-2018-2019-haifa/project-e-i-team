@@ -62,6 +62,7 @@ void Camera::SetOrthographicProjection(
 	const float snear,
 	const float sfar)
 {
+	
 	//float top = height / 2;
 	//float top = tan((fovy / 2) * PI / 180.0) * snear;
 	float top = tan(fovy / 2) * snear;

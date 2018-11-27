@@ -45,8 +45,10 @@ private:
 	std::string modelName;
 public:
 	glm::vec3 color;
+	glm::vec3 BoundingBoxColor;
 	bool showFaceNormals;
 	bool showVertexNormals;
+	bool showBoundingBox;
 	glm::vec4 fNcolor;
 	glm::vec4 vNcolor;
 	float fScale, fRotatex, fRotatey, fRotatez;
@@ -97,8 +99,10 @@ public:
 		allWorldTransform = glm::mat4x4(1);
 		showFaceNormals = false;
 		showVertexNormals = false;
+		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
+		BoundingBoxColor = BLACK_COLOR_LINE;
 		color = BLACK_COLOR_LINE;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
