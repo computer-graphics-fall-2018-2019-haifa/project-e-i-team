@@ -36,7 +36,7 @@ private:
 	
 	
 	// Itay Function Implementations: START
-	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io, bool isCameraModel=false);
+	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io,bool isCameraModel=false);
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
 	// Itay Function Implementations: END

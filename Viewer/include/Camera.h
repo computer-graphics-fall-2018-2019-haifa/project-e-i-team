@@ -40,6 +40,9 @@ private:
 	glm::mat4x4 viewTransformation; // Mc
 	glm::mat4x4 projectionTransformation; // Mp
 	float zoom;
+	glm::vec3 _eye;
+	glm::vec3 _at;
+	glm::vec3 _up;
 
 public:
 	int transType;
@@ -49,6 +52,21 @@ public:
 
 	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
 
+	glm::vec3 GetEye() {
+		return _eye;
+	}
+
+	glm::vec3 GetAt() {
+		return _at;
+	}
+
+	glm::vec3 GetUp() {
+		return _up;
+	}
+
+	void Camera::SetCameraLookAt(glm::mat4x4 newMat) {
+		viewTransformation = newMat;
+	}
 
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 

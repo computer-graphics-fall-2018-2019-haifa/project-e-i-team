@@ -17,6 +17,7 @@
 #include <list>
 #include <conio.h>
 #include <string>
+#include "Renderer.h"
 
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 bool showAboutUsWindow = false;
@@ -120,17 +121,18 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	}
 }
 
-void handleZoomByYscrolling(float* fScale,int y_scroll_offset) {
-	if (y_scroll_offset > 1) {
-		for (int i = 0; i < y_scroll_offset; i++) {
-			*fScale += SCALE_OBJ_FACTOR;
-		}
-	}
-	else if (y_scroll_offset < -1) {
-		for (int i = 0; i < y_scroll_offset; i++) {
-			*fScale -= SCALE_OBJ_FACTOR;
-		}
-	}
+void handleZoomByYscrolling(float* zoomByZ,int y_scroll_offset) {
+	if (y_scroll_offset < 0) {
+		*zoomByZ = (1/(-(*zoomByZ)));
+	} 
+	else { *zoomByZ = y_scroll_offset; }
+}
+
+void handleMouseMovement(ImGuiIO& io,std::shared_ptr<Camera> currentCam, int frameBufferWidth, int frameBufferHeight) {
+	float p2 = io.MousePos.x - (frameBufferWidth / 2);
+	float q2 = (frameBufferHeight / 2) - io.MousePos.y;
+	cout << "x = " << p2 << " , y = " << q2 << endl;
+	currentCam->SetCameraLookAt(Trans::getTranslate4x4(p2, q2,0) * currentCam->Getview());
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -191,14 +193,15 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
 			handleKeyboardInputs(m);
+
 			// each field is belonging to each mesh model object due to this issue, 
 			// we need them public and to referenced always the app is running:
 
 			// as response to y scrolling value we control the zoom in and zoom out world models:
-			// handleZoomByYscrolling(&(m->fScale),y_scroll_offset);
-			m->SetAllWorldTransformation(y_scroll_offset);
+			 handleZoomByYscrolling(&(zoomByZ),y_scroll_offset);
 
-			ImGui::SliderFloat("Scale Object", &(m->fScale), 1.0f, 1000.0f);
+			ImGui::TextColored(textColor, "Model Transformations:");
+			ImGui::SliderFloat("Scale Object", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
 			ImGui::SliderFloat("Rotate By X [-2PI,2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
@@ -222,7 +225,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// transformations to the space:
 			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 			glm::mat4x4 nextPosition = Trans::getTranslate4x4(m->fTranslatex, m->fTranslatey, m->fTranslatez);
-			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition); //TODO: scaling matrix doesn't effect!!!
+			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
 		}
 	}
 

@@ -30,6 +30,9 @@ Camera::~Camera()
 //Elias emplementation:
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
+	_eye = eye;
+	_at = at;
+	_up = up;
 	glm::vec3 z = glm::normalize(eye - at);
 	glm::vec3 x = glm::normalize(glm::cross(up,z));
 	glm::vec3 y = glm::normalize(glm::cross(z,x));
