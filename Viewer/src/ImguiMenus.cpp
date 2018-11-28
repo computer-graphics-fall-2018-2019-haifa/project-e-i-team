@@ -146,7 +146,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			cout << "camera path = " << path << endl;
-			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)));
+			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)) , frameBufferHeight);
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
@@ -178,6 +178,29 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, -1 * currentCam->fnear, -1 *currentCam->ffar);
 			}
 			
+			if (ImGui::Button("Focus on current model")) {
+				glm::vec3 at;
+				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
+
+				for (auto face = faces.begin(); face != faces.end(); ++face) {
+					int v = face->GetVertexIndex(0) - 1;
+					at = scene->getModelVertices(0, v);
+					break;
+				}
+				
+				
+
+				glm::vec3 rand = glm::vec3(3, 2, 1);
+				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
+				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;
+				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + currentCam->origin_eye;
+				
+				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
+				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
+				glm::vec4 eye4 = glm::vec4((currentCam->origin_eye).x, (currentCam->origin_eye).y, (currentCam->origin_eye).z, 1);
+				
+				currentCam->SetCameraLookAt(eye4, at4, up4);
+			}
 		}
 	}
 	if (ImGui::CollapsingHeader("Viewers")) {

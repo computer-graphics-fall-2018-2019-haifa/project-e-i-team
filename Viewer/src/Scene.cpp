@@ -16,27 +16,29 @@ const int Scene::GetModelCount() const
 	return models.size();
 }
 
-void Scene::AddCamera(std::shared_ptr<MeshModel> model)
+void Scene::AddCamera(std::shared_ptr<MeshModel> model , int windowHeight)
 {	
-	//1.
-	//previous camera position, is that aim to be the correct form?!?
-	//Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
+	int x = (rand() % windowHeight) - windowHeight / 2;
+	int y = (rand() % windowHeight) - windowHeight / 2;
+	int z = (rand() % windowHeight) - windowHeight / 2;
 
-	//2.
-	//picking camera random position on space:
-	cout << "activeCameraIndex = " << activeCameraIndex << endl;
-	Camera c(model, glm::vec4(-1, -1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(-1, -1, 1, 1));
-	if (activeCameraIndex == 0) {
-		c = Camera(model, glm::vec4(1, 1, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(1, 1, 1, 1)); // eye,at,up
-	}
+	glm::vec3 eye = glm::vec3(x, y, z);
+	glm::vec3 at = glm::vec3(0, 0, 0);
+	glm::vec3 rand = glm::vec3(3, 2, 1);
+	glm::vec3 vec_eye_at = at - eye;
+	glm::vec3 vector_eye_rand = rand - eye;
+	glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + eye;
+	glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
+	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1);
+	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
 	
-	
+
+	Camera c(model, eye4, at4, up4);
+		
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
 
-	//3.
-	//TODO: need to really adding new camera which is beloging to "Camera i" string at Cameras section
-	//all of this with out putting camera at the View side (transformations)! [part of the excercise]
+	
 }
 
 const int Scene::GetCameraCount() const

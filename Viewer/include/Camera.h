@@ -42,12 +42,13 @@ private:
 	float zoom;
 
 public:
+	glm::vec3 origin_eye;
 	int transType;
 	float ffovy,fnear,ffar;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
 
-	glm::vec4 Camera::cross(glm::vec4 vec0, glm::vec4 vec1);
+	
 
 
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
