@@ -6,11 +6,13 @@
 #include <fstream>
 #include <sstream>
 
-MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName) :
+MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName) :
 	modelName(modelName),
 	vertices(vertices),
 	faces(faces),
-	normals(normals)
+	normals(normals),
+	BoundMin(BoundMin),
+	BoundMax(BoundMax)
 {
 	resetModel();
 }

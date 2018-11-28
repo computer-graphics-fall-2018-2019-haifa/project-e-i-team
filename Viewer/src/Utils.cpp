@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 glm::vec3 Utils::Vec3fFromStream(std::istream& issLine)
 {
 	float x, y, z;
@@ -53,7 +54,7 @@ MeshModel Utils::LoadGridModel() {
 			counter += 4;
 		}
 	}
-	return MeshModel(grid_faces, grid_vertices, grid_vertices, "Grid");
+	return MeshModel(grid_faces, grid_vertices, grid_vertices,glm::vec3(0,0,0) , glm::vec3(0, 0, 0), "Grid");
 }
 
 
@@ -108,7 +109,38 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	}
 
 
-	return MeshModel(faces, vertices, normals, Utils::GetFileName(filePath));
+	
+
+	float min_x = 2000, min_y = 2000, min_z = 2000;
+	float max_x = -2000, max_y = -2000, max_z = -2000;
+
+	for (auto face = faces.begin(); face != faces.end(); ++face) {
+
+		glm::vec3 modelVec;
+		for (int i = 0; i < 3; i++) {
+
+			int v = face->GetVertexIndex(i) - 1;
+			modelVec = vertices[v];
+			
+			float x = modelVec.x;
+			float y = modelVec.y;
+			float z = modelVec.z;
+
+			if (x < min_x) min_x = x;
+			if (y < min_y) min_y = y;
+			if (z < min_z) min_z = z;
+
+			if (x > max_x) max_x = x;
+			if (y > max_y) max_y = y;
+			if (z > max_z) max_z = z;
+		}
+	}
+	glm::vec3 BoundMin(min_x , min_y , min_z);
+	glm::vec3 BoundMax(max_x , max_y , max_z);
+
+	
+
+	return MeshModel(faces, vertices, normals, BoundMin, BoundMax, Utils::GetFileName(filePath));
 }
 
 std::string Utils::GetFileName(const std::string& filePath)

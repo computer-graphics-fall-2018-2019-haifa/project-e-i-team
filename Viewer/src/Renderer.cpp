@@ -158,7 +158,7 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
-	
+	/*
 	std::vector<Face> faces = scene.getModelfaces(k);
 	
 	float min_x = 2000 , min_y = 2000 , min_z = 2000;
@@ -189,7 +189,22 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 			if (z > max_z) max_z = z;
 		}
 	}
+	*/
+
+	std::shared_ptr<MeshModel> model = NULL;
+	if (isCameraModel) {
+		model = scene.GetCamera(k);
+	}
+	else {
+		model = scene.GetModel(k);
+	}
 	
+
+
+	
+	float min_x = (model->BoundMin).x, min_y = (model->BoundMin).y, min_z = (model->BoundMin).z;
+	float max_x = (model->BoundMax).x , max_y = (model->BoundMax).y, max_z = (model->BoundMax).z;
+
 	glm::vec4 vec0(min_x, min_y, min_z, 1);
 	glm::vec4 vec1(min_x, min_y, max_z, 1);
 	glm::vec4 vec2(min_x, max_y, min_z, 1);
@@ -199,13 +214,7 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	glm::vec4 vec6(max_x, max_y, min_z, 1);
 	glm::vec4 vec7(max_x, max_y, max_z, 1);
 
-	std::shared_ptr<MeshModel> model = NULL;
-	if (isCameraModel) {
-		model = scene.GetCamera(k);
-	}
-	else {
-		model = scene.GetModel(k);
-	}
+	
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	
 	glm::vec4 vect0 = seriesTransform * vec0;
@@ -242,6 +251,7 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	DrawLine(vect5.x, vect4.x, vect5.y, vect4.y, model->BoundingBoxColor);
 
 }
+
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
 	//isCameraModel ? (cout << "k = " << k << endl) : cout << "";
@@ -290,7 +300,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	} else {
 		model = scene.GetModel(k);
 	}
-	glm::mat4x4 seriesTransform = (isCameraModel ? Trans::getScale4x4(CAM_MIN_SIZE) : glm::mat4x4(1)) * model->GetWorldTransformation();
+	glm::mat4x4 scale_cam_factor(1);
+	if (isCameraModel) { scale_cam_factor = Trans::getScale4x4(MIN_SCALE_FACTOR); }
+	glm::mat4x4 seriesTransform = Mp * Mc * scale_cam_factor * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;

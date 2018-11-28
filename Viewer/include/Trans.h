@@ -3,7 +3,7 @@
 
 class Trans {
 public:
-	static glm::mat4x4 getScale4x4(int factor) {
+	static glm::mat4x4 getScale4x4(float factor) {
 		glm::mat4x4 m = glm::mat4x4(factor);
 		m[3][3] = 1;
 		return m;

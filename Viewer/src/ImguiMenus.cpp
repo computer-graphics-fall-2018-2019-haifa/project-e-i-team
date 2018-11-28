@@ -88,25 +88,41 @@ const char* getCamerasNames(int length) {
 	return comboList;
 }
 
-void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
+glm::mat4x4 handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
+	glm::mat4x4 Tm(1);
+
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
+		float fsc = model->fScale;
 		model->fScale += SCALE_OBJ_FACTOR;
+		Tm = Trans::getScale4x4(model->fScale / fsc);
+		
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown))){
+		float fsc = model->fScale;
 		model->fScale -= SCALE_OBJ_FACTOR;
+		Tm = Trans::getScale4x4(model->fScale / fsc);
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))){
+		float ftx = model->fTranslatex;
 		model->fTranslatex -= XTRANS_FACTOR;
+		Tm = Trans::getTranslate4x4(model->fTranslatex - ftx, 0, 0);
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))){
+		float ftx = model->fTranslatex;
 		model->fTranslatex += XTRANS_FACTOR;
+		Tm = Trans::getTranslate4x4(model->fTranslatex - ftx, 0, 0);
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
+		float fty = model->fTranslatey;
 		model->fTranslatey += YTRANS_FACTOR;
+		Tm = Trans::getTranslate4x4(0, model->fTranslatey - fty, 0);
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))){
+		float fty = model->fTranslatey;
 		model->fTranslatey -= YTRANS_FACTOR;
+		Tm = Trans::getTranslate4x4(0, model->fTranslatey - fty, 0);
 	}
+	return Tm;
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -118,45 +134,25 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-			//cout << "camera path = " << path << endl;
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight);
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
 		if (currentCam != NULL) {	
-			 //glm::mat4x4 T = glm::mat4x4(1);
-			 //if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) {
-			 //	currentCam->fScale += SCALE_OBJ_FACTOR;
-			 //	T = Trans::getScale4x4(currentCam->fScale);
-			 //}
-			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
-			 //	currentCam->fScale -= SCALE_OBJ_FACTOR;
-			 //	T = Trans::getScale4x4(currentCam->fScale);
-			 //}
-			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z))) {
-			 //	currentCam->fTranslatex -= XTRANS_FACTOR;
-			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
-			 //}
-			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) {
-			 //	currentCam->fTranslatex += XTRANS_FACTOR;
-			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
-			 //}
-			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A))) {
-			 //	currentCam->fTranslatey += YTRANS_FACTOR;
-			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
-			 //}
-			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
-			 //	currentCam->fTranslatey -= YTRANS_FACTOR;
-			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
-			 //}	
-			glm::mat4x4 Tc(1);
+			
+			//glm::mat4x4 Tc(1);
+
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
 			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
+			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
+
+
+			/*
 			ImGui::TextColored(textColor, "Camera Transformations:");
 			float frx = currentCam->fRotatex, fry = currentCam->fRotatey, frz = currentCam->fRotatez;
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
@@ -166,31 +162,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
 			if (frz != currentCam->fRotatez) { Tc = Trans::getzRotate4x4(currentCam->fRotatez - frz); }
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
-			/*
-			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
-			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
-			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);
-			glm::mat4x4 axisRotate = cameraZRotate * cameraYRotate * cameraXRotate;
 			*/
-			glm::mat4x4 axisRotate = Tc;
+			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); 
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar); 
 				inv = glm::inverse(currentCam->GetProjection()); 
 			} else { 
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate);
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
 				inv = glm::inverse(currentCam->Getview());
 			}
+
+
+
 			if (ImGui::Button("Focus on current model")) {
 				glm::vec3 at;
 				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
-
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
 					int v = face->GetVertexIndex(0) - 1;
 					at = scene->getModelVertices(0, v);
 					break;
 				}
-
 				glm::vec3 rand = glm::vec3(3, 2, 1);
 				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
 				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;
@@ -204,63 +196,59 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	glm::mat4x4 resetPosition = glm::mat4x4(1), nextPosition = glm::mat4x4(1);
-	glm::mat4x4 Tm(1);
-	//glm::mat4x4 scaling = glm::mat4x4(1), xRotateMat = glm::mat4x4(1), xTranslateMat = glm::mat4x4(1), yRotateMat = glm::mat4x4(1), yTranslateMat = glm::mat4x4(1), zRotateMat = glm::mat4x4(1), zTranslateMat = glm::mat4x4(1);
+	// transformations to the space:
+	/*for (int i = 0; i < scene->GetModelCount(); i++) {
+		std::shared_ptr<MeshModel> model = scene->GetModel(i);
+		if(i == scene->activeModelIndex) { model->SetWorldTransformation(Tm* model->GetWorldTransformation()); }
+		else { model->SetWorldTransformation(inv); }
+	}
+	for (int i = 0; i < scene->GetCameraCount(); i++) {
+		if (i != scene->activeCameraIndex) {
+			std::shared_ptr<Camera> camera = scene->GetCamera(i);
+			camera->SetWorldTransformation(inv);
+		}
+	}*/
+
+
+	
+	
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
 		if (currentModel != nullptr) {
+			glm::mat4x4 Tm(1);
 			// determine the parameters initialize if required from the user: [changing scale graph online]
-			handleKeyboardInputs(currentModel);
-
 			// each field is belonging to each mesh model object due to this issue, 
 			// we need them public and to referenced always the app is running:
-
 			// as response to y scrolling value we control the zoom in and zoom out world models:
 
 			ImGui::TextColored(textColor, "Model Transformations:");
 
+			Tm = handleKeyboardInputs(currentModel);
 			float fsc = currentModel->fScale;
 			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			//scaling = Trans::getScale4x4(currentModel->fScale);
-			if (fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale - fsc); }
-
+			if (fsc != currentModel->fScale) {Tm = Trans::getScale4x4(currentModel->fScale / fsc);	}
 			float frx = currentModel->fRotatex;
 			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
-			//xRotateMat = Trans::getxRotate4x4(currentModel->fRotatex);
 			if (frx != currentModel->fRotatex) { Tm = Trans::getxRotate4x4(currentModel->fRotatex - frx); }
-
 			float ftx = currentModel->fTranslatex;
 			ImGui::SliderFloat("Translate By X", &(currentModel->fTranslatex), -1000.0f, 1000.0f);
-			//xTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatex, 0.0f);
-
+			if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 			float fry = currentModel->fRotatey;
 			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
-			//yRotateMat = Trans::getyRotate4x4(currentModel->fRotatey);
 			if (fry != currentModel->fRotatey) { Tm = Trans::getyRotate4x4(currentModel->fRotatey - fry); }
-
 			float fty = currentModel->fTranslatey;
 			ImGui::SliderFloat("Translate By Y", &(currentModel->fTranslatey), -1000.0f, 1000.0f);
-			//yTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatey, 0.0f);
-
+			if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 			float frz = currentModel->fRotatez;
 			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
-			//zRotateMat = Trans::getzRotate4x4(currentModel->fRotatez);
 			if (frz != currentModel->fRotatez) { Tm = Trans::getzRotate4x4(currentModel->fRotatez - frz); }
-
 			float ftz = currentModel->fTranslatez;
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), -1000.0f, 1000.0f);
-			//zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, currentModel->fTranslatez);
-
-			Tm = Trans::getTranslate4x4(
-				currentModel->fTranslatex - ftx,
-				currentModel->fTranslatey - fty,
-				currentModel->fTranslatez - ftz
-			);
-
+			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
+	
 			ImGui::Checkbox("Show Face Normals", &(currentModel->showFaceNormals));
 			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 			ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), 1.0f, 4*NORMAL_LENGTH);
@@ -270,23 +258,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::Checkbox("Show Bounding Box", &(currentModel->showBoundingBox));
 			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 
-			resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-			//nextPosition = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
+			currentModel->UpdateworldTransform(Tm);
 		}
 	}
 
-	// transformations to the space:
-	for (int i = 0; i < scene->GetModelCount(); i++) {
-		std::shared_ptr<MeshModel> model = scene->GetModel(i);
-		if(i == scene->activeModelIndex) { model->SetWorldTransformation(Tm*resetPosition); }
-		else { model->SetWorldTransformation(inv); }
-	}
-	for (int i = 0; i < scene->GetCameraCount(); i++) {
-		if (i != scene->activeCameraIndex) {
-			std::shared_ptr<Camera> camera = scene->GetCamera(i);
-			camera->SetWorldTransformation(inv);
-		}
-	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }
@@ -308,7 +283,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, BLACK_COLOR_LINE,0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
 	scene.gridCounter++;
 }
 

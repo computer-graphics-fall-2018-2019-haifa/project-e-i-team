@@ -25,7 +25,6 @@ public:
 	//	1. function that gets an angle, and returns a rotation matrix around a certian axis
 	//	2. function that gets a vector, and returns a translation matrix
 	//	3. anything else that may be useful in global scope
-
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

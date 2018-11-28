@@ -17,20 +17,22 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 
 #define NORMAL_LENGTH 40.0f
 
-#define MAX_SCALE_FACTOR 2000.0f
+#define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
-#define SCALE_OBJ_FACTOR 4.0f
+#define SCALE_OBJ_FACTOR 50.0f
 
 #define MAX_TRANSLATION_LENGTH 20.f
 #define MIN_TRANSLATION_LENGTH -20.f
 
 // smooth moving:
-#define XTRANS_FACTOR 6.0f
-#define YTRANS_FACTOR 6.1f
+#define XTRANS_FACTOR 20.0f
+#define YTRANS_FACTOR 20.1f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
-#define RAND int(((float)rand() / (RAND_MAX)) * 255)
-#define RAND3COLOR glm::vec3(RAND,RAND,RAND)
+static glm::vec3* getRandColor() {
+	glm::vec3* color = &glm::vec3(rand() % 256, rand() % 256, rand() % 256);
+	return color;
+}
 
 /*
  * MeshModel class.
@@ -47,6 +49,8 @@ private:
 	glm::mat4x4 allWorldTransform;
 	std::string modelName;
 public:
+	glm::vec3 BoundMin;
+	glm::vec3 BoundMax;
 	glm::vec3 color;
 	glm::vec3 BoundingBoxColor;
 	bool showFaceNormals;
@@ -59,7 +63,8 @@ public:
 	float fNlength, vNlength;
 
 	MeshModel(){}
-	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
+	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,
+		const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
@@ -85,10 +90,14 @@ public:
 		return modelName;
 	}
 
+	void UpdateworldTransform(glm::mat4x4 T) {
+		worldTransform = T * worldTransform;
+	}
+
 	void resetModel(float fScaleDef = FSCALE_DEF,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
-					glm::vec3 modelColor = RAND3COLOR,
+					glm::vec3* modelColor = getRandColor(),
 					float vertexNlength = NORMAL_LENGTH,
 					float faceNlength = NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
@@ -97,8 +106,9 @@ public:
 		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
-		BoundingBoxColor = BLACK_COLOR_LINE;
-		color = modelColor;
+		BoundingBoxColor = *modelColor;
+		color = *modelColor;
+		//std::cout << "modelName = " << modelName << " , " <<"modelColor = " << modelColor.x << modelColor.y << modelColor.z << std::endl;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
 		fScale = fScaleDef;

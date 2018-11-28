@@ -41,9 +41,6 @@ private:
 
 	glm::mat4x4 viewTransformation; // Mc
 	glm::mat4x4 projectionTransformation; // Mp
-	glm::vec3 _eye;
-	glm::vec3 _at;
-	glm::vec3 _up;
 
 public:
 	glm::vec3 origin_eye;
@@ -52,16 +49,12 @@ public:
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
 
-	glm::vec3 GetEye() { return _eye; }
-	glm::vec3 GetAt() { return _at; }
-	glm::vec3 GetUp() { return _up; }
-
-	void Camera::SetCameraLookAt(glm::mat4x4 newViewTransformation, glm::mat4x4 newProjectionTransformation) {
+	//void Camera::SetCameraLookAt(glm::mat4x4 newViewTransformation, glm::mat4x4 newProjectionTransformation);
 		//viewTransformation = newViewTransformation;
 		// SetWorldTransformation(glm::inverse(viewTransformation));
 		//projectionTransformation = newProjectionTransformation;
 		//SetWorldTransformation(glm::inverse(projectionTransformation));
-	}
+	
 	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
@@ -69,15 +62,13 @@ public:
 		const float height,
 		const float aspectRatio,
 		const float near,
-		const float far,
-		glm::mat4x4& transAround);
+		const float far);
 
 	void SetPerspectiveProjection(
 		const float fovy,
 		const float aspect,
 		const float near,
-		const float far,
-		glm::mat4x4& transAround);
+		const float far);
 
 
 	glm::mat4x4 Getview() { return viewTransformation; }

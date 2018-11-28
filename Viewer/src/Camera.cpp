@@ -28,9 +28,6 @@ Camera::~Camera()
 //Elias emplementation:
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
-	_eye = eye;
-	_at = at;
-	_up = up;
 	glm::vec3 z = glm::normalize(eye - at);
 	glm::vec3 x = glm::normalize(glm::cross(up,z));
 	glm::vec3 y = glm::normalize(glm::cross(z,x));
@@ -40,6 +37,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
 
 	viewTransformation = mat;
+	SetWorldTransformation(glm::inverse(mat));
 }
 
 
@@ -50,8 +48,7 @@ void Camera::SetOrthographicProjection(
 	const float fovy, /* open degree */
 	const float aspectRatio,
 	const float snear,
-	const float sfar,
-	glm::mat4x4& transAround)
+	const float sfar)
 {
 	
 	//float top = height / 2;
@@ -73,19 +70,18 @@ void Camera::SetOrthographicProjection(
 	glm::vec4 v3 = glm::vec4(0, 0, S_z, 0.0f);
 	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
-	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4) * transAround;
+	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
 void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,
 	const float pnear,
-	const float pfar,
-	glm::mat4x4& transAround)
+	const float pfar)
 {
 	float pneardef = 1,pfardef = -1;
 	float wright = 1.0f, wleft = -1.0f, wtop = -1.0f, wbottom = 1.0f;
-#define X_Y_SCALE 1.0f
+	#define X_Y_SCALE 1.0f
 	glm::vec4 v1 = glm::vec4(X_Y_SCALE / (wright - wleft), 0.0f, 0.0f, 0.0f);
 	glm::vec4 v2 = glm::vec4(0.0f, X_Y_SCALE / (wtop - wbottom), 0.0f, 0.0f);
 	glm::vec4 v3 = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
@@ -93,7 +89,6 @@ void Camera::SetPerspectiveProjection(
 	glm::mat4x4 P = glm::mat4x4(v1,v2,v3,v4);
 	glm::mat4x4 f = Trans::getScale4x4(1);
 	f[2][2] = fovy;
-	P = Trans::getScale4x4(pfar) * Trans::getScale4x4(pnear) * f * P;
 
-	viewTransformation = P * transAround;
+	projectionTransformation = Trans::getScale4x4(pfar) * Trans::getScale4x4(pnear) * f * P;
 }
