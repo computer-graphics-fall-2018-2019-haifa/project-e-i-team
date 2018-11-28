@@ -175,10 +175,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
 			}
 		
-			currentCam->UpdateworldTransform(T);
+			//currentCam->UpdateworldTransform(T);
 
-			
-			currentCam->origin_eye = currentCam->origin_eye * currentCam->GetworldTransform();
+			//
+			//currentCam->origin_eye = currentCam->origin_eye * currentCam->GetworldTransform();
 
 
 
