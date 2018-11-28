@@ -115,6 +115,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 inv = glm::mat4x4(1);
+	glm::mat4x4 Tc(1);
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
@@ -150,7 +151,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			 //	currentCam->fTranslatey -= YTRANS_FACTOR;
 			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
 			 //}	
-			glm::mat4x4 Tc(1);
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
@@ -284,7 +284,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	for (int i = 0; i < scene->GetCameraCount(); i++) {
 		if (i != scene->activeCameraIndex) {
 			std::shared_ptr<Camera> camera = scene->GetCamera(i);
-			camera->SetWorldTransformation(inv);
+			camera->SetWorldTransformation(Tc);
 		}
 	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
