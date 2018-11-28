@@ -19,14 +19,14 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 
 #define MAX_SCALE_FACTOR 500.0f
 #define MIN_SCALE_FACTOR 50.0f
-#define SCALE_OBJ_FACTOR 1.0f
+#define SCALE_OBJ_FACTOR 3.0f
 
 #define MAX_TRANSLATION_LENGTH 10.f
 #define MIN_TRANSLATION_LENGTH -10.f
 
 // smooth moving:
-#define XTRANS_FACTOR 0.1f
-#define YTRANS_FACTOR 0.1f
+#define XTRANS_FACTOR 6.0f
+#define YTRANS_FACTOR 6.0f
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
 /*
