@@ -12,6 +12,7 @@
 #define MIN_FFAR 1.0f
 #define MAX_FFAR 10.0f
 
+#define CAM_MIN_SIZE 50.0f
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  *
@@ -45,7 +46,6 @@ private:
 	glm::vec3 _up;
 
 public:
-	float fZoomz;
 	int transType;
 	float ffovy,fnear,ffar;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
@@ -56,10 +56,10 @@ public:
 	glm::vec3 GetUp() { return _up; }
 
 	void Camera::SetCameraLookAt(glm::mat4x4 newViewTransformation, glm::mat4x4 newProjectionTransformation) {
-		viewTransformation = newViewTransformation;
-		SetWorldTransformation(glm::inverse(viewTransformation));
-		projectionTransformation = newProjectionTransformation;
-		SetWorldTransformation(glm::inverse(projectionTransformation));
+		//viewTransformation = newViewTransformation;
+		// SetWorldTransformation(glm::inverse(viewTransformation));
+		//projectionTransformation = newProjectionTransformation;
+		//SetWorldTransformation(glm::inverse(projectionTransformation));
 	}
 	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
@@ -68,13 +68,15 @@ public:
 		const float height,
 		const float aspectRatio,
 		const float near,
-		const float far);
+		const float far,
+		glm::mat4x4& transAround);
 
 	void SetPerspectiveProjection(
 		const float fovy,
 		const float aspect,
 		const float near,
-		const float far);
+		const float far,
+		glm::mat4x4& transAround);
 
 
 	glm::mat4x4 Getview() { return viewTransformation; }

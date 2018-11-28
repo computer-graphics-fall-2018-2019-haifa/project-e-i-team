@@ -8,6 +8,12 @@ public:
 		m[3][3] = 1;
 		return m;
 	}
+	static glm::mat4x4 getZoom(int factor) {
+		return glm::mat4x4(glm::highp_mat4::col_type(1.0f, 0.0f, 0.0f, 0.0f),
+			glm::highp_mat4::col_type(0.0f, 1.0f, 0.0f, 0.0f),
+			glm::highp_mat4::col_type(0.0f, 0.0f, factor, 0.0f),
+			glm::highp_mat4::col_type(0.0f, 0.0f, 0.0f, 1.0f));
+	}
 	static glm::mat4x4 getxRotate4x4(int teta) {
 		return glm::mat4x4(glm::highp_mat4::col_type(1.0f, 0.0f, 0.0f, 0.0f),
 			glm::highp_mat4::col_type(0.0f, cos(teta), (-1)*sin(teta), 0.0f),

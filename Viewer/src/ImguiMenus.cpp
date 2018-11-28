@@ -125,12 +125,8 @@ void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	ImGui::TextColored(textColor,"Transformations Window:");
-
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
-	
 	if (ImGui::CollapsingHeader("Cameras")) {
-		
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			cout << "camera path = " << path << endl;
@@ -140,21 +136,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
 		if (currentCam != NULL) {		
-			ImGui::RadioButton("Perspective", &(currentCam->transType), 0);
-			ImGui::RadioButton("Orthographic", &(currentCam->transType), 1);
+			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
+			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			ImGui::SliderFloat("Fovy", &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
-			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
-			if (currentCam->transType) {
-				//Orthographic
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
-			}
-			else {
-				//Perspective
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
-			}
-			ImGui::SliderFloat("Camera Zoom-in/Zoom-out", &(currentCam->fZoomz), 1.0f, 2000.0f);
+			ImGui::TextColored(textColor, "Camera Transformations:");
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
@@ -162,19 +149,18 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
 			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
 			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);
-			glm::mat4x4 axisRotate = glm::mat4x4(1); // cameraZRotate * cameraYRotate * cameraXRotate * Trans::getScale4x4(currentCam->fZoomz);
-			//currentCam->SetCameraLookAt(axisRotate * currentCam->Getview(), axisRotate * currentCam->GetProjection());
-			// TODO: make grid to be as disappeared!
+
+			glm::mat4x4 axisRotate = cameraZRotate * cameraYRotate * cameraXRotate;
+			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
+			if (!currentCam->transType) { currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); } 
+			else { currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); }
 		}
 	}
 	if (ImGui::CollapsingHeader("Models")) {
-		
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
-		
 		ImGui::ColorEdit3("Model Color", (float*)&(m->color)); // Edit 3 floats representing a color
-
 		if (m != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
 			handleKeyboardInputs(m);
