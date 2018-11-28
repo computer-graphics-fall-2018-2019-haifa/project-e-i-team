@@ -1,8 +1,9 @@
 #pragma once
+#include "MeshModel.h"
 #include <memory>
 #include <glm/glm.hpp>
-#include "MeshModel.h"
 
+#define FFOVY_BASIC_UNIT 1.0f
 #define MIN_FFOVY 0.1f
 #define MAX_FFOVY 3.142f
 
@@ -12,7 +13,6 @@
 #define MIN_FFAR 1.1f
 #define MAX_FFAR 10.0f
 
-#define CAM_BASIC_SIZE 30.0f
 /*
 * Pseudo Algorithm of the camera behavior in transformation's relationship:
 * ========================================================================

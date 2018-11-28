@@ -10,7 +10,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
-	ffovy(MIN_FFOVY), fnear(MIN_FNEAR), ffar(MIN_FFAR),
+	ffovy(FFOVY_BASIC_UNIT), fnear(MIN_FNEAR), ffar(MIN_FFAR),
 	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f),
 	MeshModel(model)
 {

@@ -253,7 +253,6 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
-	//isCameraModel ? (cout << "k = " << k << endl) : cout << "";
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
@@ -265,7 +264,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
-	// v0,v1,v2 => 1,13,4
+	// for instance: v0,v1,v2 => 1,13,4
 
 	glm::vec3 modelVec;
 	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v0); }

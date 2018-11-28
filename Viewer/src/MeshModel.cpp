@@ -26,21 +26,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model) :
 	resetModel();
 }
 
-MeshModel::~MeshModel()
-{
-}
-
-void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform)
-{
-	this->worldTransform = worldTransform;
-}
-
-const glm::mat4x4& MeshModel::GetWorldTransformation() const
-{
-	return worldTransform;
-}
-
-void MeshModel::SetColor(const glm::vec4& color)
-{
-	this->color = color;
-}
+MeshModel::~MeshModel() {}
+void MeshModel::SetWorldTransformation(const glm::mat4x4& worldTransform) { this->worldTransform = worldTransform; }
+const glm::mat4x4& MeshModel::GetWorldTransformation() const { return worldTransform; }
+void MeshModel::SetColor(const glm::vec4& color) { this->color = color; }

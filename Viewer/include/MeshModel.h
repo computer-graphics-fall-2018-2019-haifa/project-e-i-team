@@ -6,6 +6,8 @@
 #include "Face.h"
 #include <stdio.h>
 #include <time.h>
+#include "Trans.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -17,12 +19,12 @@ using namespace std;
 #define MAX_NORMAL_LENGTH 100.0f
 #define MIN_NORMAL_LENGTH 0.0f
 
-#define MAX_SCALE_FACTOR 10000.0f
+#define MAX_SCALE_FACTOR 100000.0f
 #define MIN_SCALE_FACTOR 1.0f
-#define SCALE_OBJ_FACTOR 50.0f
+#define SCALE_OBJ_FACTOR 30.0f
 
-#define MAX_TRANSLATION_LENGTH 10000.0f
-#define MIN_TRANSLATION_LENGTH -10000.0f
+#define MAX_TRANSLATION_LENGTH 1000.0f
+#define MIN_TRANSLATION_LENGTH -1000.0f
 
 // smooth moving:
 #define XTRANS_FACTOR 20.0f
@@ -32,14 +34,15 @@ using namespace std;
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 
+/*
+getRandColor() success depend on srand(time(NULL)) in the top on main function
+*/
 static glm::vec3* getRandColor() {
-	srand(time(NULL));
 	int r = rand() % 256;
-	srand(time(NULL));
 	int g = rand() % 256;
-	srand(time(NULL));
 	int b = rand() % 256;
 	glm::vec3* color = &glm::vec3(r, g, b);
+	//std::cout << "(R=" << r << ",G=" << g << ",B=" << b << ")" << std::endl;
 	return color;
 }
 
@@ -84,9 +87,7 @@ public:
 	std::vector<Face> GetFaces() { return faces; }
 	std::vector<glm::vec3> GetVertices() { return vertices; }
 	std::string GetModelName() { return modelName; }
-	void UpdateworldTransform(glm::mat4x4 T) {
-		worldTransform = T * worldTransform;
-	}
+	void UpdateworldTransform(glm::mat4x4 T) { worldTransform = T * worldTransform; }
 
 	void resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
@@ -94,7 +95,7 @@ public:
 					glm::vec3* modelColor = getRandColor(),
 					float vertexNlength = MAX_NORMAL_LENGTH,
 					float faceNlength = MAX_NORMAL_LENGTH) {
-		worldTransform = glm::mat4x4(1);
+		worldTransform = Trans::getScale4x4(fScaleDef);
 		showFaceNormals = false;
 		showVertexNormals = false;
 		showBoundingBox = false;
