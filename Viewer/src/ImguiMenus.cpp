@@ -239,6 +239,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::Checkbox("Show Vectex Normals", &(currentModel->showVertexNormals));
 			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
 			ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), 1.0f, 4*NORMAL_LENGTH);
+			ImGui::Checkbox("Show Bounding Box", &(currentModel->showBoundingBox));
+			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
+
 			resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
 			nextPosition = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
 		}
