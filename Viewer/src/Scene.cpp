@@ -18,9 +18,10 @@ const int Scene::GetModelCount() const
 
 void Scene::AddCamera(std::shared_ptr<MeshModel> model)
 {	
-	//1.
-	//previous camera position, is that aim to be the correct form?!?
-	//Camera c = Camera(glm::vec4(200, 200, 0, 1), glm::vec4(0, 0, 0, 1), glm::vec4(200, 200, 200, 1));
+	// make it random!
+	int x = (rand() % windowHeight) - windowHeight / 2;
+	int y = (rand() % windowHeight) - windowHeight / 2;
+	int z = (rand() % windowHeight) - windowHeight / 2;
 
 	//2.
 	//picking camera random position on space:
