@@ -119,7 +119,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			//cout << "camera path = " << path << endl;
-			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)));
+			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight);
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
@@ -166,12 +166,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
-			glm::vec3 color;
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
-			currentCam->color.x = color.x;
-			currentCam->color.y = color.y;
-			currentCam->color.z = color.z;
-			currentCam->color.w = 1.0f;
 			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
 			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
 			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);

@@ -29,8 +29,8 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define YTRANS_FACTOR 6.1f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
-#define RAND_0_1 ((float)rand() / (RAND_MAX))
-#define RAND_COLOR glm::vec4(RAND_0_1,RAND_0_1,RAND_0_1,1.0f)
+#define RAND int(((float)rand() / (RAND_MAX)) * 255)
+#define RAND3COLOR glm::vec3(RAND,RAND,RAND)
 
 /*
  * MeshModel class.
@@ -88,7 +88,7 @@ public:
 	void resetModel(float fScaleDef = FSCALE_DEF,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
-					glm::vec4 modelColor = RAND_COLOR,
+					glm::vec3 modelColor = RAND3COLOR,
 					float vertexNlength = NORMAL_LENGTH,
 					float faceNlength = NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
