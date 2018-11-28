@@ -4,33 +4,42 @@
 #include <iostream>
 #include <memory>
 #include "Face.h"
+#include <stdio.h>
+#include <time.h>
 
 using namespace std;
 
 #define MESH_MODEL_TYPE 0
 #define CAMERA_MODEL_TYPE 1
 
-#define FSCALE_DEF 80.0f
+#define POS_DOUBLE_PI 2.1f*M_PI
 
-static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
-static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
+#define MAX_NORMAL_LENGTH 100.0f
+#define MIN_NORMAL_LENGTH 0.0f
 
-#define NORMAL_LENGTH 40.0f
-
-#define MAX_SCALE_FACTOR 100.0f
+#define MAX_SCALE_FACTOR 10000.0f
 #define MIN_SCALE_FACTOR 1.0f
 #define SCALE_OBJ_FACTOR 50.0f
 
-#define MAX_TRANSLATION_LENGTH 20.f
-#define MIN_TRANSLATION_LENGTH -20.f
+#define MAX_TRANSLATION_LENGTH 10000.0f
+#define MIN_TRANSLATION_LENGTH -10000.0f
 
 // smooth moving:
 #define XTRANS_FACTOR 20.0f
 #define YTRANS_FACTOR 20.1f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
+static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
+static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
+
 static glm::vec3* getRandColor() {
-	glm::vec3* color = &glm::vec3(rand() % 256, rand() % 256, rand() % 256);
+	srand(time(NULL));
+	int r = rand() % 256;
+	srand(time(NULL));
+	int g = rand() % 256;
+	srand(time(NULL));
+	int b = rand() % 256;
+	glm::vec3* color = &glm::vec3(r, g, b);
 	return color;
 }
 
@@ -63,43 +72,28 @@ public:
 	float fNlength, vNlength;
 
 	MeshModel(){}
-	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,
-		const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
+	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;
 
-	//const glm::vec4& GetColor() const;
 	void SetColor(const glm::vec4& color);
-
-	std::vector<glm::vec3> GetNormals() {
-		return normals;
-	}
-
-	std::vector<Face> GetFaces() {
-		return faces;
-	}
-
-	std::vector<glm::vec3> GetVertices() {
-		return vertices;
-	}
-
-	std::string GetModelName() {
-		return modelName;
-	}
-
+	std::vector<glm::vec3> GetNormals() { return normals; }
+	std::vector<Face> GetFaces() { return faces; }
+	std::vector<glm::vec3> GetVertices() { return vertices; }
+	std::string GetModelName() { return modelName; }
 	void UpdateworldTransform(glm::mat4x4 T) {
 		worldTransform = T * worldTransform;
 	}
 
-	void resetModel(float fScaleDef = FSCALE_DEF,
+	void resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
 					glm::vec3* modelColor = getRandColor(),
-					float vertexNlength = NORMAL_LENGTH,
-					float faceNlength = NORMAL_LENGTH) {
+					float vertexNlength = MAX_NORMAL_LENGTH,
+					float faceNlength = MAX_NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
 		showFaceNormals = false;
 		showVertexNormals = false;
@@ -108,7 +102,6 @@ public:
 		vNcolor = vcolorDef;
 		BoundingBoxColor = *modelColor;
 		color = *modelColor;
-		//std::cout << "modelName = " << modelName << " , " <<"modelColor = " << modelColor.x << modelColor.y << modelColor.z << std::endl;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
 		fScale = fScaleDef;
@@ -121,56 +114,17 @@ public:
 	}
 
 	//Elias emplementation:
-	glm::vec3 GetVerticeByIndex(int index) {
-		return vertices[index];
-	}
-	
-
-	void SetFaceNormalLength(float length) {
-		fNlength = length;
-	}
-
-	void SetFaceNormalColor(glm::vec4 color) {
-		fNcolor = color;
-	}
-
-	float GetFaceNormalLength() {
-		return fNlength;
-	}
-
-	glm::vec4 GetFaceNormalColor() {
-		return fNcolor;
-	}
-
-	bool GetFaceNormalView() {
-		return showFaceNormals;
-	}
-
-	void SetFaceNormalView(bool NeedShowNormals) {
-		showFaceNormals = NeedShowNormals;
-	}
-
-	void SetVertexNormalView(bool NeedShowNormals) {
-		showVertexNormals = NeedShowNormals;
-	}
-
-	bool GetVertexNormalView() {
-		return showVertexNormals;
-	}
-
-	void SetVertexNormalLength(float length) {
-		vNlength = length;
-	}
-
-	void SetVertexNormalColor(glm::vec4 color) {
-		vNcolor = color;
-	}
-
-	float GetVertexNormalLength() {
-		return vNlength;
-	}
-
-	glm::vec4 GetVertexNormalColor() {
-		return vNcolor;
-	}
+	glm::vec3 GetVerticeByIndex(int index) { return vertices[index]; }
+	void SetFaceNormalLength(float length) { fNlength = length; }
+	void SetFaceNormalColor(glm::vec4 color) { fNcolor = color; }
+	float GetFaceNormalLength() { return fNlength; }
+	glm::vec4 GetFaceNormalColor() { return fNcolor; }
+	bool GetFaceNormalView() { return showFaceNormals; }
+	void SetFaceNormalView(bool NeedShowNormals) { showFaceNormals = NeedShowNormals; }
+	void SetVertexNormalView(bool NeedShowNormals) { showVertexNormals = NeedShowNormals; }
+	bool GetVertexNormalView() { return showVertexNormals; }
+	void SetVertexNormalLength(float length) { vNlength = length; }
+	void SetVertexNormalColor(glm::vec4 color) { vNcolor = color; } 
+	float GetVertexNormalLength() { return vNlength; }
+	glm::vec4 GetVertexNormalColor() { return vNcolor; }
 };

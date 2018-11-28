@@ -214,7 +214,6 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	glm::vec4 vec6(max_x, max_y, min_z, 1);
 	glm::vec4 vec7(max_x, max_y, max_z, 1);
 
-	
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	
 	glm::vec4 vect0 = seriesTransform * vec0;
@@ -275,7 +274,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	float y0 = modelVec.y;
 	float z0 = modelVec.z;
 	glm::vec4 vec0(x0, y0, z0, 1);
-	// => (x0,y0,zo)
+	// => (x0,y0,z0)
 
 	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v1); }
 	else { modelVec = scene.getModelVertices(k, v1); }
@@ -300,9 +299,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	} else {
 		model = scene.GetModel(k);
 	}
-	glm::mat4x4 scale_cam_factor(1);
-	if (isCameraModel) { scale_cam_factor = Trans::getScale4x4(MIN_SCALE_FACTOR); }
-	glm::mat4x4 seriesTransform = Mp * Mc * scale_cam_factor * model->GetWorldTransformation();
+	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform*vec1;
@@ -330,15 +327,12 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	nt2 = nt2 / nt2.w;
 	nt2 = normalizeVector(vect2,nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
-	
-	// determined already the values at "main" section => height = 720 & width = 1280
 
 	// draw the object as triangles collection:
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
 	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, model->color);
 	
-
 	// up to the checkbox sign:
 	if (model->GetFaceNormalView()) {
 		float fVlength = model->GetFaceNormalLength();
@@ -353,9 +347,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
 		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
 	}
-
-	
-
 }
 
 
@@ -372,13 +363,13 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
 	int v3 = face->GetVertexIndex(3) - 1;
-	// v0,v1,v2 => 1,13,4
+	// for instance: v0,v1,v2 => 1,13,4
 
 	float x0 = scene.getModelVertices(k, v0).x;
 	float y0 = scene.getModelVertices(k, v0).y;
 	float z0 = scene.getModelVertices(k, v0).z;
 	glm::vec4 vec0(x0, y0, z0, 1);
-	// => (x0,y0,zo)
+	// => (x0,y0,z0)
 
 	float x1 = scene.getModelVertices(k, v1).x;
 	float y1 = scene.getModelVertices(k, v1).y;
@@ -434,10 +425,7 @@ void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, st
 	nt3 = normalizeVector(vect3, nt3, vNlength);
 	n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
 
-	// determined already the values at "main" section => height = 720 & width = 1280
-
 	// draw the object as triangles collection:
-
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
 	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
@@ -479,8 +467,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
 				if (model->GetModelName().compare("Grid") == 0) {
 					showGridObject(scene, face, vNormals, k, io);
-				}
-				else {
+				} else {
 					showMeshObject(scene, face, vNormals, k, io);
 					std::shared_ptr<MeshModel> model = scene.GetModel(k);
 					if (model->showBoundingBox) {
@@ -513,19 +500,19 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	
-	//Render All Models in scene
-	showAllMeshModels(scene,io);
+	// Solution steps:
+	// ================
 
-	//Each camera j  has:
-	//1. mc , mp -> we use them in case curr_camera == j
-	//2. Meshmodel -> we use it otherwise
+	//1. Render All Models in scene
 
-	//Update - for each new transformation on the camera we update:
-	//1. mc , mp
-	//2. worldtransform
-	
+	//2. Each camera j  has:
+	//a. mc , mp -> we use them in case curr_camera == j
+	//b. Meshmodel -> we use it otherwise
 
-
+	//3. Update - for each new transformation on the camera we update:
+	//a. mc , mp
+	//b. worldtransform
+	showAllMeshModels(scene, io);
 }
 
 //##############################

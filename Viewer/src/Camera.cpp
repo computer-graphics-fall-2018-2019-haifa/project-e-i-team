@@ -6,26 +6,20 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#define PI 3.14159265
-
 Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
-	ffovy(1.0f), fnear(1.0f), ffar(1.0f),
+	ffovy(MIN_FFOVY), fnear(MIN_FNEAR), ffar(MIN_FFAR),
+	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f),
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
 	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
 }
 
-Camera::~Camera()
-{
-}
+Camera::~Camera(){}
 
-
-
-//Elias emplementation:
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
 	glm::vec3 z = glm::normalize(eye - at);
@@ -44,15 +38,11 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 //Elias emplementation:
 //aspectRatio = width / height
 void Camera::SetOrthographicProjection(
-	//const float height,
-	const float fovy, /* open degree */
+	const float fovy, /* free degree */
 	const float aspectRatio,
 	const float snear,
 	const float sfar)
 {
-	
-	//float top = height / 2;
-	//float top = tan((fovy / 2) * PI / 180.0) * snear;
 	float top = tan(fovy / 2) * snear;
 	float botton = -1 * top;
 	float right = aspectRatio * top;
@@ -73,6 +63,7 @@ void Camera::SetOrthographicProjection(
 	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
+// Itay's Implementation
 void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,

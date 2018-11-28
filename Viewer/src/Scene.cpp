@@ -2,23 +2,13 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0)
-{
-}
+Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0) {}
 
-void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
-{
-	models.push_back(model);
-}
-
-const int Scene::GetModelCount() const
-{
-	return models.size();
-}
+void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
+const int Scene::GetModelCount() const { return models.size(); }
 
 void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight)
 {
-	// make it random!
 	int x = (rand() % windowHeight) - windowHeight / 2;
 	int y = (rand() % windowHeight) - windowHeight / 2;
 	int z = (rand() % windowHeight) - windowHeight / 2;
@@ -33,53 +23,24 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight)
 	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1);
 	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
 
-
 	Camera c(model, eye4, at4, up4);
 
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
-
-
 }
 
-const int Scene::GetCameraCount() const
-{
-	return cameras.size();
+const int Scene::GetCameraCount() const { return cameras.size(); }
+void Scene::SetActiveCameraIndex(int index) {
+	if (index >= 0 && index < cameras.size()) { activeCameraIndex = index; }
 }
-
-void Scene::SetActiveCameraIndex(int index)
-{
-	// implementation suggestion...
-	if (index >= 0 && index < cameras.size())
-	{
-		activeCameraIndex = index;
-	}
-}
-
 std::shared_ptr<Camera> Scene::GetCamera(int index) {
-	if (index  < 0 || index >= cameras.size()) {
-		return NULL;
-	}
+	if (index  < 0 || index >= cameras.size()) { return NULL; }
 	return cameras[index];
 }
-
-const int Scene::GetActiveCameraIndex() const
-{
-	return activeCameraIndex;
+const int Scene::GetActiveCameraIndex() const { return activeCameraIndex; }
+void Scene::SetActiveModelIndex(int index) {
+	if (index >= 0 && index < models.size()) { activeModelIndex = index; }
 }
-
-void Scene::SetActiveModelIndex(int index)
-{
-	// implementation suggestion...
-	if (index >= 0 && index < models.size())
-	{
-		activeModelIndex = index;
-	}
-}
-
-const int Scene::GetActiveModelIndex() const
-{
-	return activeModelIndex;
-}
+const int Scene::GetActiveModelIndex() const { return activeModelIndex; }
 
 
