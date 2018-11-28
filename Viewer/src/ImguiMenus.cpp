@@ -130,7 +130,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-			cout << "camera path = " << path << endl;
+			//cout << "camera path = " << path << endl;
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)));
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);

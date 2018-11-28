@@ -149,7 +149,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 }
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
-	isCameraModel ? (cout << "k = " << k << endl) : cout << "";
+	//isCameraModel ? (cout << "k = " << k << endl) : cout << "";
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
