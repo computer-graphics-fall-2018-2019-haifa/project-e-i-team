@@ -73,7 +73,7 @@ void Camera::SetOrthographicProjection(
 	glm::vec4 v3 = glm::vec4(0, 0, S_z, 0.0f);
 	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
-	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
+	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4) * transAround;
 }
 
 void Camera::SetPerspectiveProjection(

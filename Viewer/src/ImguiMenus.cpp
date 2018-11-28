@@ -125,37 +125,32 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
 		if (currentCam != NULL) {	
-			// glm::mat4x4 T = glm::mat4x4(1);
-			// if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) {
-			// 	currentCam->fScale += SCALE_OBJ_FACTOR;
-			// 	T = Trans::getScale4x4(currentCam->fScale);
-			// }
-			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
-			// 	currentCam->fScale -= SCALE_OBJ_FACTOR;
-			// 	T = Trans::getScale4x4(currentCam->fScale);
-			// }
-			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z))) {
-			// 	currentCam->fTranslatex -= XTRANS_FACTOR;
-			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
-			// }
-			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) {
-			// 	currentCam->fTranslatex += XTRANS_FACTOR;
-			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
-			// }
-			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A))) {
-			// 	currentCam->fTranslatey += YTRANS_FACTOR;
-			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
-			// }
-			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
-			// 	currentCam->fTranslatey -= YTRANS_FACTOR;
-			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
-			// }
-		
-			// currentCam->UpdateworldTransform(T);
-
-			
-			// currentCam->origin_eye = currentCam->origin_eye * currentCam->GetworldTransform();
-
+			 //glm::mat4x4 T = glm::mat4x4(1);
+			 //if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) {
+			 //	currentCam->fScale += SCALE_OBJ_FACTOR;
+			 //	T = Trans::getScale4x4(currentCam->fScale);
+			 //}
+			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
+			 //	currentCam->fScale -= SCALE_OBJ_FACTOR;
+			 //	T = Trans::getScale4x4(currentCam->fScale);
+			 //}
+			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z))) {
+			 //	currentCam->fTranslatex -= XTRANS_FACTOR;
+			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
+			 //}
+			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) {
+			 //	currentCam->fTranslatex += XTRANS_FACTOR;
+			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
+			 //}
+			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A))) {
+			 //	currentCam->fTranslatey += YTRANS_FACTOR;
+			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
+			 //}
+			 //else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
+			 //	currentCam->fTranslatey -= YTRANS_FACTOR;
+			 //	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
+			 //}	
+			glm::mat4x4 Tc(1);
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
@@ -163,15 +158,21 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
 			ImGui::TextColored(textColor, "Camera Transformations:");
+			float frx = currentCam->fRotatex, fry = currentCam->fRotatey, frz = currentCam->fRotatez;
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
+			if (frx != currentCam->fRotatex) { Tc = Trans::getxRotate4x4(currentCam->fRotatex - frx); }
 			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
+			if (fry != currentCam->fRotatey) { Tc = Trans::getyRotate4x4(currentCam->fRotatey - fry); }
 			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			if (frz != currentCam->fRotatez) { Tc = Trans::getzRotate4x4(currentCam->fRotatez - frz); }
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
+			/*
 			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
 			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
 			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);
-
 			glm::mat4x4 axisRotate = cameraZRotate * cameraYRotate * cameraXRotate;
+			*/
+			glm::mat4x4 axisRotate = Tc;
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
 				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); 
@@ -203,7 +204,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	glm::mat4x4 resetPosition = glm::mat4x4(1),nextPosition = glm::mat4x4(1),scaling = glm::mat4x4(1),xRotateMat = glm::mat4x4(1),xTranslateMat = glm::mat4x4(1),yRotateMat = glm::mat4x4(1),yTranslateMat = glm::mat4x4(1),zRotateMat = glm::mat4x4(1),zTranslateMat = glm::mat4x4(1);
+	glm::mat4x4 resetPosition = glm::mat4x4(1), nextPosition = glm::mat4x4(1);
+	glm::mat4x4 Tm(1);
+	//glm::mat4x4 scaling = glm::mat4x4(1), xRotateMat = glm::mat4x4(1), xTranslateMat = glm::mat4x4(1), yRotateMat = glm::mat4x4(1), yTranslateMat = glm::mat4x4(1), zRotateMat = glm::mat4x4(1), zTranslateMat = glm::mat4x4(1);
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
@@ -219,20 +222,45 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// as response to y scrolling value we control the zoom in and zoom out world models:
 
 			ImGui::TextColored(textColor, "Model Transformations:");
+
+			float fsc = currentModel->fScale;
 			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			scaling = Trans::getScale4x4(currentModel->fScale);
+			//scaling = Trans::getScale4x4(currentModel->fScale);
+			if (fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale - fsc); }
+
+			float frx = currentModel->fRotatex;
 			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
-			xRotateMat = Trans::getxRotate4x4(currentModel->fRotatex);
+			//xRotateMat = Trans::getxRotate4x4(currentModel->fRotatex);
+			if (frx != currentModel->fRotatex) { Tm = Trans::getxRotate4x4(currentModel->fRotatex - frx); }
+
+			float ftx = currentModel->fTranslatex;
 			ImGui::SliderFloat("Translate By X", &(currentModel->fTranslatex), -1000.0f, 1000.0f);
-			xTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatex, 0.0f);
+			//xTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatex, 0.0f);
+
+			float fry = currentModel->fRotatey;
 			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
-			yRotateMat = Trans::getyRotate4x4(currentModel->fRotatey);
+			//yRotateMat = Trans::getyRotate4x4(currentModel->fRotatey);
+			if (fry != currentModel->fRotatey) { Tm = Trans::getyRotate4x4(currentModel->fRotatey - fry); }
+
+			float fty = currentModel->fTranslatey;
 			ImGui::SliderFloat("Translate By Y", &(currentModel->fTranslatey), -1000.0f, 1000.0f);
-			yTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatey, 0.0f);
+			//yTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatey, 0.0f);
+
+			float frz = currentModel->fRotatez;
 			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
-			zRotateMat = Trans::getzRotate4x4(currentModel->fRotatez);
+			//zRotateMat = Trans::getzRotate4x4(currentModel->fRotatez);
+			if (frz != currentModel->fRotatez) { Tm = Trans::getzRotate4x4(currentModel->fRotatez - frz); }
+
+			float ftz = currentModel->fTranslatez;
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), -1000.0f, 1000.0f);
-			zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, currentModel->fTranslatez);
+			//zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, currentModel->fTranslatez);
+
+			Tm = Trans::getTranslate4x4(
+				currentModel->fTranslatex - ftx,
+				currentModel->fTranslatey - fty,
+				currentModel->fTranslatez - ftz
+			);
+
 			ImGui::Checkbox("Show Face Normals", &(currentModel->showFaceNormals));
 			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 			ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), 1.0f, 4*NORMAL_LENGTH);
@@ -243,14 +271,14 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 
 			resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-			nextPosition = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
+			//nextPosition = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
 		}
 	}
 
 	// transformations to the space:
 	for (int i = 0; i < scene->GetModelCount(); i++) {
 		std::shared_ptr<MeshModel> model = scene->GetModel(i);
-		if(i == scene->activeModelIndex) { model->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition); }
+		if(i == scene->activeModelIndex) { model->SetWorldTransformation(Tm*resetPosition); }
 		else { model->SetWorldTransformation(inv); }
 	}
 	for (int i = 0; i < scene->GetCameraCount(); i++) {
