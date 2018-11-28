@@ -25,8 +25,8 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define MIN_TRANSLATION_LENGTH -20.f
 
 // smooth moving:
-#define XTRANS_FACTOR 0.1f
-#define YTRANS_FACTOR 0.1f
+#define XTRANS_FACTOR 6.0f
+#define YTRANS_FACTOR 6.1f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
 #define RAND_0_1 ((float)rand() / (RAND_MAX))
@@ -47,9 +47,11 @@ private:
 	glm::mat4x4 allWorldTransform;
 	std::string modelName;
 public:
-	glm::vec4 color;
+	glm::vec3 color;
+	glm::vec3 BoundingBoxColor;
 	bool showFaceNormals;
 	bool showVertexNormals;
+	bool showBoundingBox;
 	glm::vec4 fNcolor;
 	glm::vec4 vNcolor;
 	float fScale, fRotatex, fRotatey, fRotatez;
@@ -92,8 +94,10 @@ public:
 		worldTransform = glm::mat4x4(1);
 		showFaceNormals = false;
 		showVertexNormals = false;
+		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
+		BoundingBoxColor = BLACK_COLOR_LINE;
 		color = modelColor;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;

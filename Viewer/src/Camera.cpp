@@ -16,6 +16,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
+	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
 }
 
 Camera::~Camera()
@@ -52,6 +53,9 @@ void Camera::SetOrthographicProjection(
 	const float sfar,
 	glm::mat4x4& transAround)
 {
+	
+	//float top = height / 2;
+	//float top = tan((fovy / 2) * PI / 180.0) * snear;
 	float top = tan(fovy / 2) * snear;
 	float botton = -1 * top;
 	float right = aspectRatio * top;

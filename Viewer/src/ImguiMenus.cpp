@@ -90,34 +90,22 @@ const char* getCamerasNames(int length) {
 
 void handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
-		if(model->fScale < MAX_SCALE_FACTOR){
-			model->fScale += SCALE_OBJ_FACTOR;
-		}
+		model->fScale += SCALE_OBJ_FACTOR;
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown))){
-		if(model->fScale > MIN_SCALE_FACTOR){
-			model->fScale -= SCALE_OBJ_FACTOR;
-		}
+		model->fScale -= SCALE_OBJ_FACTOR;
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))){
-		if (model->fTranslatex > MIN_TRANSLATION_LENGTH) {
-			model->fTranslatex -= XTRANS_FACTOR;
-		}
+		model->fTranslatex -= XTRANS_FACTOR;
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))){
-		if(model->fTranslatex < MAX_TRANSLATION_LENGTH){
-			model->fTranslatex += XTRANS_FACTOR;
-		}
+		model->fTranslatex += XTRANS_FACTOR;
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))){
-		if(model->fTranslatey < MAX_TRANSLATION_LENGTH){
-			model->fTranslatey += YTRANS_FACTOR;
-		}
+		model->fTranslatey += YTRANS_FACTOR;
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))){
-		if(model->fTranslatey > MIN_TRANSLATION_LENGTH){
-			model->fTranslatey -= YTRANS_FACTOR;
-		}
+		model->fTranslatey -= YTRANS_FACTOR;
 	}
 }
 
@@ -136,7 +124,38 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
-		if (currentCam != NULL) {		
+		if (currentCam != NULL) {	
+			// glm::mat4x4 T = glm::mat4x4(1);
+			// if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert))) {
+			// 	currentCam->fScale += SCALE_OBJ_FACTOR;
+			// 	T = Trans::getScale4x4(currentCam->fScale);
+			// }
+			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete))) {
+			// 	currentCam->fScale -= SCALE_OBJ_FACTOR;
+			// 	T = Trans::getScale4x4(currentCam->fScale);
+			// }
+			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z))) {
+			// 	currentCam->fTranslatex -= XTRANS_FACTOR;
+			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
+			// }
+			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C))) {
+			// 	currentCam->fTranslatex += XTRANS_FACTOR;
+			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatex, 0.0f);
+			// }
+			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A))) {
+			// 	currentCam->fTranslatey += YTRANS_FACTOR;
+			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
+			// }
+			// else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X))) {
+			// 	currentCam->fTranslatey -= YTRANS_FACTOR;
+			// 	T = Trans::getTranslate4x4(0.0f, currentCam->fTranslatey, 0.0f);
+			// }
+		
+			// currentCam->UpdateworldTransform(T);
+
+			
+			// currentCam->origin_eye = currentCam->origin_eye * currentCam->GetworldTransform();
+
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
@@ -165,6 +184,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			} else { 
 				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate);
 				inv = glm::inverse(currentCam->Getview());
+			}
+			if (ImGui::Button("Focus on current model")) {
+				glm::vec3 at;
+				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
+
+				for (auto face = faces.begin(); face != faces.end(); ++face) {
+					int v = face->GetVertexIndex(0) - 1;
+					at = scene->getModelVertices(0, v);
+					break;
+				}
+
+				glm::vec3 rand = glm::vec3(3, 2, 1);
+				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
+				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;
+				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + currentCam->origin_eye;
+				
+				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
+				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
+				glm::vec4 eye4 = glm::vec4((currentCam->origin_eye).x, (currentCam->origin_eye).y, (currentCam->origin_eye).z, 1);
+				
+				currentCam->SetCameraLookAt(eye4, at4, up4);
 			}
 		}
 	}

@@ -46,6 +46,7 @@ private:
 	glm::vec3 _up;
 
 public:
+	glm::vec3 origin_eye;
 	int transType;
 	float ffovy,fnear,ffar;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
