@@ -308,7 +308,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, BLACK_COLOR_LINE,0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
 	scene.gridCounter++;
 }
 

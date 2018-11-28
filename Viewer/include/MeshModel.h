@@ -1,4 +1,6 @@
 #pragma once
+#include <stdio.h>
+#include <time.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <iostream>
@@ -29,8 +31,15 @@ static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.8f, 0.0f, 0.5f, 1.00f);
 #define YTRANS_FACTOR 6.1f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
-#define RAND int(((float)rand() / (RAND_MAX)) * 255)
-#define RAND3COLOR glm::vec3(RAND,RAND,RAND)
+glm::vec3* getRandomColor() {
+	srand(time(NULL));
+	int r = rand() % 256;
+	srand(time(NULL));
+	int g = rand() % 256;
+	srand(time(NULL));
+	int b = rand() % 256;
+	return &glm::vec3(r, g, b);
+}
 
 /*
  * MeshModel class.
@@ -88,7 +97,7 @@ public:
 	void resetModel(float fScaleDef = FSCALE_DEF,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
-					glm::vec3 modelColor = RAND3COLOR,
+					glm::vec3* modelColor = getRandomColor(),
 					float vertexNlength = NORMAL_LENGTH,
 					float faceNlength = NORMAL_LENGTH) {
 		worldTransform = glm::mat4x4(1);
@@ -97,8 +106,8 @@ public:
 		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
-		BoundingBoxColor = BLACK_COLOR_LINE;
-		color = modelColor;
+		BoundingBoxColor = *modelColor;
+		color = *modelColor;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
 		fScale = fScaleDef;
