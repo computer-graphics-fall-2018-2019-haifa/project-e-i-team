@@ -18,6 +18,7 @@ const int Scene::GetModelCount() const
 
 void Scene::AddCamera(std::shared_ptr<MeshModel> model , int windowHeight)
 {	
+	// make it random!
 	int x = (rand() % windowHeight) - windowHeight / 2;
 	int y = (rand() % windowHeight) - windowHeight / 2;
 	int z = (rand() % windowHeight) - windowHeight / 2;
