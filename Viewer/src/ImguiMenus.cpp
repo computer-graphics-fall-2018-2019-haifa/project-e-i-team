@@ -126,6 +126,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
+	glm::mat4x4 inv = glm::mat4x4(1);
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
@@ -138,32 +139,44 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (currentCam != NULL) {		
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
-			ImGui::SliderFloat("Fovy", &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
+			std::string fName = !currentCam->transType ? "Height" : "Fovy";
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
 			ImGui::TextColored(textColor, "Camera Transformations:");
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
 			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			glm::vec3 color;
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color)); // Edit 3 floats representing a color
+			currentCam->color.x = color.x;
+			currentCam->color.y = color.y;
+			currentCam->color.z = color.z;
+			currentCam->color.w = 1.0f;
 			glm::mat4x4 cameraXRotate = Trans::getxRotate4x4(currentCam->fRotatex);
 			glm::mat4x4 cameraYRotate = Trans::getyRotate4x4(currentCam->fRotatey);
 			glm::mat4x4 cameraZRotate = Trans::getzRotate4x4(currentCam->fRotatey);
 
 			glm::mat4x4 axisRotate = cameraZRotate * cameraYRotate * cameraXRotate;
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
-			if (!currentCam->transType) { currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); } 
-			else { currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); }
+			if (!currentCam->transType) { 
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate); 
+				inv = glm::inverse(currentCam->GetProjection()); 
+			} else { 
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, axisRotate);
+				inv = glm::inverse(currentCam->Getview());
+			}
 		}
 	}
+	glm::mat4x4 resetPosition = glm::mat4x4(1),nextPosition = glm::mat4x4(1),scaling = glm::mat4x4(1),xRotateMat = glm::mat4x4(1),xTranslateMat = glm::mat4x4(1),yRotateMat = glm::mat4x4(1),yTranslateMat = glm::mat4x4(1),zRotateMat = glm::mat4x4(1),zTranslateMat = glm::mat4x4(1);
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
-		std::shared_ptr<MeshModel> m = scene->GetModel(scene->activeModelIndex);
-		ImGui::ColorEdit3("Model Color", (float*)&(m->color)); // Edit 3 floats representing a color
-		if (m != nullptr) {
+		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
+		ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
+		if (currentModel != nullptr) {
 			// determine the parameters initialize if required from the user: [changing scale graph online]
-			handleKeyboardInputs(m);
+			handleKeyboardInputs(currentModel);
 
 			// each field is belonging to each mesh model object due to this issue, 
 			// we need them public and to referenced always the app is running:
@@ -171,31 +184,41 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// as response to y scrolling value we control the zoom in and zoom out world models:
 
 			ImGui::TextColored(textColor, "Model Transformations:");
-			ImGui::SliderFloat("Model Scale", &(m->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			glm::mat4x4 scaling = Trans::getScale4x4(m->fScale);
-			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(m->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
-			glm::mat4x4 xRotateMat = Trans::getxRotate4x4(m->fRotatex);
-			ImGui::SliderFloat("Translate By X", &(m->fTranslatex), -1000.0f, 1000.0f);
-			glm::mat4x4 xTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatex, 0.0f);
-			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(m->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
-			glm::mat4x4 yRotateMat = Trans::getyRotate4x4(m->fRotatey);
-			ImGui::SliderFloat("Translate By Y", &(m->fTranslatey), -1000.0f, 1000.0f);
-			glm::mat4x4 yTranslateMat = Trans::getTranslate4x4(0.0f, m->fTranslatey, 0.0f);
-			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(m->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
-			glm::mat4x4 zRotateMat = Trans::getzRotate4x4(m->fRotatez);
-			ImGui::SliderFloat("Translate By Z", &(m->fTranslatez), -1000.0f, 1000.0f);
-			glm::mat4x4 zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, m->fTranslatez);
-			ImGui::Checkbox("Show Face Normals", &(m->showFaceNormals));
-			ImGui::ColorEdit3("Face Normal Color", (float*)&(m->fNcolor));
-			ImGui::SliderFloat("Face Normal Length", &(m->fNlength), 1.0f, 4*NORMAL_LENGTH);
-			ImGui::Checkbox("Show Vectex Normals", &(m->showVertexNormals));
-			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(m->vNcolor));
-			ImGui::SliderFloat("Vertex Normal Length", &(m->vNlength), 1.0f, 4*NORMAL_LENGTH);
+			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+			scaling = Trans::getScale4x4(currentModel->fScale);
+			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -2.2f*M_PI, 2.2f*M_PI);
+			xRotateMat = Trans::getxRotate4x4(currentModel->fRotatex);
+			ImGui::SliderFloat("Translate By X", &(currentModel->fTranslatex), -1000.0f, 1000.0f);
+			xTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatex, 0.0f);
+			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), -2.2f*M_PI, 2.2f*M_PI);
+			yRotateMat = Trans::getyRotate4x4(currentModel->fRotatey);
+			ImGui::SliderFloat("Translate By Y", &(currentModel->fTranslatey), -1000.0f, 1000.0f);
+			yTranslateMat = Trans::getTranslate4x4(0.0f, currentModel->fTranslatey, 0.0f);
+			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), -2.2f*M_PI, 2.2f*M_PI);
+			zRotateMat = Trans::getzRotate4x4(currentModel->fRotatez);
+			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), -1000.0f, 1000.0f);
+			zTranslateMat = Trans::getTranslate4x4(0.0f, 0.0f, currentModel->fTranslatez);
+			ImGui::Checkbox("Show Face Normals", &(currentModel->showFaceNormals));
+			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
+			ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), 1.0f, 4*NORMAL_LENGTH);
+			ImGui::Checkbox("Show Vectex Normals", &(currentModel->showVertexNormals));
+			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
+			ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), 1.0f, 4*NORMAL_LENGTH);
+			resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
+			nextPosition = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
+		}
+	}
 
-			// transformations to the space:
-			glm::mat4x4 resetPosition = Trans::getTranslate4x4(0.0f, 0.0f, 0.0f);
-			glm::mat4x4 nextPosition = Trans::getTranslate4x4(m->fTranslatex, m->fTranslatey, m->fTranslatez);
-			m->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition);
+	// transformations to the space:
+	for (int i = 0; i < scene->GetModelCount(); i++) {
+		std::shared_ptr<MeshModel> model = scene->GetModel(i);
+		if(i == scene->activeModelIndex) { model->SetWorldTransformation(nextPosition*zRotateMat*yRotateMat*xRotateMat*scaling*resetPosition); }
+		else { model->SetWorldTransformation(inv); }
+	}
+	for (int i = 0; i < scene->GetCameraCount(); i++) {
+		if (i != scene->activeCameraIndex) {
+			std::shared_ptr<Camera> camera = scene->GetCamera(i);
+			camera->SetWorldTransformation(inv);
 		}
 	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -219,7 +242,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, 0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, BLACK_COLOR_LINE,0.0f, 0.0f);
 	scene.gridCounter++;
 }
 

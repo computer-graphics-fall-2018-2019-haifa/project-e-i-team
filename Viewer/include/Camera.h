@@ -12,7 +12,7 @@
 #define MIN_FFAR 1.0f
 #define MAX_FFAR 10.0f
 
-#define CAM_MIN_SIZE 50.0f
+#define CAM_MIN_SIZE 30.0f
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
  *

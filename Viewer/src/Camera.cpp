@@ -39,7 +39,6 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
 
 	viewTransformation = mat;
-	SetWorldTransformation(glm::inverse(viewTransformation) * GetWorldTransformation());
 }
 
 
@@ -71,7 +70,6 @@ void Camera::SetOrthographicProjection(
 	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
 	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4) * transAround;
-	SetWorldTransformation(glm::inverse(projectionTransformation) * GetWorldTransformation());
 }
 
 void Camera::SetPerspectiveProjection(
@@ -86,11 +84,12 @@ void Camera::SetPerspectiveProjection(
 #define X_Y_SCALE 1.0f
 	glm::vec4 v1 = glm::vec4(X_Y_SCALE / (wright - wleft), 0.0f, 0.0f, 0.0f);
 	glm::vec4 v2 = glm::vec4(0.0f, X_Y_SCALE / (wtop - wbottom), 0.0f, 0.0f);
-	glm::vec4 v3 = glm::vec4(0.0f, 0.0f, fovy, 0.0f);
+	glm::vec4 v3 = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
 	glm::vec4 v4 = glm::vec4(-(wright + wleft) / (wright - wleft), -(wtop + wbottom) / (wtop - wbottom), 0.0f, 1.0f);
 	glm::mat4x4 P = glm::mat4x4(v1,v2,v3,v4);
-	P = glm::mat4x4(pfar) * glm::mat4x4(pnear) * P;
+	glm::mat4x4 f = Trans::getScale4x4(1);
+	f[2][2] = fovy;
+	P = Trans::getScale4x4(pfar) * Trans::getScale4x4(pnear) * f * P;
 
 	viewTransformation = P * transAround;
-	SetWorldTransformation(glm::inverse(viewTransformation));
 }
