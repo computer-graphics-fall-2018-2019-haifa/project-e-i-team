@@ -217,6 +217,16 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	
+
+	///////////////////////////////////////////////////////
+	glm::vec4 mid((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z ,1);
+	mid = seriesTransform * mid;
+	mid = mid / mid.w;
+	DrawLine(mid.x, 300, mid.y, 300, model->BoundingBoxColor);
+	///////////////////////////////////////////////////////
+
+
+
 	glm::vec4 vect0 = seriesTransform * vec0;
 	vect0 = vect0 / vect0.w;
 	glm::vec4 vect1 = seriesTransform * vec1;

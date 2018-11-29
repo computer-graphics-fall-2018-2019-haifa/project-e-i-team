@@ -176,13 +176,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 
 			if (ImGui::Button("Focus on current model")) {
-				glm::vec3 at;
-				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
-				for (auto face = faces.begin(); face != faces.end(); ++face) {
-					int v = face->GetVertexIndex(0) - 1;
-					at = scene->getModelVertices(0, v);
-					break;
-				}
+				std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
+				glm::vec3 at = currentModel->BoundMiddle;
+				
 				glm::vec3 rand = glm::vec3(3, 2, 1);
 				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
 				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;

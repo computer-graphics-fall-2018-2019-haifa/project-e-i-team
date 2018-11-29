@@ -49,6 +49,7 @@ private:
 	glm::mat4x4 allWorldTransform;
 	std::string modelName;
 public:
+	glm::vec3 BoundMiddle;
 	glm::vec3 BoundMin;
 	glm::vec3 BoundMax;
 	glm::vec3 color;
@@ -64,7 +65,7 @@ public:
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,
-		const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
+		const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model);
 	virtual ~MeshModel();
 
