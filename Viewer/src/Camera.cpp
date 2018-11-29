@@ -41,7 +41,8 @@ void Camera::SetOrthographicProjection(
 	const float fovy, /* free degree */
 	const float aspectRatio,
 	const float snear,
-	const float sfar)
+	const float sfar,
+	const float frameBufferWidth)
 {
 	/*
 	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
@@ -66,27 +67,31 @@ void Camera::SetOrthographicProjection(
 	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
+double deg2rad(double degrees) {
+	return degrees * 4.0 * atan(1.0) / 180.0;
+}
+
 // Itay's Implementation
 void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,
 	const float pnear,
-	const float pfar)
+	const float pfar,
+	const float frameBufferWidth)
 {
 	/*
 	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
-	float pneardef = 1,pfardef = -1;
-	float wright = 1.0f, wleft = -1.0f, wtop = -1.0f, wbottom = 1.0f;
-	#define X_Y_SCALE 1.0f
-	glm::vec4 v1 = glm::vec4(X_Y_SCALE / (wright - wleft), 0.0f, 0.0f, 0.0f);
-	glm::vec4 v2 = glm::vec4(0.0f, X_Y_SCALE / (wtop - wbottom), 0.0f, 0.0f);
-	glm::vec4 v3 = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-	glm::vec4 v4 = glm::vec4(-(wright + wleft) / (wright - wleft), -(wtop + wbottom) / (wtop - wbottom), 0.0f, 1.0f);
-	glm::mat4x4 P = glm::mat4x4(v1,v2,v3,v4);
-	glm::mat4x4 f = Trans::getScale4x4(1);
-	f[2][2] = fovy;
+	float pneardef = 1, pfardef = -1;
+	float wright = frameBufferWidth, wleft = -frameBufferWidth / 2, wtop = frameBufferWidth / 2, wbottom = -frameBufferWidth / 2;
 
-	projectionTransformation = Trans::getScale4x4(pfar) * Trans::getScale4x4(pnear) * f * P;
+	#define F (1.0f / tan(deg2rad(0.1f * fovy))) // 0.1f is the best for avoiding line hashing along the 3D world each projection operation occurrs
+
+	glm::mat4x4 P(glm::vec4(F / aspectRatio,0.0f,0.0f,0.0f),
+	  glm::vec4(0.0f,-F,0.0f,0.0f),
+	  glm::vec4(0.0f,0.0f,pfar / (pnear - pfar), -1.0f),
+	  glm::vec4(0.0f, 0.0f,(pnear * pfar) / (pnear - pfar),0.0f));
+
+	projectionTransformation = P;
 }
