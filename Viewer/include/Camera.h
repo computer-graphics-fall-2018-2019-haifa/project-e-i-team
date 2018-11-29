@@ -3,14 +3,14 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#define FFOVY_BASIC_UNIT 1.0f
+#define FFOVY_BASIC_UNIT 1.0f // must be some degree > 0 to justify its existance
 #define MIN_FFOVY 0.1f
 #define MAX_FFOVY 3.142f
 
-#define MIN_FNEAR 1.1f
+#define MIN_FNEAR 0.2f // should be at least 0.1 > MIN_FFAR to create some little gap even
 #define MAX_FNEAR 10.0f
 
-#define MIN_FFAR 1.1f
+#define MIN_FFAR 0.1f
 #define MAX_FFAR 10.0f
 
 /*

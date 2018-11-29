@@ -281,15 +281,16 @@ void loadGrid(Scene& scene) {
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
 	if (scene.gridCounter == 0) { loadGrid(scene); }
+
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
+	// if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	if(showSimpleWindow){
-		ImGui::Begin("Task 1 - Cameras View VS. Models View");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
-		ImGui::Checkbox("Camera Projections & Transformations", &showTransWindow);
-		ImGui::Checkbox("About Us", &showAboutUsWindow);
-		ImGui::End();
-	}
+	//if(showSimpleWindow){
+	//	ImGui::Begin("Task 1 - Cameras View VS. Models View");					// Create a window called "Task 1 - Cameras VS. Views" and append into it.
+	//	ImGui::Checkbox("Camera Projections & Transformations", &showTransWindow);
+	//	ImGui::Checkbox("About Us", &showAboutUsWindow);
+	//	ImGui::End();
+	//}
 
 	// Show transformations window:
 	// Itay's implementation:
@@ -302,7 +303,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing;
 		if (ImGui::BeginMainMenuBar()){
 			if (ImGui::BeginMenu("File")){
-				if (ImGui::MenuItem("Load Model...", "CTRL+O")){
+				if (ImGui::MenuItem("Browse..", "CTRL+O")){
 					nfdchar_t *outPath = NULL;
 					nfdresult_t result = NFD_OpenDialog("obj;png,jpg", NULL, &outPath);
 					if (result == NFD_OKAY) {
@@ -316,6 +317,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 					}
 
 				}
+				ImGui::EndMenu();
+			}
+			//TODO: finish this and make it no closing while it opens!!!
+			if (ImGui::BeginMenu("Help")) {
+				if (ImGui::MenuItem("Show Demo Menu", "")) { ImGui::ShowDemoWindow(&showDemoWindow); }
+				if (ImGui::MenuItem("About Us..", "")) { buildAboutUsWindow(); }
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();

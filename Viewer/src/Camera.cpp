@@ -43,6 +43,9 @@ void Camera::SetOrthographicProjection(
 	const float snear,
 	const float sfar)
 {
+	/*
+	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
+	*/
 	float top = tan(fovy / 2) * snear;
 	float botton = -1 * top;
 	float right = aspectRatio * top;
@@ -70,6 +73,10 @@ void Camera::SetPerspectiveProjection(
 	const float pnear,
 	const float pfar)
 {
+	/*
+	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
+	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
+	*/
 	float pneardef = 1,pfardef = -1;
 	float wright = 1.0f, wleft = -1.0f, wtop = -1.0f, wbottom = 1.0f;
 	#define X_Y_SCALE 1.0f
