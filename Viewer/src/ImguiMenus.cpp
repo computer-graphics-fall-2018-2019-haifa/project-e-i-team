@@ -171,20 +171,32 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				}
 			}
 			if (ImGui::Button("Focus on current model")) {
-				glm::vec3 at;
-				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
-				for (auto face = faces.begin(); face != faces.end(); ++face) {
-					int v = face->GetVertexIndex(0) - 1;
-					at = scene->getModelVertices(0, v);
-					break;
-				}
+				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
+				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
+				glm::vec3 at = model->BoundMiddle;
+
+				cout << "scene->activeModelIndex = " << scene->activeModelIndex << endl;
+				cout << "scene->currentActiveCamera = " << scene->currentActiveCamera << endl;
+				cout << "( " << at.x << " , " << at.y << " , " << at.z << " )" << endl;
+				/////////////////////////////
+				glm::mat4x4 Mc = camera->Getview();
+				glm::mat4x4 Mp = camera->GetProjection();
+				glm::mat4x4 seriesTransform = Mc * model->GetWorldTransformation();
+				glm::vec4 at4 = seriesTransform * glm::vec4(at.x, at.y, at.z, 1);
+				at4 = at4 / at4.w;
+				at = glm::vec3( at4.x , at4.y , at4.z );
+				/////////////////////////////
+				cout << "( " << currentCam->origin_eye.x << " , " << currentCam->origin_eye.y << " , " << currentCam->origin_eye.z << " )" << endl;
+				cout << "( " << at.x << " , " << at.y << " , " << at.z << " )" << endl;
+				at = glm::vec3(600, 600, 0);
+				
 				glm::vec3 rand = glm::vec3(3, 2, 1);
 				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
 				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;
 				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + currentCam->origin_eye;
 				
 				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
-				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
+				at4 = glm::vec4(at.x, at.y, at.z, 1);
 				glm::vec4 eye4 = glm::vec4((currentCam->origin_eye).x, (currentCam->origin_eye).y, (currentCam->origin_eye).z, 1);
 				
 				currentCam->SetCameraLookAt(eye4, at4, up4);

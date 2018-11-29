@@ -298,6 +298,8 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	} else {
 		model = scene.GetModel(k);
 	}
+
+	
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
@@ -305,6 +307,15 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect1 = vect1 / vect1.w;
 	glm::vec4 vect2 = seriesTransform*vec2;
 	vect2 = vect2 / vect2.w;
+
+
+
+	////////////////////////////////////////////////////////////
+	glm::vec4 hdfkj = seriesTransform * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1);
+	hdfkj = hdfkj / hdfkj.w;
+	DrawLine(hdfkj.x, 200, hdfkj.y, 200, model->color);
+	///////////////////////////////////////////////////////
+
 
 	float vNlength = model->GetVertexNormalLength();
 	// transform and normalize vertex normals:

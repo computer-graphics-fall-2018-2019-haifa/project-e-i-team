@@ -54,7 +54,7 @@ MeshModel Utils::LoadGridModel() {
 			counter += 4;
 		}
 	}
-	return MeshModel(grid_faces, grid_vertices, grid_vertices,glm::vec3(0,0,0) , glm::vec3(0, 0, 0), "Grid");
+	return MeshModel(grid_faces, grid_vertices, grid_vertices,glm::vec3(0,0,0) , glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), "Grid");
 }
 
 
@@ -137,10 +137,10 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	}
 	glm::vec3 BoundMin(min_x , min_y , min_z);
 	glm::vec3 BoundMax(max_x , max_y , max_z);
-
+	glm::vec3 BoundMiddle( (min_x + max_x)/2 , (min_y + max_y) / 2, (min_z + max_z) / 2 );
 	
 
-	return MeshModel(faces, vertices, normals, BoundMin, BoundMax, Utils::GetFileName(filePath));
+	return MeshModel(faces, vertices, normals, BoundMin, BoundMax, BoundMiddle, Utils::GetFileName(filePath));
 }
 
 std::string Utils::GetFileName(const std::string& filePath)

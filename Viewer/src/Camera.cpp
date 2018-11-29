@@ -31,7 +31,10 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; mat[3][1] = glm::dot(y, eye);
 	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
 
+	
 	viewTransformation = mat;
+	origin_eye = eye;
+	cout << "( " << origin_eye.x << " , " << origin_eye.y << " , " << origin_eye.z << " )" << endl;
 	SetWorldTransformation(glm::inverse(mat));
 }
 
