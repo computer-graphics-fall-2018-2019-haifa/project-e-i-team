@@ -113,6 +113,14 @@ glm::mat4x4 handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 
 // it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
+	/*static int first_camera = 0;
+	if (first_camera == 0) {
+		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
+		scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,0);
+		first_camera++;
+	}*/
+	
+	
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
@@ -120,7 +128,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight);
+			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,1);
 		}
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
@@ -154,7 +162,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
-			if (!currentCam->transType) { 
+			if (false) {//(!currentCam->transType) { 
 				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
 			} else { 
 				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
@@ -206,6 +214,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			we need them public and to referenced always the app is running:
 			as response to y scrolling value we control the zoom in and zoom out world models:
 			*/
+			
 
 			ImGui::TextColored(textColor, "Model Transformations:");
 			Tm = handleKeyboardInputs(currentModel);
@@ -254,6 +263,19 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 		}
 	}
+	if (ImGui::Button("About us")) {
+		ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImVec4 textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+		ImGui::TextColored(textColor, "Student Names: Itay Guy And Elias Jadon");
+		ImGui::TextColored(textColor, "Task Count: 1");
+		ImGui::TextColored(textColor, "Title: Cameras VS. Viewers");
+		ImGui::TextColored(textColor, "Course Semester: Winter 2018");
+		ImGui::TextColored(textColor, "Lecturer: Dr. Roi Poranne");
+		ImGui::TextColored(textColor, "Institute: University Of Haifa");
+		if (ImGui::Button("Close")) { showAboutUsWindow = false; }
+		ImGui::End();
+	}
+
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();

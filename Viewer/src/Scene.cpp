@@ -7,13 +7,19 @@ Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0)
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
 
-void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight)
+void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight , int num)
 {
-	int x = (rand() % windowHeight) - windowHeight / 2;
-	int y = (rand() % windowHeight) - windowHeight / 2;
-	int z = (rand() % windowHeight) - windowHeight / 2;
+	glm::vec3 eye;
+	if (num == 0) {
+		eye = glm::vec3(0, 5, 5);
+	}
+	else {
+		int x = (rand() % windowHeight) - windowHeight / 2;
+		int y = (rand() % windowHeight) - windowHeight / 2;
+		int z = (rand() % windowHeight) - windowHeight / 2;
 
-	glm::vec3 eye = glm::vec3(x, y, z);
+		eye = glm::vec3(x, y, z);
+	}
 	glm::vec3 at = glm::vec3(0, 0, 0);
 	glm::vec3 rand = glm::vec3(3, 2, 1);
 	glm::vec3 vec_eye_at = at - eye;
