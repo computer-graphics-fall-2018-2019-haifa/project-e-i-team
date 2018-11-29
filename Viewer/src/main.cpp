@@ -38,8 +38,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-
-	
 	srand(time(NULL)); // init clock to pseudo random usage
 
 	// Create GLFW window
@@ -148,10 +146,9 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 
 	// Resize handling here... (a suggestion)
 	if ((prev_width != frameBufferWidth) || (prev_height != frameBufferHeight)) {
-		
-		
-		
-		renderer = Renderer(frameBufferWidth, frameBufferHeight);
+
+
+		renderer.SetViewport(frameBufferWidth, frameBufferHeight);
 		prev_width = frameBufferWidth;
 		prev_height = frameBufferHeight;
 	}
