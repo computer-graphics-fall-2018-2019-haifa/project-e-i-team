@@ -31,16 +31,15 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; mat[3][1] = glm::dot(y, eye);
 	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
 
-	glm::vec2 v = at - eye;
-	float d = v.y / v.x;
-	float yteta = atanf(d);
-	glm::mat4x4 Tunex = Trans::getxRotate4x4(yteta);
+	glm::vec3 v = at - eye;
+	float dx = v.y / v.z;
+	float dy = v.y / v.x;
+	float xteta = atanf(dx);
+	float yteta = atanf(dy);
+	glm::mat4x4 Tunex = Trans::getxRotate4x4(xteta);
 	glm::mat4x4 Tuney = Trans::getyRotate4x4(yteta);
-	if (d > 1.0f) { 
-		yteta = atanf(v.x / v.y);
-		Tunex = Trans::getxRotate4x4(-yteta);
-		Tuney = Trans::getyRotate4x4(-yteta);
-	}
+	if (dx > 1.0f) { Tunex = Trans::getxRotate4x4(M_PI - xteta); } 
+	else if (dy > 1.0f) { Tuney = Trans::getyRotate4x4(M_PI - yteta); }
 
 	viewTransformation = Tuney * Tunex * mat;
 	SetWorldTransformation(glm::inverse(mat));
