@@ -34,6 +34,7 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
+	
 	colorBuffer[INDEX(viewportWidth, i, j, 0)] = color.x;
 	colorBuffer[INDEX(viewportWidth, i, j, 1)] = color.y;
 	colorBuffer[INDEX(viewportWidth, i, j, 2)] = color.z;
@@ -49,9 +50,15 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 }
 
 void Renderer::ClearColorBuffer(const glm::vec3& color) {
+	
 	for (int i = 0; i < viewportWidth; i++) {
-		for (int j = 0; j < viewportHeight; j++) { putPixel(i, j, color); }
+		
+		for (int j = 0; j < viewportHeight; j++) {
+		
+			putPixel(i, j, color); 
+		}
 	}
+	
 }
 
 void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY){
@@ -459,7 +466,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
-			//cout << "model " << k << endl;
+			
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);

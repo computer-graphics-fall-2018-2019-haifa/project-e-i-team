@@ -38,6 +38,8 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
+
+	
 	srand(time(NULL)); // init clock to pseudo random usage
 
 	// Create GLFW window
@@ -71,10 +73,8 @@ int main(int argc, char **argv)
     {
         glfwPollEvents();
 		StartFrame();
-
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene, y_scroll_offset , frameBufferWidth , frameBufferHeight);
-
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
     }
@@ -139,15 +139,26 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 {
 	// Render the menus
 	ImGui::Render();
-
+	
 	// That's how you get the current width/height of the frame buffer (for example, after the window was resized)
 	int frameBufferWidth, frameBufferHeight;
+	static int prev_width = 0, prev_height = 0;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 	
+
 	// Resize handling here... (a suggestion)
+	if ((prev_width != frameBufferWidth) || (prev_height != frameBufferHeight)) {
+		
+		
+		
+		renderer = Renderer(frameBufferWidth, frameBufferHeight);
+		prev_width = frameBufferWidth;
+		prev_height = frameBufferHeight;
+	}
 
 	// Clear the frame buffer
 	renderer.ClearColorBuffer(GetClearColor());
+	
 
 	// Render the scene
 	renderer.Render(scene, io);
