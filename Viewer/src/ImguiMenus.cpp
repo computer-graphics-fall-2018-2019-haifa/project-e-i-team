@@ -154,9 +154,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar); 
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar , frameBufferWidth , frameBufferHeight);
 			} else { 
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar);
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth, frameBufferHeight);
 			}
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
@@ -259,7 +259,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 }
 
 void buildAboutUsWindow() {
-	ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+	bool show = true;
+	ImGui::Begin("About Us", &show);
+	//ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 	ImVec4 textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 	ImGui::TextColored(textColor,"Student Names: Itay Guy And Elias Jadon");
 	ImGui::TextColored(textColor,"Task Count: 1");
@@ -319,10 +321,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 				}
 				ImGui::EndMenu();
 			}
-			//TODO: finish this and make it no closing while it opens!!!
 			if (ImGui::BeginMenu("Help")) {
-				if (ImGui::MenuItem("Show Demo Menu", "")) { ImGui::ShowDemoWindow(&showDemoWindow); }
-				if (ImGui::MenuItem("About Us..", "")) { buildAboutUsWindow(); }
+				if (ImGui::MenuItem("Show Demo Menu", "")) { /* ImGui::ShowDemoWindow(&showDemoWindow); */ }
+				if (ImGui::MenuItem("About Us..", "")) { /* buildAboutUsWindow(); */ }
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();

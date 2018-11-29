@@ -56,13 +56,17 @@ public:
 		const float height,
 		const float aspectRatio,
 		const float near,
-		const float far);
+		const float far,
+		const float frameBufferWidth,
+		const float frameBufferHeight);
 
 	void SetPerspectiveProjection(
 		const float fovy,
 		const float aspect,
 		const float near,
-		const float far);
+		const float far,
+		const float frameBufferWidth,
+		const float frameBufferHeight);
 
 	glm::mat4x4 Getview() { return viewTransformation; }
 	glm::mat4x4 GetProjection() { return projectionTransformation;  }

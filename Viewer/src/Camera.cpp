@@ -41,7 +41,9 @@ void Camera::SetOrthographicProjection(
 	const float fovy, /* free degree */
 	const float aspectRatio,
 	const float snear,
-	const float sfar)
+	const float sfar,
+	const float frameBufferWidth, 
+	const float frameBufferHeight)
 {
 	/*
 	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
@@ -71,22 +73,43 @@ void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,
 	const float pnear,
-	const float pfar)
+	const float pfar,
+	const float frameBufferWidth,
+	const float frameBufferHeight)
 {
+	//float wleft = origin_eye[0] - (frameBufferWidth/2);
+	//float wright = origin_eye[0] + (frameBufferWidth/2);
+	//float wbottom = origin_eye[1] - (frameBufferHeight/2);
+	//float wtop = origin_eye[1] + (frameBufferHeight/2);
+	//float pneardef = 1;
+	//float pfardef = -1;
 	/*
 	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
-	float pneardef = 1,pfardef = -1;
-	float wright = 1.0f, wleft = -1.0f, wtop = -1.0f, wbottom = 1.0f;
-	#define X_Y_SCALE 1.0f
-	glm::vec4 v1 = glm::vec4(X_Y_SCALE / (wright - wleft), 0.0f, 0.0f, 0.0f);
-	glm::vec4 v2 = glm::vec4(0.0f, X_Y_SCALE / (wtop - wbottom), 0.0f, 0.0f);
-	glm::vec4 v3 = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-	glm::vec4 v4 = glm::vec4(-(wright + wleft) / (wright - wleft), -(wtop + wbottom) / (wtop - wbottom), 0.0f, 1.0f);
-	glm::mat4x4 P = glm::mat4x4(v1,v2,v3,v4);
-	glm::mat4x4 f = Trans::getScale4x4(1);
-	f[2][2] = fovy;
+	
+	float top = tan(fovy / 2) * pnear;
+	float botton = -1 * top;
+	float right = aspectRatio * top;
+	float left = -right;
+	
+	//float pneardef = 1,pfardef = -1;
+	//float wright = 1.0f, wleft = -1.0f, wtop = -1.0f, wbottom = 1.0f;
 
-	projectionTransformation = Trans::getScale4x4(pfar) * Trans::getScale4x4(pnear) * f * P;
+	glm::vec4 v1 = glm::vec4((2.0f * pnear) / (right - left), 0.0f, 0.0f, 0.0f);
+
+
+	glm::vec4 v2 = glm::vec4(0.0f, (2.0f * pnear) / (top - botton), 0.0f, 0.0f);
+
+
+
+	glm::vec4 v3 = glm::vec4((right + left) / (right - left), (top + botton) / (top - botton), -(pfar + pnear) / (pfar - pnear), -1.0f);
+
+
+	glm::vec4 v4 = glm::vec4(0.0f, 0.0f, -(2*pnear*pfar) / (pfar - pnear), 0.0f);
+	
+	
+	glm::mat4x4 P = glm::mat4x4(v1,v2,v3,v4);
+
+	projectionTransformation = P;
 }
