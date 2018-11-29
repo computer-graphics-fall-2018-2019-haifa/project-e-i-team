@@ -21,6 +21,7 @@ using namespace std;
 #define MAX_SCALE_FACTOR 100000.0f
 #define MIN_SCALE_FACTOR 1.0f
 #define SCALE_OBJ_FACTOR 35.0f
+#define CAMERA_BASIC_SIZE 100000.0f // it is as big as we can achieve for this moment
 
 #define MAX_TRANSLATION_LENGTH 100000.0f
 #define MIN_TRANSLATION_LENGTH -100000.0f
@@ -75,7 +76,7 @@ public:
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
-	MeshModel(std::shared_ptr<MeshModel> model);
+	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE);
 	virtual ~MeshModel();
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
