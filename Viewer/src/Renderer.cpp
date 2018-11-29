@@ -223,6 +223,10 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	mid = seriesTransform * mid;
 	mid = mid / mid.w;
 	DrawLine(mid.x, 300, mid.y, 300, model->BoundingBoxColor);
+	if (isCameraModel) {
+		
+	}
+
 	///////////////////////////////////////////////////////
 
 

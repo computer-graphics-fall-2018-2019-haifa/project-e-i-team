@@ -16,7 +16,6 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
-	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
 }
 
 Camera::~Camera()
@@ -38,6 +37,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 
 	viewTransformation = mat;
 	SetWorldTransformation(glm::inverse(mat));
+	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
 }
 
 
