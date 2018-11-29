@@ -47,6 +47,7 @@ public:
 	glm::vec3 origin_eye;
 	int transType;
 	float ffovy,fnear,ffar;
+	float zoom;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
 	
@@ -68,4 +69,5 @@ public:
 
 	glm::mat4x4 Getview() { return viewTransformation; }
 	glm::mat4x4 GetProjection() { return projectionTransformation;  }
+	double deg2rad(double degrees) { return degrees * 4.0 * atan(1.0) / 180.0; }
 };

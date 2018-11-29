@@ -12,6 +12,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	transType(0),
 	ffovy(FFOVY_BASIC_UNIT), fnear(MIN_FNEAR), ffar(MIN_FFAR),
 	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f),
+	zoom(1.0f),
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
@@ -64,11 +65,7 @@ void Camera::SetOrthographicProjection(
 	glm::vec4 v3 = glm::vec4(0, 0, S_z, 0.0f);
 	glm::vec4 v4 = glm::vec4(x, y, z, 1.0f);
 
-	projectionTransformation = glm::mat4(v1 ,v2 ,v3 ,v4);
-}
-
-double deg2rad(double degrees) {
-	return degrees * 4.0 * atan(1.0) / 180.0;
+	projectionTransformation = Trans::getScale4x4(zoom) * glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
 // Itay's Implementation
@@ -83,7 +80,7 @@ void Camera::SetPerspectiveProjection(
 	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
-	float pneardef = 1, pfardef = -1;
+	float pneardef = 1.0f, pfardef = -1.0f; //  use as constant because of the lecture explainations - can put it as parameterized changing
 	float wright = frameBufferWidth, wleft = -frameBufferWidth / 2, wtop = frameBufferWidth / 2, wbottom = -frameBufferWidth / 2;
 
 	#define F (1.0f / tan(deg2rad(0.1f * fovy))) // 0.1f is the best for avoiding line hashing along the 3D world each projection operation occurrs
@@ -93,5 +90,5 @@ void Camera::SetPerspectiveProjection(
 	  glm::vec4(0.0f,0.0f,pfar / (pnear - pfar), -1.0f),
 	  glm::vec4(0.0f, 0.0f,(pnear * pfar) / (pnear - pfar),0.0f));
 
-	projectionTransformation = P;
+	projectionTransformation = Trans::getScale4x4(zoom) * P;
 }

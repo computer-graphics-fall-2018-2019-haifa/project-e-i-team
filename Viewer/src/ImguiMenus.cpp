@@ -133,6 +133,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
+			currentCam->zoom = currentCam->fnear - currentCam->ffar; // always > 0.0f
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
 
 			// rotation the whole world again the stable camera:
