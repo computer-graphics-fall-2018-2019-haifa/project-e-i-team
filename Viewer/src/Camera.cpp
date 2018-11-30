@@ -25,24 +25,20 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 {
 	glm::vec3 z = glm::normalize(eye - at);
 	glm::vec3 x = glm::normalize(glm::cross(up,z));
-	glm::vec3 y = glm::normalize(glm::cross(z,x));
+	glm::vec3 y = glm::normalize(glm::cross(x,z));
 	glm::mat4 mat(1);
-	mat[0][0] = x.x; mat[0][1] = y.x; mat[0][2] = z.x; mat[3][0] = glm::dot(x, eye);
-	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; mat[3][1] = glm::dot(y, eye);
-	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; mat[3][2] = glm::dot(z, eye);
+	mat[0][0] = x.x; mat[0][1] = y.x; mat[0][2] = z.x; //mat[3][0] = glm::dot(x, eye);
+	mat[1][0] = x.y; mat[1][1] = y.y; mat[1][2] = z.y; //mat[3][1] = glm::dot(y, eye);
+	mat[2][0] = x.z; mat[2][1] = y.z; mat[2][2] = z.z; //mat[3][2] = glm::dot(z, eye);
 
-	glm::vec3 v = at - eye;
-	float dx = v.y / v.z;
-	float dy = v.y / v.x;
-	float xteta = atanf(dx);
-	float yteta = atanf(dy);
-	glm::mat4x4 Tunex = Trans::getxRotate4x4(xteta);
-	glm::mat4x4 Tuney = Trans::getyRotate4x4(yteta);
-	if (dx > 1.0f) { Tunex = Trans::getxRotate4x4(M_PI - xteta); } 
-	else if (dy > 1.0f) { Tuney = Trans::getyRotate4x4(M_PI - yteta); }
+	glm::mat4x4 trans
+	{ 1	,	0	,	0	,	eye.x,
+		0	,	1	,	0	,	eye.y,
+		0	,	0	,	1	,	eye.z,
+		0	,	0	,	0	,	1 };
 
-	viewTransformation = Tuney * Tunex * mat;
-	SetWorldTransformation(glm::inverse(mat));
+	viewTransformation = mat * glm::transpose(trans);
+	SetWorldTransformation(glm::inverse(viewTransformation));
 }
 
 
@@ -55,9 +51,6 @@ void Camera::SetOrthographicProjection(
 	const float sfar,
 	const float frameBufferWidth)
 {
-	/*
-	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
-	*/
 	float top = tan(fovy / 2) * snear;
 	float botton = -1 * top;
 	float right = aspectRatio * top;
@@ -78,7 +71,7 @@ void Camera::SetOrthographicProjection(
 	projectionTransformation = Trans::getScale4x4(zoom) * glm::mat4(v1 ,v2 ,v3 ,v4);
 }
 
-// Itay's Implementation
+
 void Camera::SetPerspectiveProjection(
 	const float fovy,
 	const float aspectRatio,
@@ -86,10 +79,22 @@ void Camera::SetPerspectiveProjection(
 	const float pfar,
 	const float frameBufferWidth)
 {
-	/*
-	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
-	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
-	*/
+	float n = pnear;
+	float f = pfar;
+	float t = tan(fovy / 2) * pnear;
+	float b = -1 * t;
+	float r = aspectRatio * t;
+	float l = -r;
+
+	glm::vec4 v1((2 * n) / (r - l)	, 0					, 0					, 0);
+	glm::vec4 v2(0					, (2*n)/(t-b)		, 0					, 0);
+	glm::vec4 v3((r+l)/(r-l)		, (t + b) / (t - b)	, -(f + n) / (f - n), -1);
+	glm::vec4 v4(0					, 0					, -(2*f*n)/(f-n)	, 0);
+
+	projectionTransformation = glm::mat4(v1, v2, v3, v4);
+}
+
+/*
 	float pneardef = 1.0f, pfardef = -1.0f; //  use as constant because of the lecture explainations - can put it as parameterized changing
 	float wright = frameBufferWidth, wleft = -frameBufferWidth / 2, wtop = frameBufferWidth / 2, wbottom = -frameBufferWidth / 2;
 
@@ -101,4 +106,4 @@ void Camera::SetPerspectiveProjection(
 	  glm::vec4(0.0f, 0.0f,(pnear * pfar) / (pnear - pfar),0.0f));
 
 	projectionTransformation = Trans::getScale4x4(zoom) * P;
-}
+	*/
