@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 
 class Trans {
+	float deg2rad(float degrees) { return degrees * 0.0174532925; }
+
 public:
 	static glm::mat4x4 getScale4x4(float factor) {
 		glm::mat4x4 m = glm::mat4x4(factor);

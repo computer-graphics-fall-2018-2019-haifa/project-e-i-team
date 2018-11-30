@@ -138,34 +138,37 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
-			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
-			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
-			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
-			currentCam->zoom = currentCam->fnear - currentCam->ffar; // always > 0.0f
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, M_PI);
+			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 5.0f);
+			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 5.0f);
+			ImGui::SliderFloat("Left", &(currentCam->pleft), FLEFT_DEF, M_PI);
+			ImGui::SliderFloat("Right", &(currentCam->pright), FRIGHT_DEF, M_PI);
+			ImGui::SliderFloat("Top", &(currentCam->ptop), FTOP_DEF, M_PI);
+			ImGui::SliderFloat("Bottom", &(currentCam->pbottom), FBOTTOM_DEF, M_PI);
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
 
 			// rotation the whole world again the stable camera:
 			ImGui::TextColored(textColor, "Camera Transformations:");
 			float frx = currentCam->worldfRotatex,diff = 0.0f;
-			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->worldfRotatex), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->worldfRotatex), -M_PI, M_PI);
 			diff = currentCam->worldfRotatex - frx;
 			if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
 			float fry = currentCam->worldfRotatey;
-			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->worldfRotatey), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->worldfRotatey), -M_PI, M_PI);
 			diff = currentCam->worldfRotatey - fry;
 			if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 			
 			float frz = currentCam->worldfRotatez;
-			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->worldfRotatez), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->worldfRotatez), -M_PI, M_PI);
 			diff = currentCam->worldfRotatez - frz;
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom,frameBufferWidth);
 			} else { 
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
 			}
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
@@ -225,7 +228,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (fsc != currentModel->fScale) {Tm = Trans::getScale4x4(currentModel->fScale / fsc);	}
 			
 			float frx = currentModel->fRotatex;
-			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -M_PI, M_PI);
 			diff = currentModel->fRotatex - frx;
 			if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
 			
@@ -234,7 +237,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 			
 			float fry = currentModel->fRotatey;
-			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), -M_PI, M_PI);
 			diff = currentModel->fRotatey - fry;
 			if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
 			
@@ -243,7 +246,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 			float frz = currentModel->fRotatez;
-			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), 0.0f, POS_DOUBLE_PI);
+			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), -M_PI, M_PI);
 			diff = currentModel->fRotatez - frz;
 			if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
 
