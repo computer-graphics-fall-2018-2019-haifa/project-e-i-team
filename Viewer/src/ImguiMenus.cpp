@@ -129,16 +129,28 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::TextColored(textColor, "Camera Projections:");
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
+
+			ImGui::Text("");
+
+			ImGui::TextColored(textColor, "Camera View Control:");
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
-			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY);
+			float fsc = currentCam->ffovy, diff = 0.0f;
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), MIN_FFOVY, MAX_FFOVY); // zoom control
+			diff = currentCam->ffovy - fsc;
+			if (diff != 0.0f) { Tc = Trans::getScale4x4(diff); }
+
 			ImGui::SliderFloat("Near", &(currentCam->fnear), MIN_FNEAR, MAX_FNEAR);
 			ImGui::SliderFloat("Far", &(currentCam->ffar), MIN_FFAR, MAX_FFAR);
-			currentCam->zoom = currentCam->fnear - currentCam->ffar; // always > 0.0f
+			ImGui::SliderFloat("Left", &(currentCam->fleft), MIN_FLEFT, -frameBufferWidth /2);
+			ImGui::SliderFloat("Right", &(currentCam->fright), MIN_FRIGHT, frameBufferWidth /2);
+			ImGui::SliderFloat("Top", &(currentCam->ftop), MIN_FTOP, frameBufferWidth /2);
+			ImGui::SliderFloat("Bottom", &(currentCam->fbottom), MIN_FBOTTOM, -frameBufferWidth /2);
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
 
 			// rotation the whole world again the stable camera:
 			ImGui::TextColored(textColor, "Camera Transformations:");
-			float frx = currentCam->worldfRotatex,diff = 0.0f;
+
+			float frx = currentCam->worldfRotatex;
 			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->worldfRotatex), 0.0f, POS_DOUBLE_PI);
 			diff = currentCam->worldfRotatex - frx;
 			if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
@@ -153,11 +165,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			diff = currentCam->worldfRotatez - frz;
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
-			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
+			float aspectratio = frameBufferHeight ? frameBufferWidth / frameBufferHeight : 0.001f;
 			if (!currentCam->transType) { 
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
+				currentCam->SetOrthographicProjection(
+					currentCam->ffovy, 
+					aspectratio, 
+					currentCam->fnear, 
+					currentCam->ffar, 
+					currentCam->fleft,
+					currentCam->fright, 
+					currentCam->ftop,
+					currentCam->fbottom);
 			} else { 
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, frameBufferWidth);
+				currentCam->SetPerspectiveProjection(
+					currentCam->ffovy,
+					aspectratio,
+					currentCam->fnear,
+					currentCam->ffar,
+					currentCam->fleft,
+					currentCam->fright,
+					currentCam->ftop,
+					currentCam->fbottom);
 			}
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
@@ -213,7 +241,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			float diff = 0.0f;
 			float fsc = currentModel->fScale;
 			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			if (fsc != currentModel->fScale) {Tm = Trans::getScale4x4(currentModel->fScale / fsc);	}
+			if (fsc != currentModel->fScale) {Tm = Trans::getScale4x4(currentModel->fScale - fsc);	}
 			
 			float frx = currentModel->fRotatex;
 			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), 0.0f, POS_DOUBLE_PI);
@@ -280,7 +308,7 @@ void loadGrid(Scene& scene) {
 	scene.gridCounter++;
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
+void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const float frameBufferWidth, const float frameBufferHeight){
 	if (scene.gridCounter == 0) { loadGrid(scene); }
 
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).

@@ -21,7 +21,7 @@ using namespace std;
 #define MAX_SCALE_FACTOR 100000.0f
 #define MIN_SCALE_FACTOR 1.0f
 #define SCALE_OBJ_FACTOR 35.0f
-#define CAMERA_BASIC_SIZE 10000000000.0f // it is as big as we can achieve for this moment
+#define CAMERA_BASIC_SIZE 100000.0f // it is as big as we can achieve for this moment
 
 #define MAX_TRANSLATION_LENGTH 100000.0f
 #define MIN_TRANSLATION_LENGTH -100000.0f

@@ -23,7 +23,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model,float defsize) :
 	faces(model->GetFaces()),
 	normals(model->GetNormals())
 {
-	resetModel(defsize);
+	resetModel(1); // load it by its original size in contrast of another MeshModel types
 }
 
 MeshModel::~MeshModel() {}

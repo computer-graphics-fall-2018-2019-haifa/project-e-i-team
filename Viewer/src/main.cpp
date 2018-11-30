@@ -72,6 +72,7 @@ int main(int argc, char **argv)
         glfwPollEvents();
 		StartFrame();
 
+
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene, y_scroll_offset , frameBufferWidth , frameBufferHeight);
 
