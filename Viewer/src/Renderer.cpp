@@ -313,6 +313,16 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	glm::vec4 vect2 = seriesTransform*vec2;
 	vect2 = vect2 / vect2.w;
 
+	/////////////////////////////////////////////////
+	
+	glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
+	c = seriesTransform * c;
+	c = c / c.w;
+	DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
+	/////////////////////////////////////////////////
+
+
+
 	float vNlength = model->GetVertexNormalLength();
 	// transform and normalize vertex normals:
 	glm::vec3 n0 = vNormals.at(0);

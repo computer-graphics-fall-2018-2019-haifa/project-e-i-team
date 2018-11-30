@@ -179,23 +179,35 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				}
 			}
 			if (ImGui::Button("Focus on current model")) {
-				glm::vec3 at;
-				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
-				for (auto face = faces.begin(); face != faces.end(); ++face) {
-					int v = face->GetVertexIndex(0) - 1;
-					at = scene->getModelVertices(0, v);
-					break;
-				}
-				glm::vec3 rand = glm::vec3(3, 2, 1);
-				glm::vec3 vec_eye_at = at - currentCam->origin_eye;
-				glm::vec3 vector_eye_rand = rand - currentCam->origin_eye;
-				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + currentCam->origin_eye;
+				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
+				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
+
+				glm::vec4 _at = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1);
+				glm::vec3 at(_at.x, _at.y, _at.z);
+
+
+				////////////////////////////////////
+				glm::vec3 help_up = glm::vec3(0, 1, 0);
+				glm::vec3 vec_eye_at = at - camera->origin_eye;
+
+				help_up = glm::cross(vec_eye_at, help_up);
+				glm::vec3 up = glm::cross(vec_eye_at, help_up) + camera->origin_eye;
+
+
+				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
+				glm::vec4 eye4 = glm::vec4(camera->origin_eye.x, camera->origin_eye.y, camera->origin_eye.z, 1);
+				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
+				////////////////////////////////////
+				/*glm::vec3 rand = glm::vec3(3, 2, 1);
+				glm::vec3 vec_eye_at = at - camera->origin_eye;
+				glm::vec3 vector_eye_rand = rand - camera->origin_eye;
+				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + camera->origin_eye;
 				
 				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
 				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
-				glm::vec4 eye4 = glm::vec4((currentCam->origin_eye).x, (currentCam->origin_eye).y, (currentCam->origin_eye).z, 1);
+				glm::vec4 eye4 = glm::vec4((camera->origin_eye).x, (camera->origin_eye).y, (camera->origin_eye).z, 1);*/
 				
-				currentCam->SetCameraLookAt(eye4, at4, up4);
+				camera->SetCameraLookAt(eye4, at4, up4);
 			}
 		}
 	}
