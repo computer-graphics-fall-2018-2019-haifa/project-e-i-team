@@ -95,10 +95,12 @@ void Camera::SetPerspectiveProjection(
 
 	#define F (1.0f / tan(deg2rad(0.1f * fovy))) // 0.1f is the best for avoiding line hashing along the 3D world each projection operation occurrs
 
-	glm::mat4x4 P(glm::vec4(F / aspectRatio,0.0f,0.0f,0.0f),
-	  glm::vec4(0.0f,-F,0.0f,0.0f),
-	  glm::vec4(0.0f,0.0f,pfar / (pnear - pfar), -1.0f),
-	  glm::vec4(0.0f, 0.0f,(pnear * pfar) / (pnear - pfar),0.0f));
+	glm::mat4x4 P(
+		glm::vec4(F / aspectRatio,0.0f,0.0f,0.0f),
+		glm::vec4(0.0f,-F,0.0f,0.0f),
+		glm::vec4(0.0f,0.0f,pfar / (pnear - pfar), -1.0f),
+		glm::vec4(0.0f, 0.0f,(pnear * pfar) / (pnear - pfar),0.0f)
+	);
 
 	projectionTransformation = Trans::getScale4x4(zoom) * P;
 }
