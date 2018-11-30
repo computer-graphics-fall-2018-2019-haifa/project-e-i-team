@@ -29,6 +29,20 @@ const glm::vec4& GetClearColor(){
 	return backgroundColor;
 }
 
+void buildAboutUsWindow() {
+	showAboutUsWindow = true;
+	ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+	ImVec4 textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+	ImGui::TextColored(textColor, "Student Names: Itay Guy And Elias Jadon");
+	ImGui::TextColored(textColor, "Task Count: 1");
+	ImGui::TextColored(textColor, "Title: Cameras VS. Viewers");
+	ImGui::TextColored(textColor, "Course Semester: Winter 2018");
+	ImGui::TextColored(textColor, "Lecturer: Dr. Roi Poranne");
+	ImGui::TextColored(textColor, "Institute: University Of Haifa");
+	if (ImGui::Button("Close")) { showAboutUsWindow = false; }
+	ImGui::End();
+}
+
 const char* getModelNames(Scene* scene) {
 	int length = 0;
 	length = scene->GetModelCount();
@@ -137,6 +151,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::TextColored(textColor, "Camera Projections:");
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
+			ImGui::Text("");
+			ImGui::TextColored(textColor, "Camera Viewer Parameters:");
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
 			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, M_PI);
 			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 5.0f);
@@ -145,7 +161,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Right", &(currentCam->pright), FRIGHT_DEF, M_PI);
 			ImGui::SliderFloat("Top", &(currentCam->ptop), FTOP_DEF, M_PI);
 			ImGui::SliderFloat("Bottom", &(currentCam->pbottom), FBOTTOM_DEF, M_PI);
-			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
 
 			// rotation the whole world again the stable camera:
 			ImGui::TextColored(textColor, "Camera Transformations:");
@@ -181,7 +196,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(glm::inverse(Tc));
 				}
 			}
-			if (ImGui::Button("Focus on current model")) {
+			ImGui::TextColored(textColor, "Camera Properties:");
+			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
+			if (ImGui::Button("Focus On Current Model")) {
 				glm::vec3 at;
 				std::vector<Face> faces = scene->getModelfaces(scene->activeModelIndex);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
@@ -202,31 +219,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	
+	/*
+	determine the parameters initialize if required from the user: [changing scale graph online]
+	each field is belonging to each mesh model object due to this issue,
+	we need them public and to referenced always the app is running:
+	as response to y scrolling value we control the zoom in and zoom out world models:
+	*/
 	if (ImGui::CollapsingHeader("Models")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
-		ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1);
 			
-			/*
-			determine the parameters initialize if required from the user: [changing scale graph online]
-			each field is belonging to each mesh model object due to this issue, 
-			we need them public and to referenced always the app is running:
-			as response to y scrolling value we control the zoom in and zoom out world models:
-			*/
-			
-
 			ImGui::TextColored(textColor, "Model Transformations:");
 			Tm = handleKeyboardInputs(currentModel);
 			
-			float diff = 0.0f;
 			float fsc = currentModel->fScale;
 			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			if (fsc != currentModel->fScale) {Tm = Trans::getScale4x4(currentModel->fScale / fsc);	}
+			if (fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 			
+			float diff = 0.0f;
 			float frx = currentModel->fRotatex;
 			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -M_PI, M_PI);
 			diff = currentModel->fRotatex - frx;
@@ -254,46 +267,29 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 	
-			currentModel->UpdateworldTransform(Tm);
+			glm::mat4x4 toZeroLoc = Trans::getTranslate4x4(-currentModel->fTranslatex, -currentModel->fTranslatey, -currentModel->fTranslatez);
+			glm::mat4x4 toRealLoc = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
 
-			ImGui::Checkbox("Show Face Normals", &(currentModel->showFaceNormals));
+			currentModel->SetWorldTransformation(toRealLoc * Tm * toZeroLoc * currentModel->GetWorldTransformation());
+
+			ImGui::TextColored(textColor, "Model Properties:");
+			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
+			ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 			ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-			ImGui::Checkbox("Show Vectex Normals", &(currentModel->showVertexNormals));
+			ImGui::Checkbox("Vectex Normals", &(currentModel->showVertexNormals));
 			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
 			ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-			ImGui::Checkbox("Show Bounding Box", &(currentModel->showBoundingBox));
+			ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
 			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 		}
 	}
-	if (ImGui::Button("About us")) {
-		ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImVec4 textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-		ImGui::TextColored(textColor, "Student Names: Itay Guy And Elias Jadon");
-		ImGui::TextColored(textColor, "Task Count: 1");
-		ImGui::TextColored(textColor, "Title: Cameras VS. Viewers");
-		ImGui::TextColored(textColor, "Course Semester: Winter 2018");
-		ImGui::TextColored(textColor, "Lecturer: Dr. Roi Poranne");
-		ImGui::TextColored(textColor, "Institute: University Of Haifa");
-		if (ImGui::Button("Close")) { showAboutUsWindow = false; }
-		ImGui::End();
-	}
-
-
+	ImGui::Text("");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::End();
-}
-
-void buildAboutUsWindow() {
-	ImGui::Begin("About Us", &showAboutUsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-	ImVec4 textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-	ImGui::TextColored(textColor,"Student Names: Itay Guy And Elias Jadon");
-	ImGui::TextColored(textColor,"Task Count: 1");
-	ImGui::TextColored(textColor,"Title: Cameras VS. Viewers");
-	ImGui::TextColored(textColor,"Course Semester: Winter 2018");
-	ImGui::TextColored(textColor,"Lecturer: Dr. Roi Poranne");
-	ImGui::TextColored(textColor,"Institute: University Of Haifa");
-	if (ImGui::Button("Close")){ showAboutUsWindow = false; }
+	ImGui::Text("");
+	if (ImGui::Button("About us")) {
+		buildAboutUsWindow();
+	}
 	ImGui::End();
 }
 

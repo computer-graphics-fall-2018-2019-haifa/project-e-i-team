@@ -15,20 +15,20 @@ using namespace std;
 
 #define POS_DOUBLE_PI 2.1f*M_PI
 
-#define MAX_NORMAL_LENGTH 100.0f
+#define MAX_NORMAL_LENGTH 5.0f
 #define MIN_NORMAL_LENGTH 1.0f
 
-#define MAX_SCALE_FACTOR 100000.0f
+#define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
-#define SCALE_OBJ_FACTOR 35.0f
-#define CAMERA_BASIC_SIZE 10000000000.0f // it is as big as we can achieve for this moment
+#define SCALE_OBJ_FACTOR 5.0f
+#define CAMERA_BASIC_SIZE 100.0f // it is as big as we can achieve for this moment
 
-#define MAX_TRANSLATION_LENGTH 100000.0f
-#define MIN_TRANSLATION_LENGTH -100000.0f
+#define MAX_TRANSLATION_LENGTH 100.0f
+#define MIN_TRANSLATION_LENGTH -100.0f
 
 // smooth moving:
-#define XTRANS_FACTOR 50.0f
-#define YTRANS_FACTOR 50.0f
+#define XTRANS_FACTOR 20.0f
+#define YTRANS_FACTOR 20.0f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);
