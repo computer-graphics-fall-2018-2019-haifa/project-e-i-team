@@ -217,9 +217,9 @@ void Camera::SetPerspectiveProjection(
 	*/
 
 	float ptop = tanf(glm::radians(0.5f * fovy)) * pnear;
-	float pbottom = -ptop * bottom;
-	float pright = ptop * right;
-	float pleft = -ptop * aspectRatio * left;
+	float pbottom = -ptop;// * bottom;
+	float pright = ptop;// * right;
+	float pleft = -ptop * aspectRatio;// * left;
 
 	//glm::mat4x4 P(
 	//	glm::vec4(1 / pright, 0.0f, 0.0f, 0.0f),
@@ -236,5 +236,4 @@ void Camera::SetPerspectiveProjection(
 	);
 
 	projectionTransformation = P;
-}
 }
