@@ -75,7 +75,7 @@ public:
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, const std::string& modelName = "");
-	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE);
+	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE,bool showFNormals = false, bool showVNormals = false);
 	virtual ~MeshModel();
 
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
@@ -89,14 +89,16 @@ public:
 	void UpdateworldTransform(glm::mat4x4 T) { worldTransform = T * worldTransform; }
 
 	void resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
+					bool showFNormals = true,
+					bool showVNormals = true,
 					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
 					glm::vec3* modelColor = getRandColor(),
 					float vertexNlength = MAX_NORMAL_LENGTH,
 					float faceNlength = MAX_NORMAL_LENGTH) {
 		worldTransform = Trans::getScale4x4(fScaleDef);
-		showFaceNormals = false;
-		showVertexNormals = false;
+		showFaceNormals = showFNormals,
+		showVertexNormals = showVNormals,
 		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
@@ -111,10 +113,6 @@ public:
 		fTranslatex = 0.0f;
 		fTranslatey = 0.0f;
 		fTranslatez = 0.0f;
-	}
-
-	glm::vec3 GetMassCenter() {
-
 	}
 
 	glm::vec3 GetVerticeByIndex(int index) { return vertices[index]; }

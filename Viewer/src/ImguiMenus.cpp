@@ -195,14 +195,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			diff = currentCam->selffRotatez - frz;
 			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-			currentCam->UpdateCameraView(Trans::get2InitAxis4x4(scene->GetModelMassCenter(currentCam), Tci));
-			
-			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
-			if (!currentCam->transType) { 
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom,frameBufferWidth);
-			} else { 
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
-			}
+			currentCam->UpdateCameraView(Tci);
 
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
@@ -210,10 +203,18 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				model->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(model), Tc));
 			}
 			for (int i = 0; i < scene->GetCameraCount(); i++) {
+				std::shared_ptr<Camera> camera = scene->GetCamera(i);
 				if (i != scene->activeCameraIndex) {
-					std::shared_ptr<Camera> camera = scene->GetCamera(i);
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(camera), Tc));
 				}
+			}
+
+			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
+			if (!currentCam->transType) {
+				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
+			}
+			else {
+				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
 			}
 
 			ImGui::TextColored(textColor, "Camera Properties:");
@@ -313,7 +314,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, false, false,blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
 	scene.gridCounter++;
 }
 
