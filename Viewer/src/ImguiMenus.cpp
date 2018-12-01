@@ -138,7 +138,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
-	glm::mat4x4 Tc(1);
+	glm::mat4x4 Tc(1), Tci(1);
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
@@ -163,28 +163,47 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Bottom", &(currentCam->pbottom), FBOTTOM_DEF, M_PI);
 
 			// rotation the whole world again the stable camera:
-			ImGui::TextColored(textColor, "Camera Transformations:");
+			ImGui::TextColored(textColor, "Camera Around The World Transformations:");
 			float frx = currentCam->worldfRotatex,diff = 0.0f;
-			ImGui::SliderFloat("Camera Rotation By x [-2PI,+2PI]", &(currentCam->worldfRotatex), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotation By X", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatex - frx;
 			if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
 			float fry = currentCam->worldfRotatey;
-			ImGui::SliderFloat("Camera Rotation By y [-2PI,+2PI]", &(currentCam->worldfRotatey), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotation By Y", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatey - fry;
 			if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 			
 			float frz = currentCam->worldfRotatez;
-			ImGui::SliderFloat("Camera Rotation By z [-2PI,+2PI]", &(currentCam->worldfRotatez), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotation By Z", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatez - frz;
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
+			ImGui::TextColored(textColor, "Camera Around Itself Transformations:");
+			frx = currentCam->selffRotatex;
+			ImGui::SliderFloat("Rotation By X-Pivot", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			diff = currentCam->selffRotatex - frx;
+			if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
+
+			fry = currentCam->selffRotatey;
+			ImGui::SliderFloat("Rotation By Y-Pivot", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			diff = currentCam->selffRotatey - fry;
+			if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
+
+			frz = currentCam->selffRotatez;
+			ImGui::SliderFloat("Rotation By Z-Pivot", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			diff = currentCam->selffRotatez - frz;
+			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
+
+			currentCam->UpdateCameraView(Tci);
+			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
 				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom,frameBufferWidth);
 			} else { 
 				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
 			}
+
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
 				std::shared_ptr<MeshModel> model = scene->GetModel(i);
@@ -196,6 +215,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(glm::inverse(Tc));
 				}
 			}
+
 			ImGui::TextColored(textColor, "Camera Properties:");
 			ImGui::ColorEdit3("Camera Color", (float*)&(currentCam->color));
 			if (ImGui::Button("Focus On Current Model")) {
@@ -241,7 +261,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			
 			float diff = 0.0f;
 			float frx = currentModel->fRotatex;
-			ImGui::SliderFloat("Rotate By X [-2PI,+2PI]", &(currentModel->fRotatex), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatex - frx;
 			if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
 			
@@ -250,7 +270,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 			
 			float fry = currentModel->fRotatey;
-			ImGui::SliderFloat("Rotate By Y [-2PI,+2PI]", &(currentModel->fRotatey), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotate By Y", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatey - fry;
 			if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
 			
@@ -259,7 +279,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 			float frz = currentModel->fRotatez;
-			ImGui::SliderFloat("Rotate By Z [-2PI,+2PI]", &(currentModel->fRotatez), -M_PI, M_PI);
+			ImGui::SliderFloat("Rotate By Z", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatez - frz;
 			if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
 
@@ -267,10 +287,20 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 	
-			glm::mat4x4 toZeroLoc = Trans::getTranslate4x4(-currentModel->fTranslatex, -currentModel->fTranslatey, -currentModel->fTranslatez);
-			glm::mat4x4 toRealLoc = Trans::getTranslate4x4(currentModel->fTranslatex, currentModel->fTranslatey, currentModel->fTranslatez);
+			//glm::vec3 massCenter = scene->GetModelMassCenter(currentModel);
+			//cout << "massCenter => (" << massCenter.x << "," << massCenter.y << "," << massCenter.z << ")" << endl;
+			std::vector<Face> faces = currentModel->GetFaces();
+			int v0 = faces.at(0).GetVertexIndex(0) - 1;
+			glm::vec3 vec0 = glm::vec3(
+				scene->getModelVertices(scene->activeModelIndex, v0).x,
+				scene->getModelVertices(scene->activeModelIndex, v0).y,
+				scene->getModelVertices(scene->activeModelIndex, v0).z
+			);
+			glm::vec3 vec0t = glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f) * currentModel->GetWorldTransformation();
+			glm::mat4x4 toZero = Trans::getTranslate4x4(-vec0t.x, -vec0t.y, -vec0t.z);
+			glm::mat4x4 toOrigin = Trans::getTranslate4x4(vec0t.x, vec0t.y, vec0t.z);
 
-			currentModel->SetWorldTransformation(toRealLoc * Tm * toZeroLoc * currentModel->GetWorldTransformation());
+			currentModel->SetWorldTransformation(toOrigin * Tm * toZero * currentModel->GetWorldTransformation());
 
 			ImGui::TextColored(textColor, "Model Properties:");
 			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color

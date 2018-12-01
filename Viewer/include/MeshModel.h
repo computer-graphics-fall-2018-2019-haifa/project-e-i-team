@@ -58,7 +58,6 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	glm::mat4x4 worldTransform;
-	glm::mat4x4 allWorldTransform;
 	std::string modelName;
 public:
 	glm::vec3 BoundMin;

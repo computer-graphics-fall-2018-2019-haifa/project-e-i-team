@@ -11,11 +11,13 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
 	ffovy(FFAR_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), pleft(FLEFT_DEF), pright(FRIGHT_DEF), ptop(FTOP_DEF), pbottom(FBOTTOM_DEF),
-	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f),
+	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), selffRotatex(0.0f), selffRotatey(0.0f), selffRotatez(0.0f),
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
 	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
+	origin_at = glm::vec3(at.x, at.y, at.z);
+	origin_up = glm::vec3(up.x, up.y, up.z);
 }
 
 Camera::~Camera(){}
@@ -34,6 +36,13 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 
 	viewTransformation = lookAt;
 	SetWorldTransformation(glm::inverse(lookAt));
+}
+
+
+void Camera::UpdateCameraView(glm::mat4x4& rotMat) {
+	glm::mat4x4 toZero = Trans::getTranslate4x4(-origin_eye.x, -origin_eye.y, -origin_eye.z);
+	glm::mat4x4 toOrigin = Trans::getTranslate4x4(origin_eye.x, origin_eye.y, origin_eye.z);
+	viewTransformation = toOrigin * rotMat * toZero * viewTransformation;
 }
 
 
