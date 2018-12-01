@@ -6,6 +6,10 @@
 #define FFOVY_DEF	1.0f
 #define FNEAR_DEF	-1.0f
 #define FFAR_DEF	1.0f
+#define BOX_BOUNDERY_RANGE	100.0f
+
+//By the book parameters value:
+//==============================
 #define FLEFT_DEF	-1.0f
 #define FRIGHT_DEF	1.0f
 #define FTOP_DEF	1.0f
@@ -44,7 +48,7 @@ public:
 	float worldfRotatex, worldfRotatey, worldfRotatez, selffRotatex, selffRotatey, selffRotatez;
 	glm::vec3 origin_eye,origin_at,origin_up;
 	int transType;
-	float ffovy,fnear,ffar, pleft, pright, ptop, pbottom;
+	float ffovy, fnear, ffar, yaw, pitch, left, right, top, bottom;
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3 massCenter);
 	~Camera();
 	
@@ -55,11 +59,13 @@ public:
 		float fovy,
 		float aspectRatio,
 		float pnear,
-		float pfar,
-		float pleft,
-		float pright,
-		float ptop,
-		float pbottom,
+		float far,
+		float left,
+		float right,
+		float top,
+		float bottom,
+		float yaw,
+		float pitch,
 		float frameWidth);
 
 	void SetPerspectiveProjection(
@@ -67,10 +73,12 @@ public:
 		float aspectRatio,
 		float pnear,
 		float pfar,
-		float pleft,
-		float pright,
-		float ptop,
-		float pbottom,
+		float left,
+		float right,
+		float top,
+		float bottom,
+		float yaw,
+		float pitch,
 		float frameWidth);
 
 	glm::mat4x4 Getview() { return viewTransformation; }

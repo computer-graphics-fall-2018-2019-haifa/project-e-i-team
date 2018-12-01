@@ -154,44 +154,61 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::Text("");
 			ImGui::TextColored(textColor, "Camera Viewer Parameters:");
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
-			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, M_PI);
-			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 5.0f);
-			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 5.0f);
-			ImGui::SliderFloat("Left", &(currentCam->pleft), FLEFT_DEF, M_PI);
-			ImGui::SliderFloat("Right", &(currentCam->pright), FRIGHT_DEF, M_PI);
-			ImGui::SliderFloat("Top", &(currentCam->ptop), FTOP_DEF, M_PI);
-			ImGui::SliderFloat("Bottom", &(currentCam->pbottom), FBOTTOM_DEF, M_PI);
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
+			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
+			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+			ImGui::SliderFloat("Left", &(currentCam->left), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+			ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+			ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+			ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+
+			/*
+			// prepared euler functionality to navigate by mouse around the "world": [cannot use this technique under keyboard device only]
+			{
+				float prevPitch = currentCam->pitch, prevYaw = currentCam->yaw;
+				ImGui::SliderFloat("Horizontal Movement", &(currentCam->yaw), -M_PI, M_PI); // left + right movements
+				ImGui::SliderFloat("Vertical Movement", &(currentCam->pitch), -M_PI, M_PI); // up + bottom movements
+				if (prevPitch != currentCam->pitch || prevYaw != currentCam->yaw) {
+					glm::vec3 frontDirection;
+					frontDirection.x = cosf(glm::radians(currentCam->pitch - prevPitch)) * cosf(glm::radians(currentCam->yaw - prevYaw));
+					frontDirection.y = sinf(glm::radians(currentCam->pitch - prevPitch));
+					frontDirection.z = cosf(glm::radians(currentCam->pitch - prevPitch)) * sinf(glm::radians(currentCam->yaw - prevYaw));
+					glm::vec3 cameraFront = glm::normalize(frontDirection);
+					currentCam->SetCameraLookAt(currentCam->origin_eye, currentCam->origin_eye + cameraFront, currentCam->origin_up);
+				}
+			}
+			*/
 
 			// rotation the whole world again the stable camera:
 			ImGui::TextColored(textColor, "Camera Around The World Transformations:");
 			float frx = currentCam->worldfRotatex,diff = 0.0f;
-			ImGui::SliderFloat("Rotation By X", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By World-X", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatex - frx;
 			if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
 			float fry = currentCam->worldfRotatey;
-			ImGui::SliderFloat("Rotation By Y", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By World-Y", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatey - fry;
 			if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 			
 			float frz = currentCam->worldfRotatez;
-			ImGui::SliderFloat("Rotation By Z", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By World-Z", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->worldfRotatez - frz;
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
 			ImGui::TextColored(textColor, "Camera Around Itself Transformations:");
 			frx = currentCam->selffRotatex;
-			ImGui::SliderFloat("Rotation By X-Pivot", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By Itself-X", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->selffRotatex - frx;
 			if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
 			fry = currentCam->selffRotatey;
-			ImGui::SliderFloat("Rotation By Y-Pivot", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By Itself-Y", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->selffRotatey - fry;
 			if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
 			frz = currentCam->selffRotatez;
-			ImGui::SliderFloat("Rotation By Z-Pivot", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotation By Itself-Z", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->selffRotatez - frz;
 			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
@@ -211,10 +228,18 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
-				currentCam->SetOrthographicProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
+				currentCam->SetOrthographicProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar,
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
 			}
 			else {
-				currentCam->SetPerspectiveProjection(currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar, currentCam->pleft, currentCam->pright, currentCam->ptop, currentCam->pbottom, frameBufferWidth);
+				currentCam->SetPerspectiveProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar, 
+					currentCam->left,currentCam->right,	currentCam->top,currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
 			}
 
 			ImGui::TextColored(textColor, "Camera Properties:");
