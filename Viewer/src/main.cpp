@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	}
 	// Move OpenGL context to the newly created window
 	glfwMakeContextCurrent(window);
-
+	cout << "11" << endl;
 	// Get the current width/height of the frame buffer
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
@@ -59,10 +59,10 @@ int main(int argc, char **argv)
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-
+	cout << "2" << endl;
 	std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-	scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 5, 5));
-
+	//scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 5, 5));
+	cout << "1" << endl;
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 	ImGui::CaptureKeyboardFromApp(true);
@@ -73,10 +73,14 @@ int main(int argc, char **argv)
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
+		cout << "1" << endl;
         glfwPollEvents();
+		cout << "2" << endl;
 		StartFrame();
+		cout << "3" << endl;
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
 		DrawImguiMenus(io, scene, y_scroll_offset , frameBufferWidth , frameBufferHeight);
+		cout << "4" << endl;
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
     }
