@@ -165,39 +165,6 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
-	/*
-	std::vector<Face> faces = scene.getModelfaces(k);
-	
-	float min_x = 2000 , min_y = 2000 , min_z = 2000;
-	float max_x = -2000, max_y = -2000, max_z = -2000;
-	
-	for (auto face = faces.begin(); face != faces.end(); ++face) {
-		
-		glm::vec3 modelVec;	
-		for (int i = 0; i < 3; i++) {
-			
-			int v = face->GetVertexIndex(i) - 1;
-			if (isCameraModel) {
-				modelVec = scene.getCameraVertices(k, v);
-			}
-			else {
-				modelVec = scene.getModelVertices(k, v);
-			}
-			float x = modelVec.x;
-			float y = modelVec.y;
-			float z = modelVec.z;
-
-			if (x < min_x) min_x = x;
-			if (y < min_y) min_y = y;
-			if (z < min_z) min_z = z;
-
-			if (x > max_x) max_x = x;
-			if (y > max_y) max_y = y;
-			if (z > max_z) max_z = z;
-		}
-	}
-	*/
-
 	std::shared_ptr<MeshModel> model = NULL;
 	if (isCameraModel) {
 		model = scene.GetCamera(k);
@@ -205,10 +172,7 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	else {
 		model = scene.GetModel(k);
 	}
-	
-
-
-	
+		
 	float min_x = (model->BoundMin).x, min_y = (model->BoundMin).y, min_z = (model->BoundMin).z;
 	float max_x = (model->BoundMax).x , max_y = (model->BoundMax).y, max_z = (model->BoundMax).z;
 
@@ -314,14 +278,13 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect2 = vect2 / vect2.w;
 
 	/////////////////////////////////////////////////
-	
-	glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
-	c = seriesTransform * c;
-	c = c / c.w;
-	DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
+	// test line:
+	// ==========
+	//glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
+	//c = seriesTransform * c;
+	//c = c / c.w;
+	//DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
 	/////////////////////////////////////////////////
-
-
 
 	float vNlength = model->GetVertexNormalLength();
 	// transform and normalize vertex normals:

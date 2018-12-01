@@ -40,30 +40,12 @@ public:
 	const int GetActiveModelIndex() const;
 
 	//Elias implementation:
-	std::vector<Face> getModelfaces(int indexModel) const{
-		return models[indexModel]->GetFaces();
-	}
-
-	std::vector<glm::vec3> getModelNormals(int indexModel) const {
-		return models[indexModel]->GetNormals();
-	}
-
-	std::vector<Face> getCamerafaces(int indexModel) {
-		return cameras.at(indexModel)->GetFaces();
-	}
-
-	std::vector<glm::vec3> getCameraNormals(int indexModel) {
-		return cameras.at(indexModel)->GetNormals();
-	}
-
-	glm::vec3 getCameraVertices(int indexModel, int indexVertex) {
-		return cameras.at(indexModel)->GetVerticeByIndex(indexVertex);
-	}
-
-	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{
-		return models[indexModel]->GetVerticeByIndex(indexVertex);
-	}
-
+	std::vector<Face> getModelfaces(int indexModel) const{ return models[indexModel]->GetFaces(); }
+	std::vector<glm::vec3> getModelNormals(int indexModel) const { return models[indexModel]->GetNormals(); }
+	std::vector<Face> getCamerafaces(int indexModel) { return cameras.at(indexModel)->GetFaces(); }
+	std::vector<glm::vec3> getCameraNormals(int indexModel) { return cameras.at(indexModel)->GetNormals(); }
+	glm::vec3 getCameraVertices(int indexModel, int indexVertex) { return cameras.at(indexModel)->GetVerticeByIndex(indexVertex); }
+	glm::vec3 getModelVertices(int indexModel, int indexVertex) const{ return models[indexModel]->GetVerticeByIndex(indexVertex); }
 	std::shared_ptr<MeshModel> GetModel(int index) const {
 		if (models.size() == 0) {
 			return nullptr;

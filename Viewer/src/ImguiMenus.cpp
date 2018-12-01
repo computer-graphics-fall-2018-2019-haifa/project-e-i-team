@@ -127,14 +127,6 @@ glm::mat4x4 handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 
 // it is important to use public variable for lite reading and writing values from object's fields
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
-	/*static int first_camera = 0;
-	if (first_camera == 0) {
-		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-		scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,0);
-		first_camera++;
-	}*/
-	
-	
 	ImGui::Begin("Scene Menu", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
@@ -225,15 +217,29 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(camera), Tc));
 				}
 			}
+
+			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
+			if (!currentCam->transType) {
+				currentCam->SetOrthographicProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar,
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
+			}
+			else {
+				currentCam->SetPerspectiveProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar,
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
+			}
+
 			if (ImGui::Button("Focus on current model")) {
 				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
 				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
 
 				glm::vec4 _at = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1);
 				glm::vec3 at(_at.x, _at.y, _at.z);
-
-
-				////////////////////////////////////
 				glm::vec3 help_up = glm::vec3(0, 1, 0);
 				glm::vec3 vec_eye_at = at - camera->origin_eye;
 
@@ -244,16 +250,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
 				glm::vec4 eye4 = glm::vec4(camera->origin_eye.x, camera->origin_eye.y, camera->origin_eye.z, 1);
 				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
-				////////////////////////////////////
-				/*glm::vec3 rand = glm::vec3(3, 2, 1);
-				glm::vec3 vec_eye_at = at - camera->origin_eye;
-				glm::vec3 vector_eye_rand = rand - camera->origin_eye;
-				glm::vec3 up = glm::cross(vec_eye_at, vector_eye_rand) + camera->origin_eye;
-				
-				glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
-				glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
-				glm::vec4 eye4 = glm::vec4((camera->origin_eye).x, (camera->origin_eye).y, (camera->origin_eye).z, 1);*/
-				
+								
 				camera->SetCameraLookAt(eye4, at4, up4);
 			}
 		}
