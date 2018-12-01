@@ -237,3 +237,4 @@ void Camera::SetPerspectiveProjection(
 
 	projectionTransformation = P;
 }
+}
