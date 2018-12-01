@@ -3,15 +3,17 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#define FFOVY_BASIC_UNIT 1.0f // must be some degree > 0 to justify its existance
-#define MIN_FFOVY 0.1f
-#define MAX_FFOVY 3.142f
+#define FFOVY_DEF	1.0f
+#define FNEAR_DEF	-1.0f
+#define FFAR_DEF	1.0f
+#define BOX_BOUNDERY_RANGE	100.0f
 
-#define MIN_FNEAR 0.2f // should be at least 0.1 > MIN_FFAR to create some little gap even
-#define MAX_FNEAR 10.0f
-
-#define MIN_FFAR 0.1f
-#define MAX_FFAR 10.0f
+//By the book parameters value:
+//==============================
+#define FLEFT_DEF	-1.0f
+#define FRIGHT_DEF	1.0f
+#define FTOP_DEF	1.0f
+#define FBOTTOM_DEF -1.0f
 
 /*
 * Pseudo Algorithm of the camera behavior in transformation's relationship:
@@ -43,31 +45,44 @@ private:
 	glm::mat4x4 projectionTransformation; // Mp
 
 public:
-	float worldfRotatex, worldfRotatey, worldfRotatez;
-	glm::vec3 origin_eye;
+	float worldfRotatex, worldfRotatey, worldfRotatez, selffRotatex, selffRotatey, selffRotatez;
+	glm::vec3 origin_eye,origin_at,origin_up;
 	int transType;
-	float ffovy,fnear,ffar;
-	float zoom;
-	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
+	float ffovy, fnear, ffar, yaw, pitch, left, right, top, bottom;
+	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3 massCenter);
 	~Camera();
 	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
+	void Camera::UpdateCameraView(glm::mat4x4& mat);
 
 	void SetOrthographicProjection(
-		const float height,
-		const float aspectRatio,
-		const float near,
-		const float far,
-		const float frameBufferWidth);
+		float fovy,
+		float aspectRatio,
+		float pnear,
+		float far,
+		float left,
+		float right,
+		float top,
+		float bottom,
+		float yaw,
+		float pitch,
+		float frameWidth);
 
 	void SetPerspectiveProjection(
-		const float fovy,
-		const float aspect,
-		const float near,
-		const float far,
-		const float frameBufferWidth);
+		float fovy,
+		float aspectRatio,
+		float pnear,
+		float pfar,
+		float left,
+		float right,
+		float top,
+		float bottom,
+		float yaw,
+		float pitch,
+		float frameWidth);
 
 	glm::mat4x4 Getview() { return viewTransformation; }
+	void Updateview(glm::mat4x4& rotateView) { viewTransformation = rotateView * viewTransformation; }
+	void UpdateProjection(glm::mat4x4& rotateView) { projectionTransformation = rotateView * projectionTransformation; }
 	glm::mat4x4 GetProjection() { return projectionTransformation;  }
-	double deg2rad(double degrees) { return degrees * 4.0 * atan(1.0) / 180.0; }
 };

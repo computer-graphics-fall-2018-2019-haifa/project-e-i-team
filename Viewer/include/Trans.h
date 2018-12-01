@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 
 class Trans {
+	float deg2rad(float degrees) { return degrees * 0.0174532925; }
+
 public:
 	static glm::mat4x4 getScale4x4(float factor) {
 		glm::mat4x4 m = glm::mat4x4(factor);
@@ -37,5 +39,10 @@ public:
 			glm::highp_mat4::col_type(0.0f, 1.0f, 0.0f, 0.0f),
 			glm::highp_mat4::col_type(0.0f, 0.0f, 1.0f, 0.0f),
 			glm::highp_mat4::col_type(tx,ty, tz, 1.0f));
+	}
+	static glm::mat4x4& get2InitAxis4x4(glm::vec3& massCenter,glm::mat4x4 T) {
+		glm::mat4x4 toZero = Trans::getTranslate4x4(-massCenter.x, -massCenter.y, -massCenter.z);
+		glm::mat4x4 toOrigin = Trans::getTranslate4x4(massCenter.x, massCenter.y, massCenter.z);
+		return (toOrigin * T * toZero);
 	}
 };
