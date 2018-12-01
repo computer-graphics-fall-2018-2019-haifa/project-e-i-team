@@ -93,22 +93,28 @@ public:
 				getModelVertices(activeModelIndex, v0).y,
 				getModelVertices(activeModelIndex, v0).z
 			);
-			glm::vec3 vec0t = glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f) * model->GetWorldTransformation();
+			glm::vec3 vec0t = model->GetWorldTransformation() * glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f);
 			glm::vec3 vec1 = glm::vec3(
 				getModelVertices(activeModelIndex, v1).x,
 				getModelVertices(activeModelIndex, v1).y,
 				getModelVertices(activeModelIndex, v1).z
 			);
-			glm::vec3 vec1t = glm::vec4(vec1.x, vec1.y, vec1.z, 1.0f) * model->GetWorldTransformation();
+			glm::vec3 vec1t = model->GetWorldTransformation() * glm::vec4(vec1.x, vec1.y, vec1.z, 1.0f);
 			glm::vec3 vec2 = glm::vec3(
 				getModelVertices(activeModelIndex, v2).x,
 				getModelVertices(activeModelIndex, v2).y,
 				getModelVertices(activeModelIndex, v2).z
 			);
-			glm::vec3 vec2t = glm::vec4(vec2.x, vec2.y, vec2.z, 1.0f) * model->GetWorldTransformation();
-			estPointsx.push_back((vec0t.x + vec1t.x + vec2t.x) / 3);
-			estPointsy.push_back((vec0t.y + vec1t.y + vec2t.y) / 3);
-			estPointsz.push_back((vec0t.z + vec1t.z + vec2t.z) / 3);
+			glm::vec3 vec2t = model->GetWorldTransformation() * glm::vec4(vec2.x, vec2.y, vec2.z, 1.0f);
+			estPointsx.push_back(vec0t.x);
+			estPointsx.push_back(vec1t.x);
+			estPointsx.push_back(vec2t.x);
+			estPointsy.push_back(vec0t.y);
+			estPointsy.push_back(vec1t.y);
+			estPointsy.push_back(vec2t.y);
+			estPointsz.push_back(vec0t.z);
+			estPointsz.push_back(vec1t.z);
+			estPointsz.push_back(vec2t.z);
 		}
 		for (int i = 0; i < estPointsx.size(); i++) {
 			x_avg += estPointsx.at(i);
@@ -128,6 +134,7 @@ public:
 		if (estPointsz.size() > 0) {
 			z_avg = z_avg / estPointsz.size();
 		}
+		//cout << "massCenter => (" << x_avg << "," << y_avg << "," << z_avg << ")" << endl;
 		return glm::vec3(x_avg, y_avg, z_avg);
 	}
 };

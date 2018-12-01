@@ -113,6 +113,10 @@ public:
 		fTranslatez = 0.0f;
 	}
 
+	glm::vec3 GetMassCenter() {
+
+	}
+
 	glm::vec3 GetVerticeByIndex(int index) { return vertices[index]; }
 	void SetFaceNormalLength(float length) { fNlength = length; }
 	void SetFaceNormalColor(glm::vec4 color) { fNcolor = color; }

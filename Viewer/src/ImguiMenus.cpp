@@ -195,7 +195,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			diff = currentCam->selffRotatez - frz;
 			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-			currentCam->UpdateCameraView(Tci);
+			currentCam->UpdateCameraView(Trans::get2InitAxis4x4(scene->GetModelMassCenter(currentCam), Tci));
 			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) { 
@@ -207,12 +207,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
 				std::shared_ptr<MeshModel> model = scene->GetModel(i);
-				model->UpdateworldTransform(glm::inverse(Tc));
+				model->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(model), Tc));
 			}
 			for (int i = 0; i < scene->GetCameraCount(); i++) {
 				if (i != scene->activeCameraIndex) {
 					std::shared_ptr<Camera> camera = scene->GetCamera(i);
-					camera->UpdateworldTransform(glm::inverse(Tc));
+					camera->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(camera), Tc));
 				}
 			}
 
@@ -257,8 +257,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			
 			float fsc = currentModel->fScale;
 			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			if (fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
-			
+			if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 			float diff = 0.0f;
 			float frx = currentModel->fRotatex;
 			ImGui::SliderFloat("Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
@@ -287,20 +286,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 	
-			//glm::vec3 massCenter = scene->GetModelMassCenter(currentModel);
-			//cout << "massCenter => (" << massCenter.x << "," << massCenter.y << "," << massCenter.z << ")" << endl;
-			std::vector<Face> faces = currentModel->GetFaces();
-			int v0 = faces.at(0).GetVertexIndex(0) - 1;
-			glm::vec3 vec0 = glm::vec3(
-				scene->getModelVertices(scene->activeModelIndex, v0).x,
-				scene->getModelVertices(scene->activeModelIndex, v0).y,
-				scene->getModelVertices(scene->activeModelIndex, v0).z
-			);
-			glm::vec3 vec0t = glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f) * currentModel->GetWorldTransformation();
-			glm::mat4x4 toZero = Trans::getTranslate4x4(-vec0t.x, -vec0t.y, -vec0t.z);
-			glm::mat4x4 toOrigin = Trans::getTranslate4x4(vec0t.x, vec0t.y, vec0t.z);
-
-			currentModel->SetWorldTransformation(toOrigin * Tm * toZero * currentModel->GetWorldTransformation());
+			currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(currentModel), Tm));
 
 			ImGui::TextColored(textColor, "Model Properties:");
 			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
