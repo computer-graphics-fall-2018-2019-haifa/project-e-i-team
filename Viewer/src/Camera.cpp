@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up,glm::vec3 massCenter) :
+Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
@@ -18,15 +18,16 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
 	origin_at = glm::vec3(at.x, at.y, at.z);
 	origin_up = glm::vec3(up.x, up.y, up.z);
-	
+}
+
+Camera::~Camera(){}
+
+void Camera::setMassCenter(glm::vec3& massCenter) {
 	glm::vec3 fixed_sight = massCenter - origin_at;
 	glm::vec3 vertical = origin_eye - fixed_sight;
 	float theta = atanf(glm::radians(glm::length(vertical) / glm::length(fixed_sight)));
 	UpdateworldTransform(Trans::get2InitAxis4x4(vertical, Trans::getyRotate4x4(theta)));
-
 }
-
-Camera::~Camera(){}
 
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {

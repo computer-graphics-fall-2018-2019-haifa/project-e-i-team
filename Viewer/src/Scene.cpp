@@ -39,7 +39,8 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight , glm::
 	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1);
 	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);*/
 
-	Camera c(model, eye4, at4, up4,GetModelMassCenter(model));
+	Camera c(model, eye4, at4, up4);
+	c.setMassCenter(GetModelMassCenter(model));
 
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;

@@ -88,6 +88,7 @@ public:
 			int v0 = faces[i].GetVertexIndex(0) - 1;
 			int v1 = faces[i].GetVertexIndex(1) - 1;
 			int v2 = faces[i].GetVertexIndex(2) - 1;
+			glm::vec3 dd = getModelVertices(activeModelIndex, v0);
 			glm::vec3 vec0 = glm::vec3(
 				getModelVertices(activeModelIndex, v0).x,
 				getModelVertices(activeModelIndex, v0).y,

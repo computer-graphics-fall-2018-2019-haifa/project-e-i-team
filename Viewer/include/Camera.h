@@ -49,9 +49,9 @@ public:
 	glm::vec3 origin_eye,origin_at,origin_up;
 	int transType;
 	float ffovy, fnear, ffar, yaw, pitch, left, right, top, bottom;
-	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3 massCenter);
+	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
 	~Camera();
-	
+	void Camera::setMassCenter(glm::vec3& massCenter);
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 	void Camera::UpdateCameraView(glm::mat4x4& mat);
 

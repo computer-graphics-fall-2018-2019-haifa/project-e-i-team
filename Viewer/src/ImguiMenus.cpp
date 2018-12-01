@@ -225,6 +225,23 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(camera), Tc));
 				}
 			}
+
+			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
+			if (!currentCam->transType) {
+				currentCam->SetOrthographicProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar,
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
+			}
+			else {
+				currentCam->SetPerspectiveProjection(
+					glm::radians(currentCam->ffovy), aspectratio, currentCam->fnear, currentCam->ffar,
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
+					currentCam->yaw, currentCam->pitch, frameBufferWidth
+				);
+			}
+
 			if (ImGui::Button("Focus on current model")) {
 				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
 				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
@@ -337,7 +354,11 @@ void loadGrid(Scene& scene) {
 }
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
-	if (scene.gridCounter == 0) { loadGrid(scene); }
+	if (scene.gridCounter == 0) { 
+		loadGrid(scene); 
+		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
+		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 5, 5));
+	}
 
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	// if (showDemoWindow){ ImGui::ShowDemoWindow(&showDemoWindow); }
