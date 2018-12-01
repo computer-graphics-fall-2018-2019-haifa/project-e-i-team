@@ -18,13 +18,13 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	resetModel();
 }
 
-MeshModel::MeshModel(std::shared_ptr<MeshModel> model,float defsize) :
+MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showFNormals, bool showVNormals) :
 	modelName(model->GetModelName()),
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals())
 {
-	resetModel(defsize);
+	resetModel(defsize, showFNormals, showVNormals);
 }
 
 MeshModel::~MeshModel() {}

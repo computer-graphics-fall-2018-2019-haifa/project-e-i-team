@@ -59,10 +59,10 @@ int main(int argc, char **argv)
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-
+	/*
 	std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 	scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 5, 5));
-
+	*/
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 	ImGui::CaptureKeyboardFromApp(true);
