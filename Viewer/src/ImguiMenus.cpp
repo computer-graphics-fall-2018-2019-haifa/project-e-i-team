@@ -352,7 +352,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 		loadGrid(scene); 
 		
 		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 500, 500));
+		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,frameBufferWidth, glm::vec3(0, 500, 500));
 		
 	}
 
