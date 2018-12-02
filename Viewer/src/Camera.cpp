@@ -45,10 +45,10 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 }
 
 
-void Camera::UpdateCameraView(glm::mat4x4& rotMat) {
+void Camera::UpdateCameraView(glm::mat4x4& mat){
 	glm::mat4x4 toZero = Trans::getTranslate4x4(-origin_eye.x, -origin_eye.y, -origin_eye.z);
 	glm::mat4x4 toOrigin = Trans::getTranslate4x4(origin_eye.x, origin_eye.y, origin_eye.z);
-	viewTransformation = toOrigin * rotMat * toZero * viewTransformation;
+	viewTransformation = viewTransformation * toOrigin * mat * toZero;
 }
 
 //Elias emplementation:

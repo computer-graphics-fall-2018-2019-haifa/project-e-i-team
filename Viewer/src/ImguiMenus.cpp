@@ -199,6 +199,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			diff = currentCam->worldfRotatez - frz;
 			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 
+			float deltax = 0.0f, deltay = 0.0f, deltaz = 0.0f;
 			ImGui::TextColored(textColor, "Camera Around Itself Transformations:");
 			frx = currentCam->selffRotatex;
 			ImGui::SliderFloat("Rotation By Itself-X", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
@@ -287,7 +288,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 			float diff = 0.0f;
 			float frx = currentModel->fRotatex;
-			ImGui::SliderFloat("Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By X-Itself", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatex - frx;
 			if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
 			
@@ -296,7 +297,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 			
 			float fry = currentModel->fRotatey;
-			ImGui::SliderFloat("Rotate By Y", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By Y-Itself", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatey - fry;
 			if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
 			
@@ -305,7 +306,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 			float frz = currentModel->fRotatez;
-			ImGui::SliderFloat("Rotate By Z", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+			ImGui::SliderFloat("Rotate By Z-Itself", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentModel->fRotatez - frz;
 			if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
 
