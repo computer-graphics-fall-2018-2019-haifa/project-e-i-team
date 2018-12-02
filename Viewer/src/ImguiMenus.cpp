@@ -134,34 +134,28 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		first_camera++;
 	}*/
 	
-	cout << "1" << endl;
+	
 	ImGui::Begin("Scene Menu", &showTransWindow);
-	cout << "1.2" << endl;
+	
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	cout << "1.3" << endl;
+	
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
-	cout << "1.4" << endl;
+	
 	glm::mat4x4 Tc(1), Tci(1);
-	cout << "1" << endl;
+	
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
-			cout << "itay 1" << endl;
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-			cout << "itay 2" << endl;
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight);
-			cout << "itay 3" << endl;
 		}
-		cout << "a" << endl;
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
-		cout << "b" << endl;
 		if (currentCam != NULL) {	
 			ImGui::TextColored(textColor, "Camera Projections:");
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			ImGui::Text("");
-			cout << "c" << endl;
 			ImGui::TextColored(textColor, "Camera Viewer Parameters:");
 			std::string fName = !currentCam->transType ? "Height" : "Fovy";
 			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
@@ -171,8 +165,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 			ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 			ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-			cout << "d" << endl;
-			cout << "2" << endl;
 			/*
 			// prepared euler functionality to navigate by mouse around the "world": [cannot use this technique under keyboard device only]
 			{
@@ -217,16 +209,13 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Rotation By Itself-Y", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->selffRotatey - fry;
 			if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
-			cout << "3" << endl;
 			frz = currentCam->selffRotatez;
 			ImGui::SliderFloat("Rotation By Itself-Z", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
 			diff = currentCam->selffRotatez - frz;
 			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-			cout << "3.1" << endl;
 			currentCam->UpdateCameraView(Tci);
-			cout << "3.2" << endl;
-
+			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
 				currentCam->SetOrthographicProjection(
@@ -242,7 +231,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					currentCam->yaw, currentCam->pitch, frameBufferWidth
 				);
 			}
-			cout << "3.3" << endl;
 			// transform whole the world space using Tc:
 			for (int i = 0; i < scene->GetModelCount(); i++) {
 				std::shared_ptr<MeshModel> model = scene->GetModel(i);
@@ -256,7 +244,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tc));
 				}
 			}
-			cout << "3.4" << endl;
 			if (ImGui::Button("Focus on current model")) {
 				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
 				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
@@ -286,14 +273,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	as response to y scrolling value we control the zoom in and zoom out world models:
 	*/
 	if (ImGui::CollapsingHeader("Models")) {
-		cout << "4" << endl;
 		static int count = 0;
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1);
-			cout << "5" << endl;
 			ImGui::TextColored(textColor, "Model Transformations:");
 			Tm = handleKeyboardInputs(currentModel);
 			
@@ -382,10 +367,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 
 	// Show transformations window:
 	// Itay's implementation:
-	cout << "showTransWindow" << endl;
+	
 	if (showTransWindow) { buildTransformationsWindow(io, &scene, y_scroll_offset ,frameBufferWidth, frameBufferHeight); }
 	// Show about us window:
-	cout << "showAboutUsWindow" << endl;
+	
 	if (showAboutUsWindow) { buildAboutUsWindow(); }
 
 	// Demonstrate creating a fullscreen menu bar and populating it:

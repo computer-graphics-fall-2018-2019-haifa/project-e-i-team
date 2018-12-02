@@ -472,7 +472,6 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
-	cout << "1" << endl;
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
@@ -491,7 +490,6 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			}
 		}
 	}
-	cout << "2" << endl;
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene ** Except the current camera **
 	if (camerasCount > 0) {

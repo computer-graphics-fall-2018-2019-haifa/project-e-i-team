@@ -15,31 +15,19 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight , glm::
 		int z = (rand() % windowHeight) - windowHeight / 2;
 		eye = glm::vec3(x, y, z);	
 	}
-	cout << "itay 3" << endl;
 	glm::vec3 at = glm::vec3(0, 0, 0);
-	cout << "itay 3.1" << endl;
 	glm::vec3 help_up = glm::vec3(0, 1, 0);
-	cout << "itay 3.2" << endl;
 	glm::vec3 vec_eye_at = at - eye;
-	cout << "itay 3.3" << endl;
 	help_up = glm::cross(vec_eye_at, help_up);
-	cout << "itay 3.4" << endl;
 	glm::vec3 up = glm::cross(vec_eye_at, help_up) + eye;
-	cout << "itay 3.5" << endl;
 	glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
-	cout << "itay 3.6" << endl;
 	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1);
-	cout << "itay 3.7" << endl;
 	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
-	cout << "itay 3.8" << endl;
 	glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1.0f);//GetModelMassCenter(model);
-	cout << "itay 3.9" << endl;
 	Camera c(model, eye4, at4, up4,mass);
-	cout << "itay 3.10" << endl;
 
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->activeCameraIndex++;
-	cout << "itay 4" << endl;
 }
 
 const int Scene::GetCameraCount() const { return cameras.size(); }

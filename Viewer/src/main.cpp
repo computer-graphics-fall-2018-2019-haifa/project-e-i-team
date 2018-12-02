@@ -70,22 +70,14 @@ int main(int argc, char **argv)
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
-		cout << "elias space 0" << endl;
         glfwPollEvents();
-		cout << "elias space 1" << endl;
 		StartFrame();
-		cout << "elias space 2" << endl;
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		try {
-			DrawImguiMenus(io, scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
-		}
-		catch (const  std::exception& e) {
-			printf("");
-		}
-		cout << "elias space 3" << endl;
+		
+		DrawImguiMenus(io, scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
+		
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
-		cout << "elias space 4" << endl;
 	}
 
 	// If we're here, then we're done. Cleanup memory.
@@ -147,18 +139,13 @@ void StartFrame()
 void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io)
 {
 	// Render the menus
-	cout << "Render" << endl;
 	ImGui::Render();
-	
 
-	cout << "glfwGetFramebufferSize" << endl;
 	// That's how you get the current width/height of the frame buffer (for example, after the window was resized)
 	int frameBufferWidth, frameBufferHeight;
 	static int prev_width = 0, prev_height = 0;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 	
-
-	cout << "if" << endl;
 	// Resize handling here... (a suggestion)
 	if ((prev_width != frameBufferWidth) || (prev_height != frameBufferHeight)) {
 
@@ -173,11 +160,9 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	
 	// Render the scene
 	renderer.Render(scene, io);
-	cout << "renderer.Render" << endl;
 	// Swap buffers
 	renderer.SwapBuffers();
 
-	cout << "after SwapBuffers" << endl;
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
 }
