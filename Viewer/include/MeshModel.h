@@ -88,6 +88,9 @@ public:
 	std::vector<glm::vec3> GetVertices() { return vertices; }
 	std::string GetModelName() { return modelName; }
 	void UpdateworldTransform(glm::mat4x4 T) { worldTransform = T * worldTransform; }
+	void UpdateworldAxis(glm::mat4x4 T) {
+		worldTransform = worldTransform * T;
+	}
 
 	void resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
 					bool showFNormals = true,

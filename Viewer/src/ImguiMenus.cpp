@@ -135,9 +135,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}*/
 	
 	
-	ImGui::Begin("Scene Menu", &showTransWindow);
+	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
 	
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+	ImGui::TextColored(textColor, "Scene Menu:");
 	
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	
@@ -151,72 +152,53 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		const char* cameras = getCamerasNames(scene->activeCameraIndex);
 		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
-		if (currentCam != NULL) {	
-			ImGui::TextColored(textColor, "Camera Projections:");
+		if (currentCam != NULL) {
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
-			ImGui::Text("");
-			ImGui::TextColored(textColor, "Camera Viewer Parameters:");
-			std::string fName = !currentCam->transType ? "Height" : "Fovy";
-			ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
-			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
-			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
-			ImGui::SliderFloat("Left", &(currentCam->left), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-			ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-			ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-			ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-			/*
-			// prepared euler functionality to navigate by mouse around the "world": [cannot use this technique under keyboard device only]
-			{
-				float prevPitch = currentCam->pitch, prevYaw = currentCam->yaw;
-				ImGui::SliderFloat("Horizontal Movement", &(currentCam->yaw), -M_PI, M_PI); // left + right movements
-				ImGui::SliderFloat("Vertical Movement", &(currentCam->pitch), -M_PI, M_PI); // up + bottom movements
-				if (prevPitch != currentCam->pitch || prevYaw != currentCam->yaw) {
-					glm::vec3 frontDirection;
-					frontDirection.x = cosf(glm::radians(currentCam->pitch - prevPitch)) * cosf(glm::radians(currentCam->yaw - prevYaw));
-					frontDirection.y = sinf(glm::radians(currentCam->pitch - prevPitch));
-					frontDirection.z = cosf(glm::radians(currentCam->pitch - prevPitch)) * sinf(glm::radians(currentCam->yaw - prevYaw));
-					glm::vec3 cameraFront = glm::normalize(frontDirection);
-					currentCam->SetCameraLookAt(currentCam->origin_eye, currentCam->origin_eye + cameraFront, currentCam->origin_up);
-				}
+			if (ImGui::CollapsingHeader("Projection Parameters")) {
+				std::string fName = !currentCam->transType ? "Height" : "Fovy";
+				ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
+				ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
+				ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+				ImGui::SliderFloat("Left", &(currentCam->left), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+				ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+				ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+				ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 			}
-			*/
-
 			// rotation the whole world again the stable camera:
-			ImGui::TextColored(textColor, "Camera Around The World Transformations:");
-			float frx = currentCam->worldfRotatex,diff = 0.0f;
-			ImGui::SliderFloat("Rotation By World-X", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->worldfRotatex - frx;
-			if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
+			if (ImGui::CollapsingHeader("World-Associated Transformations")) {
+				float frx = currentCam->worldfRotatex, diff = 0.0f;
+				ImGui::SliderFloat("Rotation By X-W", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->worldfRotatex - frx;
+				if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
-			float fry = currentCam->worldfRotatey;
-			ImGui::SliderFloat("Rotation By World-Y", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->worldfRotatey - fry;
-			if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
-			
-			float frz = currentCam->worldfRotatez;
-			ImGui::SliderFloat("Rotation By World-Z", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->worldfRotatez - frz;
-			if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
+				float fry = currentCam->worldfRotatey;
+				ImGui::SliderFloat("Rotation By Y-W", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->worldfRotatey - fry;
+				if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 
-			float deltax = 0.0f, deltay = 0.0f, deltaz = 0.0f;
-			ImGui::TextColored(textColor, "Camera Around Itself Transformations:");
-			frx = currentCam->selffRotatex;
-			ImGui::SliderFloat("Rotation By Itself-X", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->selffRotatex - frx;
-			if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
+				float frz = currentCam->worldfRotatez;
+				ImGui::SliderFloat("Rotation By Z-W", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->worldfRotatez - frz;
+				if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
+			}
+			if (ImGui::CollapsingHeader("Camera-Associated Transformations")) {
+				float frx = currentCam->selffRotatex, diff = 0.0f;
+				ImGui::SliderFloat("Rotation By X-C", &(currentCam->selffRotatex), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->selffRotatex - frx;
+				if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
-			fry = currentCam->selffRotatey;
-			ImGui::SliderFloat("Rotation By Itself-Y", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->selffRotatey - fry;
-			if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
-			frz = currentCam->selffRotatez;
-			ImGui::SliderFloat("Rotation By Itself-Z", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentCam->selffRotatez - frz;
-			if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
+				float fry = currentCam->selffRotatey;
+				ImGui::SliderFloat("Rotation By Y-C", &(currentCam->selffRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->selffRotatey - fry;
+				if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
+				float frz = currentCam->selffRotatez;
+				ImGui::SliderFloat("Rotation By Z-C", &(currentCam->selffRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentCam->selffRotatez - frz;
+				if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-			currentCam->UpdateCameraView(Tci);
-			
+				currentCam->UpdateCameraView(Tci);
+			}
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
 				currentCam->SetOrthographicProjection(
@@ -245,7 +227,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tc));
 				}
 			}
-			if (ImGui::Button("Focus on current model")) {
+			if (ImGui::Button("Focus On Current Model")) {
 				std::shared_ptr<Camera> camera = scene->GetCamera(scene->currentActiveCamera);
 				std::shared_ptr<MeshModel> model = scene->GetModel(scene->activeModelIndex);
 
@@ -276,58 +258,95 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	if (ImGui::CollapsingHeader("Models")) {
 		static int count = 0;
 		const char* items = getModelNames(scene);
-		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
+		ImGui::Combo("Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
-			glm::mat4x4 Tm(1);
-			ImGui::TextColored(textColor, "Model Transformations:");
-			Tm = handleKeyboardInputs(currentModel);
-			
-			float fsc = currentModel->fScale;
-			ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-			if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
-			float diff = 0.0f;
-			float frx = currentModel->fRotatex;
-			ImGui::SliderFloat("Rotate By X-Itself", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentModel->fRotatex - frx;
-			if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
-			
-			float ftx = currentModel->fTranslatex;
-			ImGui::SliderFloat("Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
-			if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
-			
-			float fry = currentModel->fRotatey;
-			ImGui::SliderFloat("Rotate By Y-Itself", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentModel->fRotatey - fry;
-			if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
-			
-			float fty = currentModel->fTranslatey;
-			ImGui::SliderFloat("Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
-			if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
+			glm::mat4x4 Tm(1),Tci(1);
+			if (ImGui::CollapsingHeader("World-Associated Transformations")) {
+				float fsc = currentModel->fScale;
+				ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+				if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tci = Trans::getScale4x4(currentModel->fScale / fsc); }
 
-			float frz = currentModel->fRotatez;
-			ImGui::SliderFloat("Rotate By Z-Itself", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
-			diff = currentModel->fRotatez - frz;
-			if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
+				float frx = currentModel->fRotatex, diff = 0.0f;
+				ImGui::SliderFloat("Rotation By X-W", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatex - frx;
+				if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
-			float ftz = currentModel->fTranslatez;
-			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
-			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
+				float fry = currentModel->fRotatey;
+				ImGui::SliderFloat("Rotation By Y-W", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatey - fry;
+				if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
-			glm::vec3 mass = currentModel->GetWorldTransformation() * glm::vec4(currentModel->BoundMiddle.x, currentModel->BoundMiddle.y, currentModel->BoundMiddle.z, 1.0f);
-			currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+				float frz = currentModel->fRotatez;
+				ImGui::SliderFloat("Rotation By Z-W", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatez - frz;
+				if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
 
-			ImGui::TextColored(textColor, "Model Properties:");
-			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
-			ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
-			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
-			ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-			ImGui::Checkbox("Vectex Normals", &(currentModel->showVertexNormals));
-			ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
-			ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-			ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
-			ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
+				for (int i = 0; i < scene->GetModelCount(); i++) {
+					std::shared_ptr<MeshModel> model = scene->GetModel(i);
+					if (i != scene->activeModelIndex) {
+						glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1.0f);
+						model->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tci));
+					}
+				}
+				for (int i = 0; i < scene->GetCameraCount(); i++) {
+					std::shared_ptr<Camera> camera = scene->GetCamera(i);
+					if (i != scene->activeCameraIndex) {
+						glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
+						camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tci));
+					}
+				}
+			}
+			if (ImGui::CollapsingHeader("Model-Associated Transformations")) {
+				Tm = handleKeyboardInputs(currentModel);
+
+				float fsc = currentModel->fScale;
+				ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+				if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
+				float diff = 0.0f;
+				float frx = currentModel->fRotatex;
+				ImGui::SliderFloat("Rotate By X-M", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatex - frx;
+				if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
+
+				float ftx = currentModel->fTranslatex;
+				ImGui::SliderFloat("Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+				if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
+
+				float fry = currentModel->fRotatey;
+				ImGui::SliderFloat("Rotate By Y-M", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatey - fry;
+				if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
+
+				float fty = currentModel->fTranslatey;
+				ImGui::SliderFloat("Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+				if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
+
+				float frz = currentModel->fRotatez;
+				ImGui::SliderFloat("Rotate By Z-M", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->fRotatez - frz;
+				if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
+
+				float ftz = currentModel->fTranslatez;
+				ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+				if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
+
+				glm::vec3 mass = currentModel->GetWorldTransformation() * glm::vec4(currentModel->BoundMiddle.x, currentModel->BoundMiddle.y, currentModel->BoundMiddle.z, 1.0f);
+				currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+			}
+
+			if (ImGui::CollapsingHeader("Properties")) {
+				ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
+				ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
+				ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
+				ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+				ImGui::Checkbox("Vectex Normals", &(currentModel->showVertexNormals));
+				ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
+				ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+				ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
+				ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
+			}
 		}
 	}
 	ImGui::Text("");

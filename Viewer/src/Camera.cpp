@@ -70,9 +70,9 @@ void Camera::SetOrthographicProjection(
 	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
 	*/
 	float ptop = tanf(0.5f * fovy) * pnear;
-	float pbottom = -1.0f * top * bottom;
-	float pright = aspectRatio * top * right;
-	float pleft = -right * left;
+	float pbottom = -1.0f * top;
+	float pright = aspectRatio * top;
+	float pleft = -right;
 
 	float S_x = 2.0f / (pright - pleft);
 	float S_y = 2.0f / (ptop - pbottom);
@@ -110,10 +110,10 @@ void Camera::SetPerspectiveProjection(
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
 
-	float ptop = tanf(glm::radians(0.5f * fovy)) * pnear;
-	float pbottom = -ptop;// * bottom;
-	float pright = ptop;// * right;
-	float pleft = -ptop * aspectRatio;// * left;
+	float ptop = tanf(glm::radians(0.1f * fovy)) * pnear;
+	float pbottom = -ptop; // *bottom;
+	float pright = ptop; // *right;
+	float pleft = -ptop * aspectRatio; // *left;
 
 	glm::mat4x4 P(
 		glm::vec4(2.0f * pnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
