@@ -60,9 +60,6 @@ int main(int argc, char **argv)
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
 
-	std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-	scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, glm::vec3(0, 5, 5));
-
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 	ImGui::CaptureKeyboardFromApp(true);
@@ -73,13 +70,23 @@ int main(int argc, char **argv)
 	// This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
+		cout << "elias space 0" << endl;
         glfwPollEvents();
+		cout << "elias space 1" << endl;
 		StartFrame();
+		cout << "elias space 2" << endl;
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, scene, y_scroll_offset , frameBufferWidth , frameBufferHeight);
+		try {
+			DrawImguiMenus(io, scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
+		}
+		catch (const  std::exception& e) {
+			printf("");
+		}
+		cout << "elias space 3" << endl;
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
-    }
+		cout << "elias space 4" << endl;
+	}
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
@@ -140,14 +147,18 @@ void StartFrame()
 void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io)
 {
 	// Render the menus
+	cout << "Render" << endl;
 	ImGui::Render();
 	
+
+	cout << "glfwGetFramebufferSize" << endl;
 	// That's how you get the current width/height of the frame buffer (for example, after the window was resized)
 	int frameBufferWidth, frameBufferHeight;
 	static int prev_width = 0, prev_height = 0;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 	
 
+	cout << "if" << endl;
 	// Resize handling here... (a suggestion)
 	if ((prev_width != frameBufferWidth) || (prev_height != frameBufferHeight)) {
 
@@ -160,13 +171,13 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	// Clear the frame buffer
 	renderer.ClearColorBuffer(GetClearColor());
 	
-
 	// Render the scene
 	renderer.Render(scene, io);
-
+	cout << "renderer.Render" << endl;
 	// Swap buffers
 	renderer.SwapBuffers();
 
+	cout << "after SwapBuffers" << endl;
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
 }
