@@ -7,23 +7,23 @@ Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0)
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
 
-void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight , glm::vec3 eye)
+void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth, glm::vec3 eye)
 {
 	if ((eye.x == 0) && (eye.y == 0) && (eye.z == 0)) {
-		int x = (rand() % windowHeight) - windowHeight / 2;
-		int y = (rand() % windowHeight) - windowHeight / 2;
-		int z = (rand() % windowHeight) - windowHeight / 2;
+		int x = (rand() % windowHeight) - windowHeight / 2.0f;
+		int y = (rand() % windowHeight) - windowHeight / 2.0f;
+		int z = (rand() % windowHeight) - windowHeight / 2.0f;
 		eye = glm::vec3(x, y, z);	
 	}
-	glm::vec3 at = glm::vec3(0, 0, 0);
-	glm::vec3 help_up = glm::vec3(0, 1, 0);
+	glm::vec3 at = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 help_up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 vec_eye_at = at - eye;
 	help_up = glm::cross(vec_eye_at, help_up);
 	glm::vec3 up = glm::cross(vec_eye_at, help_up) + eye;
-	glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1);
-	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1);
-	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1);
-	glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1.0f);//GetModelMassCenter(model);
+	glm::vec4 up4 = glm::vec4(up.x, up.y, up.z, 1.0f);
+	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1.0f);
+	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1.0f);
+	glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1.0f);
 	Camera c(model, eye4, at4, up4,mass);
 
 	cameras.push_back(std::make_shared<Camera>(c));

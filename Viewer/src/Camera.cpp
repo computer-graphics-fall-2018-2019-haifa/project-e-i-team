@@ -11,7 +11,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
 	ffovy(FFAR_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), yaw(0.0f), pitch(0.0f), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
-	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), selffRotatex(0.0f), selffRotatey(0.0f), selffRotatez(0.0f),
+	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), lrotatex(0.0f), lrotatey(0.0f), lrotatez(0.0f),
 	MeshModel(model)
 {
 	SetCameraLookAt(eye, at, up);
@@ -45,18 +45,10 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 }
 
 // mat - rotation matrix
-void Camera::UpdateCameraView(glm::mat4x4 world,glm::mat4x4& rotation , glm::vec3 model_mass){
-	glm::mat4x4 toZero = Trans::getTranslate4x4(-model_mass.x, -model_mass.y, -model_mass.z);
-	glm::mat4x4 toCamera = Trans::getTranslate4x4(BoundMiddle.x, BoundMiddle.y, BoundMiddle.z);
-	Updateview(glm::inverse(toCamera * rotation* toZero * world));
-
-	//glm::mat4x4 fromZero = Trans::getTranslate4x4(model_mass.x, model_mass.y, model_mass.z);
-	//glm::mat4x4 fromCamera = Trans::getTranslate4x4(-BoundMiddle.x, -BoundMiddle.y, -BoundMiddle.z);
-	//Updateview(glm::inverse(fromZero * fromCamera * rotation * toCamera * toZero * world));
-
-	//viewTransformation = toOrigin * mat * toZero * viewTransformation;
-	// model translate to (0,0,0) => model translate to mass of current camera => model rotate around current camera
-	// => model translate to his previous location
+void Camera::UpdateCameraView(glm::mat4x4 trans) {
+	//UpdateworldTransform(Trans::get2InitAxis4x4(BoundMiddle, trans));
+	//viewTransformation = glm::inverse(Trans::get2InitAxis4x4(BoundMiddle, trans)) * viewTransformation;
+	//SetWorldTransformation(glm::inverse(viewTransformation));
 }
 
 //Elias emplementation:
