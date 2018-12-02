@@ -263,7 +263,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::SliderFloat("Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 			if (ftz != currentModel->fTranslatez){ Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 	
-			currentModel->UpdateworldTransform(Tm);
+			// currentModel->UpdateworldTransform(Tm);
+			currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(scene->GetModelMassCenter(currentModel), Tm));
 
 			ImGui::Checkbox("Show Face Normals", &(currentModel->showFaceNormals));
 			ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
