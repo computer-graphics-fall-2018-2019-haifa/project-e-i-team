@@ -70,7 +70,7 @@ public:
 	bool showBoundingBox;
 	glm::vec4 fNcolor;
 	glm::vec4 vNcolor;
-	float fScale, fRotatex, fRotatey, fRotatez;
+	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
 
@@ -117,6 +117,10 @@ public:
 		fTranslatex = 0.0f;
 		fTranslatey = 0.0f;
 		fTranslatez = 0.0f;
+		wfScale = fScaleDef;
+		wfRotatex = 0.0f;
+		wfRotatey = 0.0f;
+		wfRotatez = 0.0f;
 	}
 
 	glm::vec3 GetVerticeByIndex(int index) { return vertices[index]; }

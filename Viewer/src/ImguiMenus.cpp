@@ -173,12 +173,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
 				float fry = currentCam->worldfRotatey;
-				ImGui::SliderFloat("Rotation By Y-W", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				ImGui::SliderFloat("Rotation By Y-CW", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->worldfRotatey - fry;
 				if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 
 				float frz = currentCam->worldfRotatez;
-				ImGui::SliderFloat("Rotation By Z-W", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				ImGui::SliderFloat("Rotation By Z-CW", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->worldfRotatez - frz;
 				if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 			}
@@ -263,23 +263,23 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1),Tci(1);
 			if (ImGui::CollapsingHeader("World-Associated Transformations")) {
-				float fsc = currentModel->fScale;
-				ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
-				if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tci = Trans::getScale4x4(currentModel->fScale / fsc); }
+				float fsc = currentModel->wfScale;
+				ImGui::SliderFloat("Model Scale", &(currentModel->wfScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+				if (currentModel->wfScale >= 0 && fsc != currentModel->wfScale) { Tci = Trans::getScale4x4(currentModel->wfScale / fsc); }
 
-				float frx = currentModel->fRotatex, diff = 0.0f;
-				ImGui::SliderFloat("Rotation By X-W", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
-				diff = currentModel->fRotatex - frx;
+				float frx = currentModel->wfRotatex, diff = 0.0f;
+				ImGui::SliderFloat("Rotation By X-W", &(currentModel->wfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->wfRotatex - frx;
 				if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
-				float fry = currentModel->fRotatey;
-				ImGui::SliderFloat("Rotation By Y-W", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
-				diff = currentModel->fRotatey - fry;
+				float fry = currentModel->wfRotatey;
+				ImGui::SliderFloat("Rotation By Y-W", &(currentModel->wfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->wfRotatey - fry;
 				if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
-				float frz = currentModel->fRotatez;
-				ImGui::SliderFloat("Rotation By Z-W", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
-				diff = currentModel->fRotatez - frz;
+				float frz = currentModel->wfRotatez;
+				ImGui::SliderFloat("Rotation By Z-W", &(currentModel->wfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+				diff = currentModel->wfRotatez - frz;
 				if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
 
