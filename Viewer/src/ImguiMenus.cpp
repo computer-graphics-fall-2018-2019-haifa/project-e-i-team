@@ -166,7 +166,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 			}
 			// rotation the whole world again the stable camera:
-			if (ImGui::CollapsingHeader("World-Associated Transformations")) {
+			if (ImGui::CollapsingHeader("World-Associated-C Transformations")) {
 				float frx = currentCam->worldfRotatex, diff = 0.0f;
 				ImGui::SliderFloat("Rotation By X-W", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->worldfRotatex - frx;
@@ -197,7 +197,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				diff = currentCam->selffRotatez - frz;
 				if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-				currentCam->UpdateCameraView(Tci);
+				//glm::vec3 mass = currentCam->GetWorldTransformation() * glm::vec4(currentCam->BoundMiddle.x, currentCam->BoundMiddle.y, currentCam->BoundMiddle.z, 1.0f);
+				//currentCam->UpdateCameraView(Tci, mass);
 			}
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
@@ -219,12 +220,14 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				std::shared_ptr<MeshModel> model = scene->GetModel(i);
 				glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1.0f);
 				model->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tc));
+				//currentCam->UpdateCameraView(model->GetWorldTransformation(),Tci, mass);
 			}
 			for (int i = 0; i < scene->GetCameraCount(); i++) {
 				std::shared_ptr<Camera> camera = scene->GetCamera(i);
 				if (i != scene->activeCameraIndex) {
 					glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
 					camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tc));
+					//currentCam->UpdateCameraView(camera->GetWorldTransformation(), Tci, mass);
 				}
 			}
 			if (ImGui::Button("Focus On Current Model")) {
@@ -262,9 +265,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1),Tci(1);
-			if (ImGui::CollapsingHeader("World-Associated Transformations")) {
+			if (ImGui::CollapsingHeader("World-Associated-M Transformations")) {
 				float fsc = currentModel->wfScale;
-				ImGui::SliderFloat("Model Scale", &(currentModel->wfScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+				ImGui::SliderFloat("Model Scale-W", &(currentModel->wfScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 				if (currentModel->wfScale >= 0 && fsc != currentModel->wfScale) { Tci = Trans::getScale4x4(currentModel->wfScale / fsc); }
 
 				float frx = currentModel->wfRotatex, diff = 0.0f;
@@ -302,7 +305,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				Tm = handleKeyboardInputs(currentModel);
 
 				float fsc = currentModel->fScale;
-				ImGui::SliderFloat("Model Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+				ImGui::SliderFloat("Model Scale-M", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 				if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 				float diff = 0.0f;
 				float frx = currentModel->fRotatex;

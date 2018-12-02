@@ -44,11 +44,19 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	SetWorldTransformation(glm::inverse(lookAt));
 }
 
+// mat - rotation matrix
+void Camera::UpdateCameraView(glm::mat4x4 world,glm::mat4x4& rotation , glm::vec3 model_mass){
+	glm::mat4x4 toZero = Trans::getTranslate4x4(-model_mass.x, -model_mass.y, -model_mass.z);
+	glm::mat4x4 toCamera = Trans::getTranslate4x4(BoundMiddle.x, BoundMiddle.y, BoundMiddle.z);
+	Updateview(glm::inverse(toCamera * rotation* toZero * world));
 
-void Camera::UpdateCameraView(glm::mat4x4& mat){
-	glm::mat4x4 toZero = Trans::getTranslate4x4(-origin_eye.x, -origin_eye.y, -origin_eye.z);
-	glm::mat4x4 toOrigin = Trans::getTranslate4x4(origin_eye.x, origin_eye.y, origin_eye.z);
-	viewTransformation = viewTransformation * toOrigin * mat * toZero;
+	//glm::mat4x4 fromZero = Trans::getTranslate4x4(model_mass.x, model_mass.y, model_mass.z);
+	//glm::mat4x4 fromCamera = Trans::getTranslate4x4(-BoundMiddle.x, -BoundMiddle.y, -BoundMiddle.z);
+	//Updateview(glm::inverse(fromZero * fromCamera * rotation * toCamera * toZero * world));
+
+	//viewTransformation = toOrigin * mat * toZero * viewTransformation;
+	// model translate to (0,0,0) => model translate to mass of current camera => model rotate around current camera
+	// => model translate to his previous location
 }
 
 //Elias emplementation:
@@ -69,7 +77,7 @@ void Camera::SetOrthographicProjection(
 	/*
 	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
 	*/
-	float ptop = tanf(0.5f * glm::radians(fovy)) * pnear;
+	float ptop = tanf(0.1f * glm::radians(fovy)) * pnear;
 	float pbottom = -1.0f * top;
 	float pright = aspectRatio * top;
 	float pleft = -right;
@@ -110,10 +118,10 @@ void Camera::SetPerspectiveProjection(
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
 
-	float ptop = tanf(fovy * 0.5f) * pnear;
+	float ptop = tanf(0.1f * glm::radians(fovy)) * pnear;
 	float pbottom = -ptop;
 	float pright = ptop * aspectRatio;
-	float pleft = -ptop * aspectRatio;
+	float pleft = -pright;
 
 	glm::mat4x4 P(
 		glm::vec4(2.0f * pnear / (pright - pleft), 0.0f, 0.0f, 0.0f),

@@ -53,7 +53,7 @@ public:
 	~Camera();
 	
 	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
-	void Camera::UpdateCameraView(glm::mat4x4& mat);
+	void Camera::UpdateCameraView(glm::mat4x4 world,glm::mat4x4& mat, glm::vec3 origin);
 
 	void SetOrthographicProjection(
 		float fovy,
