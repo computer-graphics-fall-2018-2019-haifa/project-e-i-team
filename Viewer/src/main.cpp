@@ -83,7 +83,6 @@ int main(int argc, char **argv)
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
 	
-	
     return 0;
 }
 

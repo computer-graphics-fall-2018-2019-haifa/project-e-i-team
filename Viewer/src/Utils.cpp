@@ -28,8 +28,8 @@ MeshModel Utils::LoadGridModel() {
 	std::vector<glm::vec3> grid_vertices;
 
 	int counter = 0;
-	for (int y = -10; y < 10; y++) {
-		for (int x = -9; x < 11; x++) {
+	for (int y = -9; y < 9; y++) {
+		for (int x = -8; x < 10; x++) {
 
 			glm::vec3 v1 = glm::vec3(x - 1, y, 0);
 			glm::vec3 v2 = glm::vec3(x, y, 0);

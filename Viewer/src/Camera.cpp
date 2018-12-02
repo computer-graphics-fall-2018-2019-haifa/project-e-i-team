@@ -117,7 +117,8 @@ void Camera::SetPerspectiveProjection(
 	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
-
+	/*cout << "fovy = " << fovy << endl;
+	cout << "radi = " << glm::radians(fovy) << endl;*/
 	float ptop = tanf(0.1f * glm::radians(fovy)) * pnear;
 	float pbottom = -ptop;
 	float pright = ptop * aspectRatio;
