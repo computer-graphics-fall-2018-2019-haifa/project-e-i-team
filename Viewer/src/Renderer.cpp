@@ -126,7 +126,6 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
-	
 	x = p1;
 	y = q1;
 	e = -delta_p;
@@ -314,14 +313,13 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect2 = vect2 / vect2.w;
 
 	/////////////////////////////////////////////////
-	
-	glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
-	c = seriesTransform * c;
-	c = c / c.w;
-	DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
+	//	test section - line:
+	//	=====================
+	//	glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
+	//	c = seriesTransform * c;
+	//	c = c / c.w;
+	//	DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
 	/////////////////////////////////////////////////
-
-
 
 	float vNlength = model->GetVertexNormalLength();
 	// transform and normalize vertex normals:
@@ -474,9 +472,9 @@ glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, g
 
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
+	cout << "1" << endl;
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
-			
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
@@ -493,7 +491,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			}
 		}
 	}
-	
+	cout << "2" << endl;
 	int camerasCount = scene.GetCameraCount();
 	//Render All cameras in scene ** Except the current camera **
 	if (camerasCount > 0) {

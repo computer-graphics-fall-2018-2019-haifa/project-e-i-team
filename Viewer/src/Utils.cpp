@@ -115,7 +115,6 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	float max_x = -2000, max_y = -2000, max_z = -2000;
 
 	for (auto face = faces.begin(); face != faces.end(); ++face) {
-
 		glm::vec3 modelVec;
 		for (int i = 0; i < 3; i++) {
 

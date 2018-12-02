@@ -80,61 +80,60 @@ public:
 		return -1;
 	}
 
-	glm::vec3 GetModelMassCenter(std::shared_ptr<MeshModel> model) {
-		float x_avg = 0.0f, y_avg = 0.0f, z_avg = 0.0f;
-		vector<float> estPointsx, estPointsy, estPointsz;
-		std::vector<Face> faces = model->GetFaces();
-		for (int i = 0; i < faces.size(); i++) {
-			int v0 = faces[i].GetVertexIndex(0) - 1;
-			int v1 = faces[i].GetVertexIndex(1) - 1;
-			int v2 = faces[i].GetVertexIndex(2) - 1;
-			glm::vec3 vec0 = glm::vec3(
-				getModelVertices(activeModelIndex, v0).x,
-				getModelVertices(activeModelIndex, v0).y,
-				getModelVertices(activeModelIndex, v0).z
-			);
-			glm::vec3 vec0t = model->GetWorldTransformation() * glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f);
-			glm::vec3 vec1 = glm::vec3(
-				getModelVertices(activeModelIndex, v1).x,
-				getModelVertices(activeModelIndex, v1).y,
-				getModelVertices(activeModelIndex, v1).z
-			);
-			glm::vec3 vec1t = model->GetWorldTransformation() * glm::vec4(vec1.x, vec1.y, vec1.z, 1.0f);
-			glm::vec3 vec2 = glm::vec3(
-				getModelVertices(activeModelIndex, v2).x,
-				getModelVertices(activeModelIndex, v2).y,
-				getModelVertices(activeModelIndex, v2).z
-			);
-			glm::vec3 vec2t = model->GetWorldTransformation() * glm::vec4(vec2.x, vec2.y, vec2.z, 1.0f);
-			estPointsx.push_back(vec0t.x);
-			estPointsx.push_back(vec1t.x);
-			estPointsx.push_back(vec2t.x);
-			estPointsy.push_back(vec0t.y);
-			estPointsy.push_back(vec1t.y);
-			estPointsy.push_back(vec2t.y);
-			estPointsz.push_back(vec0t.z);
-			estPointsz.push_back(vec1t.z);
-			estPointsz.push_back(vec2t.z);
-		}
-		for (int i = 0; i < estPointsx.size(); i++) {
-			x_avg += estPointsx.at(i);
-		}
-		if (estPointsx.size() > 0) {
-			x_avg = x_avg / estPointsx.size();
-		}
-		for (int i = 0; i < estPointsy.size(); i++) {
-			y_avg += estPointsy.at(i);
-		}
-		if (estPointsy.size() > 0) {
-			y_avg = y_avg / estPointsy.size();
-		}
-		for (int i = 0; i < estPointsz.size(); i++) {
-			z_avg += estPointsz.at(i);
-		}
-		if (estPointsz.size() > 0) {
-			z_avg = z_avg / estPointsz.size();
-		}
-		//cout << "massCenter => (" << x_avg << "," << y_avg << "," << z_avg << ")" << endl;
-		return glm::vec3(x_avg, y_avg, z_avg);
-	}
+	//glm::vec3 GetModelMassCenter(std::shared_ptr<MeshModel> model) {
+	//	float x_avg = 0.0f, y_avg = 0.0f, z_avg = 0.0f;
+	//	vector<float> estPointsx, estPointsy, estPointsz;
+	//	std::vector<Face> faces = model->GetFaces();
+	//	for (int i = 0; i < faces.size(); i++) {
+	//		int v0 = faces.at(i).GetVertexIndex(0) - 1;
+	//		int v1 = faces.at(i).GetVertexIndex(1) - 1;
+	//		int v2 = faces.at(i).GetVertexIndex(2) - 1;
+	//		glm::vec3 vec0 = glm::vec3(
+	//			getModelVertices(activeModelIndex, v0).x,
+	//			getModelVertices(activeModelIndex, v0).y,
+	//			getModelVertices(activeModelIndex, v0).z
+	//		);
+	//		glm::vec3 vec0t = model->GetWorldTransformation() * glm::vec4(vec0.x, vec0.y, vec0.z, 1.0f);
+	//		glm::vec3 vec1 = glm::vec3(
+	//			getModelVertices(activeModelIndex, v1).x,
+	//			getModelVertices(activeModelIndex, v1).y,
+	//			getModelVertices(activeModelIndex, v1).z
+	//		);
+	//		glm::vec3 vec1t = model->GetWorldTransformation() * glm::vec4(vec1.x, vec1.y, vec1.z, 1.0f);
+	//		glm::vec3 vec2 = glm::vec3(
+	//			getModelVertices(activeModelIndex, v2).x,
+	//			getModelVertices(activeModelIndex, v2).y,
+	//			getModelVertices(activeModelIndex, v2).z
+	//		);
+	//		glm::vec3 vec2t = model->GetWorldTransformation() * glm::vec4(vec2.x, vec2.y, vec2.z, 1.0f);
+	//		estPointsx.push_back(vec0t.x);
+	//		estPointsx.push_back(vec1t.x);
+	//		estPointsx.push_back(vec2t.x);
+	//		estPointsy.push_back(vec0t.y);
+	//		estPointsy.push_back(vec1t.y);
+	//		estPointsy.push_back(vec2t.y);
+	//		estPointsz.push_back(vec0t.z);
+	//		estPointsz.push_back(vec1t.z);
+	//		estPointsz.push_back(vec2t.z);
+	//	}
+	//	for (int i = 0; i < estPointsx.size(); i++) {
+	//		x_avg += estPointsx.at(i);
+	//	}
+	//	if (estPointsx.size() > 0) {
+	//		x_avg = x_avg / estPointsx.size();
+	//	}
+	//	for (int i = 0; i < estPointsy.size(); i++) {
+	//		y_avg += estPointsy.at(i);
+	//	}
+	//	if (estPointsy.size() > 0) {
+	//		y_avg = y_avg / estPointsy.size();
+	//	}
+	//	for (int i = 0; i < estPointsz.size(); i++) {
+	//		z_avg += estPointsz.at(i);
+	//	}
+	//	if (estPointsz.size() > 0) {
+	//		z_avg = z_avg / estPointsz.size();
+	//	}
+	//	return glm::vec3(x_avg, y_avg, z_avg);
+	//}
 };
