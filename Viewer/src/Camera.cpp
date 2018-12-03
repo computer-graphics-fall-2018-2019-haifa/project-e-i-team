@@ -10,7 +10,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
-	ffovy(FFAR_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), yaw(0.0f), pitch(0.0f), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
+	ffovy(FFAR_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
 	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), lrotatex(0.0f), lrotatey(0.0f), lrotatez(0.0f),
 	MeshModel(model)
 {
@@ -27,12 +27,26 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 
 Camera::~Camera(){}
 
-void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
+void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up,bool recalculate)
 {
-	glm::vec3 z = glm::normalize(eye - at); // cameraDirection
-	glm::vec3 x = glm::normalize(glm::cross(up,z)); // cameraRight
-	glm::vec3 y = glm::normalize(glm::cross(z,x)); // cameraUp
-
+	glm::vec3 z, x, y;
+	if (recalculate) {
+		// change direct angle
+		glm::vec3 direct = eye - at;
+		z = glm::normalize(direct); // cameraDirection
+		x = glm::normalize(glm::cross(up, z)); // cameraRight
+		y = glm::normalize(glm::cross(z, x)); // cameraUp
+		origin_u = x;
+		origin_v = y;
+		origin_n = z;
+	} else {
+		origin_eye = eye;
+		origin_at = at;
+		origin_up = up;
+		x = origin_u;
+		y = origin_v;
+		z = origin_n;
+	}
 	glm::mat4x4 lookAt(
 		glm::vec4(x.x,x.y,x.z,0.0f),
 		glm::vec4(y.x,y.y,y.z,0.0f),
@@ -45,10 +59,8 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 }
 
 // mat - rotation matrix
-void Camera::UpdateCameraView(glm::mat4x4 trans) {
-	//UpdateworldTransform(Trans::get2InitAxis4x4(BoundMiddle, trans));
-	//viewTransformation = glm::inverse(Trans::get2InitAxis4x4(BoundMiddle, trans)) * viewTransformation;
-	//SetWorldTransformation(glm::inverse(viewTransformation));
+void Camera::UpdateCameraView(float angle) {
+	//roll(angle);
 }
 
 //Elias emplementation:
@@ -90,6 +102,7 @@ void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 
 	projectionTransformation = P;
 }
+
 
 
 void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
