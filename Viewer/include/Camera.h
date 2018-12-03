@@ -80,17 +80,13 @@ public:
 		float cs = cosf(angle);
 		float sn = sinf(angle);
 		glm::vec3 t = origin_n; // remember old u
-		//dir
-		origin_n = glm::vec3(
-			cs * t.x + -sn * origin_u.x,
-			cs * t.y + -sn * origin_u.y,
-			cs * t.z + -sn * origin_u.z
-		);
-		//right
-		origin_u = glm::vec3(
-			sn * t.x + cs * origin_u.x,
-			sn * t.y + cs * origin_u.y,
-			sn * t.z + cs * origin_u.z
+		//up
+		origin_v = cs * t + -sn * origin_v;
+		//up
+		origin_v = glm::vec3(
+			sn * t.x + cs * origin_v.x,
+			sn * t.y + cs * origin_v.y,
+			sn * t.z + cs * origin_v.z
 		);
 		SetCameraLookAt(origin_eye, origin_at, origin_up, false);
 	}
