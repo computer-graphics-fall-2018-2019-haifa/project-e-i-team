@@ -154,15 +154,34 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			if (ImGui::CollapsingHeader("Projection Parameters")) {
-				std::string fName = !currentCam->transType ? "Height" : "Fovy";
-				ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
-				ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
-				ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
-				//TODO at morning by ELIAS SPACER
-				ImGui::SliderFloat("Left", &(currentCam->left), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-				ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-				ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
-				ImGui::SliderFloat("Bottom", &(currentCam->bottom), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
+				ImGui::RadioButton("ordinary", &(currentCam->FrustrumType), 0);
+				ImGui::RadioButton("Frustrum", &(currentCam->FrustrumType), 1);
+				if (currentCam->FrustrumType) {
+					//TODO at morning by ELIAS SPACER
+					ImGui::SliderFloat("Top", &(currentCam->top), -1, 1);
+					ImGui::SliderFloat("Bottom", &(currentCam->bottom), -1,1);  //-0.001745, -0.087
+					ImGui::SliderFloat("Right", &(currentCam->right), -1, 1);
+					ImGui::SliderFloat("Left", &(currentCam->left), -1, 1);
+					ImGui::SliderFloat("Near", &(currentCam->fnear), 1, 10.0f);
+					ImGui::SliderFloat("Far", &(currentCam->ffar), 1, 10.0f);
+				}
+				else {
+					std::string fName = !currentCam->transType ? "Height" : "Fovy";
+					ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
+					ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
+					ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+				}
+				if (ImGui::Button("Back to Origin")) {
+					currentCam->ffovy = 1;
+					currentCam->fnear = -1;
+					currentCam->ffar = 1;
+					currentCam->top = -1;
+					currentCam->bottom = 1;
+					currentCam->right = -1;
+					currentCam->left = 1;
+				}
+				
+				
 			}
 			// rotation the whole world again the stable camera:
 			if (ImGui::CollapsingHeader("Camera World-Associated Transformations")) {
@@ -201,16 +220,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
-				currentCam->SetOrthographicProjection(
-					currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar,
-					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom, frameBufferWidth
-				);
+				currentCam->SetOrthographicProjection(aspectratio, frameBufferWidth);
 			}
 			else {
-				currentCam->SetPerspectiveProjection(
-					currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar,
-					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom, frameBufferWidth
-				);
+				currentCam->SetPerspectiveProjection(aspectratio,frameBufferWidth);
 			}
 
 			// transform whole the world space using Tc:

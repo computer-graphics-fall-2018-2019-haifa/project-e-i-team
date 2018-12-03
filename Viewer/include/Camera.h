@@ -47,8 +47,10 @@ private:
 public:
 	float worldfRotatex, worldfRotatey, worldfRotatez, lrotatex, lrotatey, lrotatez;
 	glm::vec3 origin_eye,origin_at,origin_up;
-	int transType;
+
+	int transType,FrustrumType;
 	float ffovy, fnear, ffar, left, right, top, bottom;
+	
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3& massCenter);
 	~Camera();
 	
@@ -118,27 +120,11 @@ public:
 		SetCameraLookAt(origin_eye, origin_at, origin_up,false);
 	}
 
-	void SetOrthographicProjection(
-		float fovy,
-		float aspectRatio,
-		float pnear,
-		float far,
-		float left,
-		float right,
-		float top,
-		float bottom,
-		float frameWidth);
 
-	void SetPerspectiveProjection(
-		float fovy,
-		float aspectRatio,
-		float pnear,
-		float pfar,
-		float left,
-		float right,
-		float top,
-		float bottom,
-		float frameWidth);
+	void SetOrthographicProjection(	float aspectRatio, float frameWidth);
+
+	void SetPerspectiveProjection(float aspectRatio, float frameWidth);
+
 
 	glm::mat4x4 Getview() { return viewTransformation; }
 	void Updateview(glm::mat4x4& rotateView) { viewTransformation = rotateView * viewTransformation; }
