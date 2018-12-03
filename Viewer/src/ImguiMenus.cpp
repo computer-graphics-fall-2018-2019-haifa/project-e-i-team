@@ -138,7 +138,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	
-	glm::mat4x4 Tc(1), Tci(1), Tcm(1);
+	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
 	
 	if (ImGui::CollapsingHeader("Cameras")) {
 		if (ImGui::Button("Add camera")) {
@@ -186,31 +186,31 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				float frx = currentCam->lrotatex, diff = 0.0f;
 				ImGui::SliderFloat("Rotation By X-CL", &(currentCam->lrotatex), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->lrotatex - frx;
-				if (diff != 0.0f) { Tci = Trans::getTranslate4x4(diff,0.0f,0.0f); }
+				if (diff != 0.0f) { currentCam->pitch(diff); }
 
 				float fry = currentCam->lrotatey;
 				ImGui::SliderFloat("Rotation By Y-CL", &(currentCam->lrotatey), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->lrotatey - fry;
-				if (diff != 0.0f) { Tci = Trans::getTranslate4x4(0.0f, diff,0.0f); }
+				if (diff != 0.0f) { currentCam->yaw(diff); }
 
 				float frz = currentCam->lrotatez;
 				ImGui::SliderFloat("Rotation By Z-CL", &(currentCam->lrotatez), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->lrotatez - frz;
-				if (diff != 0.0f) { Tci = Trans::getTranslate4x4(0.0f,0.0f,diff); }
+				if (diff != 0.0f) { currentCam->roll(diff); }
+
+				//currentCam->UpdateCameraView();
 			}
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
 				currentCam->SetOrthographicProjection(
 					currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar,
-					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
-					currentCam->yaw, currentCam->pitch, frameBufferWidth
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom, frameBufferWidth
 				);
 			}
 			else {
 				currentCam->SetPerspectiveProjection(
 					currentCam->ffovy, aspectratio, currentCam->fnear, currentCam->ffar,
-					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom,
-					currentCam->yaw, currentCam->pitch, frameBufferWidth
+					currentCam->left, currentCam->right, currentCam->top, currentCam->bottom, frameBufferWidth
 				);
 			}
 
