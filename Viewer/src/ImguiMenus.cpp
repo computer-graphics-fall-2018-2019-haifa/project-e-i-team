@@ -154,7 +154,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			if (ImGui::CollapsingHeader("Projection Parameters")) {
-				ImGui::RadioButton("ordinary", &(currentCam->FrustrumType), 0);
+				ImGui::RadioButton("Ordinary", &(currentCam->FrustrumType), 0);
 				ImGui::RadioButton("Frustrum", &(currentCam->FrustrumType), 1);
 				if (currentCam->FrustrumType) {
 					//TODO at morning by ELIAS SPACER
