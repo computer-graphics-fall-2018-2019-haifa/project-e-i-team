@@ -94,13 +94,17 @@ glm::mat4x4 handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 	glm::mat4x4 Tm(1);
 	if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp))) {
 		float fsc = model->fScale;
-		model->fScale += SCALE_OBJ_FACTOR;
-		Tm = Trans::getScale4x4(model->fScale / fsc);
+		if((fsc + SCALE_OBJ_FACTOR) != 0 && (fsc + SCALE_OBJ_FACTOR) > 0) {
+			model->fScale += SCALE_OBJ_FACTOR;
+			Tm = Trans::getScale4x4(model->fScale / fsc);
+		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown))){
 		float fsc = model->fScale;
-		model->fScale -= SCALE_OBJ_FACTOR;
-		Tm = Trans::getScale4x4(model->fScale / fsc);
+		if((fsc - SCALE_OBJ_FACTOR) != 0 && (fsc - SCALE_OBJ_FACTOR) > 0) {
+			model->fScale -= SCALE_OBJ_FACTOR;
+			Tm = Trans::getScale4x4(model->fScale / fsc);
+		}
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))){
 		float ftx = model->fTranslatex;
@@ -154,6 +158,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
 				ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
 				ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+				//TODO at morning by ELIAS SPACER
 				ImGui::SliderFloat("Left", &(currentCam->left), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 				ImGui::SliderFloat("Right", &(currentCam->right), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);
 				ImGui::SliderFloat("Up", &(currentCam->top), -BOX_BOUNDERY_RANGE, BOX_BOUNDERY_RANGE);

@@ -21,12 +21,15 @@ private:
 
 	void putPixel(int x, int y, const glm::vec3& color);
 	void createBuffers(int viewportWidth, int viewportHeight);	
-	// Elias Function Implementation:
+	// Elias Function Implementation: NaiveAlg
 	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color);
 	// Elias Function Implementation:
 	void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color);
 	// Elias Function Implementation:
 	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
+
+	
+
 	// Elias Function Implementation:
 	void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io);
 	

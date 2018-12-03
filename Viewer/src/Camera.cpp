@@ -116,6 +116,7 @@ void Camera::SetPerspectiveProjection(
 	float pright = ptop * aspectRatio;
 	float pleft = -pright;
 
+	
 	glm::mat4x4 P(
 		glm::vec4(2.0f * pnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
 		glm::vec4(0.0f, 2.0f * pnear / (ptop - pbottom), 0.0f, 0.0f),

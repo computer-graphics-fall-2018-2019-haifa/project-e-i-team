@@ -87,7 +87,7 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 	}
 	for (; x <= to; x++) {
 		y = round(m*x + c);
-		putPixel(x, 720-y, color);
+		putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, color);
 	}
 }
 
@@ -120,6 +120,7 @@ void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3&
 		}
 	}
 }
+
 
 // Elias Function Implementation:
 void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color) {
