@@ -283,21 +283,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				diff = currentModel->wfRotatez - frz;
 				if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 
-				// transform whole the world space using Tci:
-				for (int i = 0; i < scene->GetModelCount(); i++) {
-					std::shared_ptr<MeshModel> model = scene->GetModel(i);
-					if (i != scene->activeModelIndex) {
-						glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1.0f);
-						model->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tci));
-					}
-				}
-				for (int i = 0; i < scene->GetCameraCount(); i++) {
-					std::shared_ptr<Camera> camera = scene->GetCamera(i);
-					if (i != scene->activeCameraIndex) {
-						glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
-						camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tci));
-					}
-				}
+				currentModel->UpdateLeftworldTransform(Tci);
 			}
 			if (ImGui::CollapsingHeader("Model Local-Associated Transformations")) {
 				Tm = handleKeyboardInputs(currentModel);
