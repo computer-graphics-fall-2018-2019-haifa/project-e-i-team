@@ -171,7 +171,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
 					ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
 				}
-				if (ImGui::Button("Back to Origin")) {
+				if (ImGui::Button("Snap To Origin")) {
 					currentCam->ffovy = 1;
 					currentCam->fnear = -1;
 					currentCam->ffar = 1;
@@ -180,8 +180,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 					currentCam->right = -1;
 					currentCam->left = 1;
 				}
-				
-				
+
 			}
 			// rotation the whole world again the stable camera:
 			if (ImGui::CollapsingHeader("Camera World-Associated Transformations")) {
@@ -203,17 +202,17 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 			if (ImGui::CollapsingHeader("Camera Local-Associated Transformations")) {
 				float frx = currentCam->lrotatex, diff = 0.0f;
-				//ImGui::SliderFloat("Rotation By X-CL", &(currentCam->lrotatex), -2.0f*M_PI, 2.0f*M_PI);
+				//ImGui::SliderFloat("Pitch", &(currentCam->lrotatex), -2.0f*M_PI, 2.0f*M_PI);
 				//diff = currentCam->lrotatex - frx;
 				//if (diff != 0.0f) { currentCam->pitch(diff); }
 
 				//float fry = currentCam->lrotatey;
-				//ImGui::SliderFloat("Rotation By Y-CL", &(currentCam->lrotatey), -2.0f*M_PI, 2.0f*M_PI);
+				//ImGui::SliderFloat("Yaw", &(currentCam->lrotatey), -2.0f*M_PI, 2.0f*M_PI);
 				//diff = currentCam->lrotatey - fry;
 				//if (diff != 0.0f) { currentCam->yaw(diff); }
 
 				float frz = currentCam->lrotatez;
-				ImGui::SliderFloat("Rotation By Z-CL", &(currentCam->lrotatez), -2.0f*M_PI, 2.0f*M_PI);
+				ImGui::SliderFloat("Roll", &(currentCam->lrotatez), -2.0f*M_PI, 2.0f*M_PI);
 				diff = currentCam->lrotatez - frz;
 				if (diff != 0.0f) { currentCam->roll(diff); }
 

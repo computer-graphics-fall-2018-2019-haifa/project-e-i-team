@@ -15,12 +15,12 @@ using namespace std;
 
 #define POS_DOUBLE_PI 2.1f*M_PI
 
-#define MAX_NORMAL_LENGTH 5.0f
+#define MAX_NORMAL_LENGTH 40.0f
 #define MIN_NORMAL_LENGTH 1.0f
 
 #define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
-#define SCALE_OBJ_FACTOR 15.0f
+#define SCALE_OBJ_FACTOR 25.0f
 #define CAMERA_BASIC_SIZE 100.0f // it is as big as we can achieve for this moment
 
 #define MAX_TRANSLATION_LENGTH 100.0f
@@ -32,7 +32,8 @@ using namespace std;
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
-static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 1.0f, 0.0f, 1.00f); // (r,g,b)
+static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
+static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f); // (r,g,b)
 
 /*
 getRandColor() success depend on srand(time(NULL)) in the top on main function
@@ -104,7 +105,7 @@ public:
 		showBoundingBox = false;
 		fNcolor = fcolorDef;
 		vNcolor = vcolorDef;
-		BoundingBoxColor = *modelColor;
+		BoundingBoxColor = BOUNDING_BOX_COLOR;
 		color = *modelColor;
 		vNlength = vertexNlength;
 		fNlength = faceNlength;
