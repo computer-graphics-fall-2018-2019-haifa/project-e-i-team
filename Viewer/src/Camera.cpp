@@ -73,10 +73,14 @@ void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 	float ptop, pbottom, pright, pleft;
 	if (FrustrumType) {
 		//TODO: elias
-		ptop = top;
+		/*ptop = top;
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
-		pleft = -pright;
+		pleft = -pright;*/
+		ptop = top;
+		pbottom = bottom;
+		pright = right;
+		pleft = left;
 	}
 	else {
 		ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
@@ -116,10 +120,14 @@ void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 	float ptop, pbottom, pright, pleft;
 	if (FrustrumType) {
 		//TODO: elias
-		ptop = top;
+		/*ptop = top;
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
-		pleft = -pright;
+		pleft = -pright;*/
+		ptop = top;
+		pbottom = bottom;
+		pright = right;
+		pleft = left;
 	}
 	else {
 		ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;

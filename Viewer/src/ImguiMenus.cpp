@@ -158,15 +158,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				ImGui::RadioButton("Frustrum", &(currentCam->FrustrumType), 1);
 				if (currentCam->FrustrumType) {
 					//TODO at morning by ELIAS SPACER
-					ImGui::SliderFloat("Up", &(currentCam->top), -0.001745, -0.087);
-					ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
-					ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+					ImGui::SliderFloat("Top", &(currentCam->top), -1, 1);
+					ImGui::SliderFloat("Bottom", &(currentCam->bottom), -1,1);  //-0.001745, -0.087
+					ImGui::SliderFloat("Right", &(currentCam->right), -1, 1);
+					ImGui::SliderFloat("Left", &(currentCam->left), -1, 1);
+					ImGui::SliderFloat("Near", &(currentCam->fnear), 1, 10.0f);
+					ImGui::SliderFloat("Far", &(currentCam->ffar), 1, 10.0f);
 				}
 				else {
 					std::string fName = !currentCam->transType ? "Height" : "Fovy";
 					ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
 					ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
 					ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+				}
+				if (ImGui::Button("Back to Origin")) {
+					currentCam->ffovy = 1;
+					currentCam->fnear = -1;
+					currentCam->ffar = 1;
+					currentCam->top = -1;
+					currentCam->bottom = 1;
+					currentCam->right = -1;
+					currentCam->left = 1;
 				}
 				
 				
