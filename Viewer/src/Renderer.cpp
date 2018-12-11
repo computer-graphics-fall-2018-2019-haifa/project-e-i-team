@@ -68,6 +68,51 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
+
+void Renderer::printTraingle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color) {
+	float min_x = a.x;
+	if (b.x < min_x)min_x = b.x;
+	if (c.x < min_x)min_x = c.x;
+
+	float min_y = a.y;
+	if (b.y < min_y)min_y = b.y;
+	if (c.y < min_y)min_y = c.y;
+
+	float max_x = a.x;
+	if (b.x > max_x)max_x = b.x;
+	if (c.x > max_x)max_x = c.x;
+
+	float max_y = a.y;
+	if (b.y > max_y)max_y = b.y;
+	if (c.y > max_y)max_y = c.y;
+
+	for (int x = min_x; x<=max_x ; x++) {
+		for (int y = min_y; y <= max_y; y++) {
+			glm::vec2 p(x, y);
+			glm::vec2 w = CalculateW12(a, b, c, p);
+			float w1 = w[0];
+			float w2 = w[1];
+
+			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
+				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, color);
+			}
+		}
+	}
+}
+
+
+glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p) {
+	float w1_up = a.x * (c.y - a.y) + (p.y - a.y) * (c.x - a.x) - p.x * (c.y - a.y);
+	float w1_down = (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y);
+	float w1 = w1_up / w1_down;
+
+	float w2_up = p.y - a.y - w1 * (b.y - a.y);
+	float w2_down = c.y - a.y;
+	float w2 = w2_up / w2_down;
+
+	return glm::vec2(w1, w2);
+
+}
 // huge of complexity than Bresenham algorithm
 void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float delta_p = p2 - p1;
@@ -417,7 +462,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
-	
+	printTraingle(glm::vec2(-150,0) , glm::vec2(150,0), glm::vec2(0,100), glm::vec3(0,0,1));
 	showAllMeshModels(scene, io);
 }
 
