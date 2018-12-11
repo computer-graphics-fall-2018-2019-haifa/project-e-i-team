@@ -69,7 +69,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 }
 
 
-void Renderer::printTraingle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color) {
+void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color) {
 	float min_x = a.x;
 	if (b.x < min_x)min_x = b.x;
 	if (c.x < min_x)min_x = c.x;
@@ -371,13 +371,13 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	}
 
 	// draw the object as triangles collection:
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
-	if (isGrid) {
+	if(isGrid){
+		DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
+		DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, model->color);
+		printTriangle(vect0, vect1, vect2, model->color);
 	}
 
 	// up to the checkbox sign:
@@ -462,7 +462,6 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
-	printTraingle(glm::vec2(-150,0) , glm::vec2(150,0), glm::vec2(0,100), glm::vec3(0,0,1));
 	showAllMeshModels(scene, io);
 }
 
