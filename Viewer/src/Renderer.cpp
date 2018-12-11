@@ -462,7 +462,8 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
-	printTraingle(glm::vec2(-150,0) , glm::vec2(150,0), glm::vec2(0,100), glm::vec3(0,0,1));
+
+	//printTraingle(glm::vec2(-150,0) , glm::vec2(150,0), glm::vec2(0,100), glm::vec3(0,0,1));
 	showAllMeshModels(scene, io);
 }
 
