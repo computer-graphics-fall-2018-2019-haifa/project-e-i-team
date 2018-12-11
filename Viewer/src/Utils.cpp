@@ -108,9 +108,6 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 		}
 	}
 
-
-	
-
 	float min_x = 2000, min_y = 2000, min_z = 2000;
 	float max_x = -2000, max_y = -2000, max_z = -2000;
 
@@ -138,7 +135,6 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	glm::vec3 BoundMax(max_x , max_y , max_z);
 	glm::vec3 BoundMiddle( (min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
 	
-
 	return MeshModel(faces, vertices, normals, BoundMin, BoundMax, BoundMiddle, Utils::GetFileName(filePath));
 }
 

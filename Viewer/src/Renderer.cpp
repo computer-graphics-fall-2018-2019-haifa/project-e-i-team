@@ -14,7 +14,6 @@
 
 using namespace std;
 
-#define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
@@ -58,7 +57,6 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 			putPixel(i, j, color); 
 		}
 	}
-	
 }
 
 void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY){
@@ -70,7 +68,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-// Elias Function Implementation:
+// huge of complexity than Bresenham algorithm
 void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
@@ -91,7 +89,6 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 	}
 }
 
-// Elias Function Implementation:
 void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float a = (q1 - q2) / (p1 - p2);
 	if (a >= 0 && a <= 1) {
@@ -121,8 +118,7 @@ void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3&
 	}
 }
 
-
-// Elias Function Implementation:
+// fully tested
 void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color) {
 	float x, y, e;
 	float delta_p = p2 - p1;
@@ -155,7 +151,6 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 	}
 }
 
-
 void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool isCameraModel) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
@@ -165,39 +160,6 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
-	/*
-	std::vector<Face> faces = scene.getModelfaces(k);
-	
-	float min_x = 2000 , min_y = 2000 , min_z = 2000;
-	float max_x = -2000, max_y = -2000, max_z = -2000;
-	
-	for (auto face = faces.begin(); face != faces.end(); ++face) {
-		
-		glm::vec3 modelVec;	
-		for (int i = 0; i < 3; i++) {
-			
-			int v = face->GetVertexIndex(i) - 1;
-			if (isCameraModel) {
-				modelVec = scene.getCameraVertices(k, v);
-			}
-			else {
-				modelVec = scene.getModelVertices(k, v);
-			}
-			float x = modelVec.x;
-			float y = modelVec.y;
-			float z = modelVec.z;
-
-			if (x < min_x) min_x = x;
-			if (y < min_y) min_y = y;
-			if (z < min_z) min_z = z;
-
-			if (x > max_x) max_x = x;
-			if (y > max_y) max_y = y;
-			if (z > max_z) max_z = z;
-		}
-	}
-	*/
-
 	std::shared_ptr<MeshModel> model = NULL;
 	if (isCameraModel) {
 		model = scene.GetCamera(k);
@@ -205,9 +167,6 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	else {
 		model = scene.GetModel(k);
 	}
-	
-
-
 	
 	float min_x = (model->BoundMin).x, min_y = (model->BoundMin).y, min_z = (model->BoundMin).z;
 	float max_x = (model->BoundMax).x , max_y = (model->BoundMax).y, max_z = (model->BoundMax).z;
@@ -255,11 +214,10 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	DrawLine(vect5.x, vect7.x, vect5.y, vect7.y, model->BoundingBoxColor);
 	DrawLine(vect5.x, vect1.x, vect5.y, vect1.y, model->BoundingBoxColor);
 	DrawLine(vect5.x, vect4.x, vect5.y, vect4.y, model->BoundingBoxColor);
-
 }
 
 
-void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel) {
+void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
@@ -267,10 +225,11 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		Mc = active_camera->Getview();
 		Mp = active_camera->GetProjection();
 	}
-	
 	int v0 = face->GetVertexIndex(0) - 1;
 	int v1 = face->GetVertexIndex(1) - 1;
 	int v2 = face->GetVertexIndex(2) - 1;
+	int v3;
+	isGrid ? v3 = face->GetVertexIndex(3) - 1 : v3 = -1;
 	// for instance: v0,v1,v2 => 1,13,4
 
 	glm::vec3 modelVec;
@@ -298,6 +257,17 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	glm::vec4 vec2(x2, y2, z2, 1);
 	// => (x2,y2,z2)
 
+	float x3 = 0.0f;
+	float y3 = 0.0f;
+	float z3 = 0.0f;
+	if (isGrid) {
+		x3 = scene.getModelVertices(k, v3).x;
+		y3 = scene.getModelVertices(k, v3).y;
+		z3 = scene.getModelVertices(k, v3).z;
+	}
+	glm::vec4 vec3(x3, y3, z3, 1);
+	// => (x3,y3,z3)
+
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = NULL;
 	if(isCameraModel){
@@ -312,6 +282,10 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect1 = vect1 / vect1.w;
 	glm::vec4 vect2 = seriesTransform*vec2;
 	vect2 = vect2 / vect2.w;
+	glm::vec4 vect3 = seriesTransform * vec3;
+	if (isGrid) {
+		vect3 = vect3 / vect3.w;
+	}
 
 	/////////////////////////////////////////////////
 	//	test section - line:
@@ -343,125 +317,43 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	nt2 = normalizeVector(vect2,nt2, vNlength);
 	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
 
-	// draw the object as triangles collection:
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
-	DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, model->color);
-	
-	// up to the checkbox sign:
-	if (model->GetFaceNormalView()) {
-		float fVlength = model->GetFaceNormalLength();
-		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
-		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
-		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
+	glm::vec3 n3;
+	if (isGrid) {
+		n3 = vNormals.at(3);
+		glm::vec4 nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
+		nt3 = normalizeVector(vect3, nt3, vNlength);
+		n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
 	}
-
-	if (model->GetVertexNormalView()) {
-		glm::vec4 vertexColor = model->GetVertexNormalColor();
-		DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
-		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
-		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
-	}
-}
-
-
-void Renderer::showGridObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io) {
-	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
-	glm::mat4x4 Mc = glm::mat4x4(1);
-	glm::mat4x4 Mp = glm::mat4x4(1);
-	if (active_camera != NULL) {
-		Mc = active_camera->Getview();
-		Mp = active_camera->GetProjection();
-	}
-
-	int v0 = face->GetVertexIndex(0) - 1;
-	int v1 = face->GetVertexIndex(1) - 1;
-	int v2 = face->GetVertexIndex(2) - 1;
-	int v3 = face->GetVertexIndex(3) - 1;
-	// for instance: v0,v1,v2 => 1,13,4
-
-	float x0 = scene.getModelVertices(k, v0).x;
-	float y0 = scene.getModelVertices(k, v0).y;
-	float z0 = scene.getModelVertices(k, v0).z;
-	glm::vec4 vec0(x0, y0, z0, 1);
-	// => (x0,y0,z0)
-
-	float x1 = scene.getModelVertices(k, v1).x;
-	float y1 = scene.getModelVertices(k, v1).y;
-	float z1 = scene.getModelVertices(k, v1).z;
-	glm::vec4 vec1(x1, y1, z1, 1);
-	// => (x1,y1,z1)
-
-	float x2 = scene.getModelVertices(k, v2).x;
-	float y2 = scene.getModelVertices(k, v2).y;
-	float z2 = scene.getModelVertices(k, v2).z;
-	glm::vec4 vec2(x2, y2, z2, 1);
-	// => (x2,y2,z2)
-
-	float x3 = scene.getModelVertices(k, v3).x;
-	float y3 = scene.getModelVertices(k, v3).y;
-	float z3 = scene.getModelVertices(k, v3).z;
-	glm::vec4 vec3(x3, y3, z3, 1);
-	// => (x3,y3,z3)
-
-	// transform face as world transform view:
-	std::shared_ptr<MeshModel> model = scene.GetModel(k);
-	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
-	
-	glm::vec4 vect0 = seriesTransform * vec0;
-	vect0 = vect0 / vect0.w;
-	glm::vec4 vect1 = seriesTransform * vec1;
-	vect1 = vect1 / vect1.w;
-	glm::vec4 vect2 = seriesTransform * vec2;
-	vect2 = vect2 / vect2.w;
-	glm::vec4 vect3 = seriesTransform * vec3;
-	vect3 = vect3 / vect3.w;
-
-	float vNlength = model->GetVertexNormalLength();
-	// transform and normalize vertex normals:
-	glm::vec3 n0 = vNormals.at(0);
-	glm::vec4 nt0 = seriesTransform * glm::vec4(n0.x, n0.y, n0.z, 1);
-	// return the normal as length of length
-	nt0 = normalizeVector(vect0, nt0, vNlength);
-	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
-
-	glm::vec3 n1 = vNormals.at(1);
-	glm::vec4 nt1 = seriesTransform * glm::vec4(n1.x, n1.y, n1.z, 1);
-	nt1 = normalizeVector(vect1, nt1, vNlength);
-	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
-
-	glm::vec3 n2 = vNormals.at(2);
-	glm::vec4 nt2 = seriesTransform * glm::vec4(n2.x, n2.y, n2.z, 1);
-	nt2 = normalizeVector(vect2, nt2, vNlength);
-	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
-
-	glm::vec3 n3 = vNormals.at(3);
-	glm::vec4 nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
-	nt3 = normalizeVector(vect3, nt3, vNlength);
-	n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
 
 	// draw the object as triangles collection:
 	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
 	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
-	DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
-	DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
+	if (isGrid) {
+		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
+		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
+	} else {
+		DrawLine(vect1.x, vect2.x, vect1.y, vect2.y, model->color);
+	}
 
 	// up to the checkbox sign:
-	if (model->GetFaceNormalView()) {
-		float fVlength = model->GetFaceNormalLength();
-		glm::vec3 basePoint((vect0.x + vect1.x + vect2.x + vect3.x) / 4, (vect0.y + vect1.y + vect2.y + vect3.y) / 4, (vect0.z + vect1.z + vect2.z + vect3.z) / 4);
-		glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
-		DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
-	}
+	if (!isGrid) {
+		if (model->GetFaceNormalView()) {
+			float fVlength = model->GetFaceNormalLength();
+			glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
+			glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+			DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
+		}
+		if (model->GetVertexNormalView()) {
+			glm::vec4 vertexColor = model->GetVertexNormalColor();
+			DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
+			DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
+			DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
 
-	if (model->GetVertexNormalView()) {
-		glm::vec4 vertexColor = model->GetVertexNormalColor();
-		DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
-		DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
-		DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
+			// TODO: is there the same implementation as to triangle or another is exist?!?
+			//DrawLine(vect3.x, n3.x, vect2.y, n3.y, vertexColor); // => aim to grid usage only!
+		}
 	}
 }
-
 
 glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2,float fNlength) {
 	glm::vec3 u0 = vec1 - vec0;
@@ -480,7 +372,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
 				if (model->GetModelName().compare("Grid") == 0) {
-					showGridObject(scene, face, vNormals, k, io);
+					showMeshObject(scene, face, vNormals, k, io,false,true);
 				} else {
 					showMeshObject(scene, face, vNormals, k, io);
 					std::shared_ptr<MeshModel> model = scene.GetModel(k);
@@ -492,7 +384,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 	int camerasCount = scene.GetCameraCount();
-	//Render All cameras in scene ** Except the current camera **
+	//Render All cameras in scene [*** Except the current camera ***]
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
 			if (scene.currentActiveCamera != k) {
@@ -507,24 +399,25 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	}
 }
 
+/*
+Solution steps:
+================
+1. Render All Models in scene
+2. Each camera j  has:
+	a. mc , mp -> we use them in case curr_camera == j
+	b. Meshmodel -> we use it otherwise
+3. Update - for each new transformation on the camera we update:
+	a. mc , mp
+	b. worldtransform
+*/
 void Renderer::Render(Scene& scene, const ImGuiIO& io)
 {
-	// Get mouse position:
+	/*
+	Get mouse position:
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
+	*/
 	
-	// Solution steps:
-	// ================
-
-	//1. Render All Models in scene
-
-	//2. Each camera j  has:
-	//a. mc , mp -> we use them in case curr_camera == j
-	//b. Meshmodel -> we use it otherwise
-
-	//3. Update - for each new transformation on the camera we update:
-	//a. mc , mp
-	//b. worldtransform
 	showAllMeshModels(scene, io);
 }
 

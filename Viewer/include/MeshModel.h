@@ -13,10 +13,10 @@ using namespace std;
 #define MESH_MODEL_TYPE 0
 #define CAMERA_MODEL_TYPE 1
 
-#define POS_DOUBLE_PI 2.1f*M_PI
+#define POS_DOUBLE_PI 2.2f*M_PI
 
-#define MAX_NORMAL_LENGTH 40.0f
-#define MIN_NORMAL_LENGTH 1.0f
+#define MAX_NORMAL_LENGTH 100.0f
+#define MIN_NORMAL_LENGTH 50.0f
 
 #define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
@@ -61,16 +61,9 @@ private:
 	glm::mat4x4 worldTransform;
 	std::string modelName;
 public:
-	glm::vec3 BoundMin;
-	glm::vec3 BoundMax;
-	glm::vec3 BoundMiddle;
-	glm::vec3 color;
-	glm::vec3 BoundingBoxColor;
-	bool showFaceNormals;
-	bool showVertexNormals;
-	bool showBoundingBox;
-	glm::vec4 fNcolor;
-	glm::vec4 vNcolor;
+	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor;
+	bool showFaceNormals,showVertexNormals,showBoundingBox;
+	glm::vec4 fNcolor,vNcolor;
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
@@ -79,60 +72,34 @@ public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE,bool showFNormals = false, bool showVNormals = false);
 	virtual ~MeshModel();
-
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
 	const glm::mat4x4& GetWorldTransformation() const;
-
 	void SetColor(const glm::vec4& color);
-	std::vector<glm::vec3> GetNormals() { return normals; }
-	std::vector<Face> GetFaces() { return faces; }
-	std::vector<glm::vec3> GetVertices() { return vertices; }
-	std::string GetModelName() { return modelName; }
-	void UpdateworldTransform(glm::mat4x4 T) { worldTransform = T * worldTransform; }
-	void UpdateLeftworldTransform(glm::mat4x4 T) { worldTransform = worldTransform * T; }
-
-	void resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
-					bool showFNormals = true,
-					bool showVNormals = true,
-					glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
-					glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
-					glm::vec3* modelColor = getRandColor(),
-					float vertexNlength = MAX_NORMAL_LENGTH,
-					float faceNlength = MAX_NORMAL_LENGTH) {
-		worldTransform = Trans::getScale4x4(fScaleDef);
-		showFaceNormals = showFNormals,
-		showVertexNormals = showVNormals,
-		showBoundingBox = false;
-		fNcolor = fcolorDef;
-		vNcolor = vcolorDef;
-		BoundingBoxColor = BOUNDING_BOX_COLOR;
-		color = *modelColor;
-		vNlength = vertexNlength;
-		fNlength = faceNlength;
-		fScale = fScaleDef;
-		fRotatex = 0.0f;
-		fRotatey = 0.0f;
-		fRotatez = 0.0f;
-		fTranslatex = 0.0f;
-		fTranslatey = 0.0f;
-		fTranslatez = 0.0f;
-		wfScale = fScaleDef;
-		wfRotatex = 0.0f;
-		wfRotatey = 0.0f;
-		wfRotatez = 0.0f;
-	}
-
-	glm::vec3 GetVerticeByIndex(int index) { return vertices[index]; }
-	void SetFaceNormalLength(float length) { fNlength = length; }
-	void SetFaceNormalColor(glm::vec4 color) { fNcolor = color; }
-	float GetFaceNormalLength() { return fNlength; }
-	glm::vec4 GetFaceNormalColor() { return fNcolor; }
-	bool GetFaceNormalView() { return showFaceNormals; }
-	void SetFaceNormalView(bool NeedShowNormals) { showFaceNormals = NeedShowNormals; }
-	void SetVertexNormalView(bool NeedShowNormals) { showVertexNormals = NeedShowNormals; }
-	bool GetVertexNormalView() { return showVertexNormals; }
-	void SetVertexNormalLength(float length) { vNlength = length; }
-	void SetVertexNormalColor(glm::vec4 color) { vNcolor = color; } 
-	float GetVertexNormalLength() { return vNlength; }
-	glm::vec4 GetVertexNormalColor() { return vNcolor; }
+	std::vector<glm::vec3> MeshModel::GetNormals();
+	std::vector<Face> MeshModel::GetFaces();
+	std::vector<glm::vec3> MeshModel::GetVertices();
+	std::string MeshModel::GetModelName();
+	void MeshModel::UpdateworldTransform(glm::mat4x4 T);
+	void MeshModel::UpdateLeftworldTransform(glm::mat4x4 T);
+	void MeshModel::resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
+		bool showFNormals = true,
+		bool showVNormals = true,
+		glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
+		glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
+		glm::vec3* modelColor = getRandColor(),
+		float vertexNlength = MAX_NORMAL_LENGTH,
+		float faceNlength = MAX_NORMAL_LENGTH);
+	glm::vec3 MeshModel::GetVerticeByIndex(int index);
+	void MeshModel::SetFaceNormalLength(float length);
+	void MeshModel::SetFaceNormalColor(glm::vec4 color);
+	float MeshModel::GetFaceNormalLength();
+	glm::vec4 MeshModel::GetFaceNormalColor();
+	bool MeshModel::GetFaceNormalView();
+	void MeshModel::SetFaceNormalView(bool NeedShowNormals);
+	void MeshModel::SetVertexNormalView(bool NeedShowNormals);
+	bool MeshModel::GetVertexNormalView();
+	void MeshModel::SetVertexNormalLength(float length);
+	void MeshModel::SetVertexNormalColor(glm::vec4 color);
+	float MeshModel::GetVertexNormalLength();
+	glm::vec4 MeshModel::GetVertexNormalColor();
 };

@@ -19,6 +19,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	origin_at = glm::vec3(at.x, at.y, at.z);
 	origin_up = glm::vec3(up.x, up.y, up.z);
 	
+	// visual camera tuning:
 	glm::vec3 fixed_sight = massCenter - origin_at;
 	glm::vec3 vertical = origin_eye - fixed_sight;
 	float theta = atanf(glm::radians(glm::length(vertical) / glm::length(fixed_sight)));
@@ -58,18 +59,9 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	SetWorldTransformation(glm::inverse(lookAt));
 }
 
-// mat - rotation matrix
-void Camera::UpdateCameraView(float angle) {
-	//roll(angle);
-}
-
-//Elias emplementation:
 //aspectRatio = width / height
 void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 {
-	/*
-	*	This projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
-	*/
 	float ptop, pbottom, pright, pleft;
 	if (FrustrumType) {
 		//TODO: elias
@@ -81,15 +73,13 @@ void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 		pbottom = bottom;
 		pright = right;
 		pleft = left;
-	}
-	else {
+	} else {
 		ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
 		pleft = -pright;
 	}
 	
-
 	float S_x = 2.0f / (pright - pleft);
 	float S_y = 2.0f / (ptop - pbottom);
 	float S_z = 2.0f / (fnear - ffar);
@@ -111,10 +101,6 @@ void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 
 void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 {
-	/*
-	*	This projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
-	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
-	*/
 	/*cout << "fovy = " << fovy << endl;
 	cout << "radi = " << glm::radians(fovy) << endl;*/
 	float ptop, pbottom, pright, pleft;
@@ -134,7 +120,7 @@ void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
 		pleft = -pright;
-		cout << "ptop = " << ptop << endl;
+		//cout << "ptop = " << ptop << endl;
 	}
 
 	/*float ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
@@ -142,7 +128,6 @@ void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 	float pright = ptop * aspectRatio;
 	float pleft = -pright;*/
 
-	
 	glm::mat4x4 P(
 		glm::vec4(2.0f * fnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
 		glm::vec4(0.0f, 2.0f * fnear / (ptop - pbottom), 0.0f, 0.0f),
@@ -151,4 +136,30 @@ void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 	);
 
 	projectionTransformation = P;
+}
+
+void Camera::roll(float angle) { // roll the camera through angle degrees
+	float cs = cosf(angle);
+	float sn = sinf(angle);
+	glm::vec3 t = origin_u; // remember old u
+	//right
+	origin_u = glm::vec3(
+		cs * t.x + -sn * origin_v.x,
+		cs * t.y + -sn * origin_v.y,
+		cs * t.z + -sn * origin_v.z
+	);
+	//up
+	origin_v = glm::vec3(
+		sn * t.x + cs * origin_v.x,
+		sn * t.y + cs * origin_v.y,
+		sn * t.z + cs * origin_v.z
+	);
+	SetCameraLookAt(origin_eye, origin_at, origin_up, false);
+}
+
+void Camera::slide(float delU, float delV, float delN) {
+	origin_eye.x += delU * origin_u.x + delV * origin_v.x + delN * origin_n.x;
+	origin_eye.y += delU * origin_u.y + delV * origin_v.y + delN * origin_n.y;
+	origin_eye.z += delU * origin_u.z + delV * origin_v.z + delN * origin_n.z;
+	SetCameraLookAt(origin_eye, origin_at, origin_up, false);
 }
