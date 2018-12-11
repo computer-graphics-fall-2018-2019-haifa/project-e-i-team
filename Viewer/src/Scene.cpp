@@ -26,7 +26,7 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int wi
 		eye = glm::vec3(x, y, z);	
 	}
 	glm::vec3 at = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 help_up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 help_up = glm::vec3(0.0f, -1.0f, 0.0f);
 	glm::vec3 vec_eye_at = at - eye;
 	help_up = glm::cross(vec_eye_at, help_up);
 	glm::vec3 up = glm::cross(vec_eye_at, help_up) + eye;

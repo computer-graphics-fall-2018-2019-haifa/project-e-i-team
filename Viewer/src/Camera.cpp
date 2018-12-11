@@ -24,6 +24,8 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	glm::vec3 vertical = origin_eye - fixed_sight;
 	float theta = atanf(glm::radians(glm::length(vertical) / glm::length(fixed_sight)));
 	UpdateworldTransform(Trans::get2InitAxis4x4(vertical, Trans::getyRotate4x4(theta)));
+
+	FrustrumType = 1;
 }
 
 Camera::~Camera(){}
