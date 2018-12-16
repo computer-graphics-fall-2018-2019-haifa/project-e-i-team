@@ -13,7 +13,8 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	normals(normals),
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
-	BoundMiddle(BoundMiddle)
+	BoundMiddle(BoundMiddle),
+	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f)
 {
 	resetModel();
 }
@@ -22,7 +23,8 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	modelName(model->GetModelName()),
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
-	normals(model->GetNormals())
+	normals(model->GetNormals()),
+	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }

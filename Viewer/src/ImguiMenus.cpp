@@ -245,8 +245,23 @@ void buildModelLocalTransformationsSection(glm::mat4x4& Tm,std::shared_ptr<MeshM
 	if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 }
 
+void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> currentModel) {
+	float ftx = currentModel->fTranslatex;
+	ImGui::SliderFloat("Light Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
+
+	float fty = currentModel->fTranslatey;
+	ImGui::SliderFloat("Light Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
+
+	float ftz = currentModel->fTranslatez;
+	ImGui::SliderFloat("Light Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
+}
+
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-	ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
+	// upper cases are handling the model color which are initiated at first:
+	/*ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color*/
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
@@ -255,6 +270,16 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 	ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
 	ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
 	ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
+}
+
+void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
+	ImGui::SliderFloat("Fraction Light Reclected", &(currentModel->K), 0.0f, 1.0f);
+	ImGui::SliderFloat("Light Intensity", &(currentModel->L), 0.0f, 1.0f);
+	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 1.0f, 512.0f);
+
+	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA)); // Edit 3 floats representing a color
+	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD)); // Edit 3 floats representing a color
+	ImGui::ColorEdit3("Spercular Color", (float*)&(currentModel->lightColorS)); // Edit 3 floats representing a color
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -301,16 +326,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		}
 	}
 	if (ImGui::CollapsingHeader("Models")) {
-
-		if (ImGui::Button("Add light")) {
-			MeshModel k = Utils::LoadLightSource();
-			scene->AddModel(std::make_shared<MeshModel>(k));
-		}
-		
-
 		static int count = 0;
 		const char* items = getModelNames(scene);
-		ImGui::Combo("Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
+		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1),Tci(1);
@@ -327,6 +345,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildPropertiesSection(currentModel);
+			}
+		}
+	}
+	if (ImGui::CollapsingHeader("Mesh Rendering")) {
+		if (ImGui::Button("Add light")) {
+			MeshModel k = Utils::LoadLightSource();
+			scene->AddModel(std::make_shared<MeshModel>(k));
+		}
+		static int count = 0;
+		const char* items = getModelNames(scene);
+		ImGui::Combo("Light Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
+		std::shared_ptr<MeshModel> currentLight = scene->GetModel(scene->activeModelIndex);
+		if (currentLight != nullptr) {
+			glm::mat4x4 Tm(1), Tci(1);
+			if (ImGui::CollapsingHeader("Light Transformations")) {
+				Tci = handleKeyboardInputs(currentLight);
+				buildLightTranslationsSection(Tci, currentLight);
+				currentLight->UpdateLeftworldTransform(Tci);
+			}
+			if (ImGui::CollapsingHeader("Properties")) {
+				buildLightPropertiesSection(currentLight);
 			}
 		}
 	}
