@@ -32,7 +32,7 @@ private:
 	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io,bool isCameraModel=false,bool isGrid = false);
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
-	void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color);
+	void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2);
 	glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p);
 	
 	GLuint glScreenTex;
@@ -57,5 +57,6 @@ public:
 	alpha - shininess coefficient
 	method - from the macro you could pick: AMBIENT,DIFFUSE,SPECULAR
 	*/
-	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method,float alpha = 0.0f); // color material
+	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& colorA, glm::vec3& colorD, glm::vec3& colorS, int method, float alpha = 0.0f); // color material
+	std::vector<glm::vec3&>& Renderer::estTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 n0, glm::vec3 n1, glm::vec3 n2);
 };

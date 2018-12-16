@@ -67,6 +67,7 @@ public:
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
+	glm::vec3 lightColorA, lightColorD, lightColorS;
 	float K, L, alpha;
 
 	MeshModel(){}

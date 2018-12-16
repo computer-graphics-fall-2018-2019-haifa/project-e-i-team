@@ -14,7 +14,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	K(1.0f), L(1.0f), alpha(0.1f)
+	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f)
 {
 	resetModel();
 }
@@ -24,7 +24,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	K(1.0f), L(1.0f), alpha(0.1f)
+	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }
@@ -63,9 +63,14 @@ void MeshModel::resetModel(float fScaleDef,
 	float vertexNlength,
 	float faceNlength) {
 	worldTransform = Trans::getScale4x4(fScaleDef);
-	showFaceNormals = showFNormals,
-		showVertexNormals = showVNormals,
-		showBoundingBox = false;
+	if (modelName.find("Light Source") != std::string::npos) {
+		showFaceNormals = false;
+		showVertexNormals = false;
+	} else {
+		showFaceNormals = showFNormals;
+		showVertexNormals = showVNormals;
+	}
+	showBoundingBox = false;
 	fNcolor = fcolorDef;
 	vNcolor = vcolorDef;
 	BoundingBoxColor = BOUNDING_BOX_COLOR;

@@ -68,7 +68,12 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color) {
+//glm::vec3& baricentric_coor(glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
+//	return NULL;
+//	//return color0 * (A0 / A) + color1 * (A1 / A) + color2 * (A2 / A);
+//}
+
+void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
 	float min_x = a.x;
 	if (b.x < min_x)min_x = b.x;
 	if (c.x < min_x)min_x = c.x;
@@ -93,7 +98,9 @@ void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 co
 			float w2 = w[1];
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
-				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, color);
+				// need baricentric coordinate here!
+
+				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, glm::vec3(0,0,0));
 			}
 		}
 	}
@@ -281,22 +288,58 @@ float estSpecularColor(float K, float L, glm::vec3 V, glm::vec3 N, glm::vec3 S, 
 	return K * L * pow(glm::dot(R, V), alpha);
 }
 
-glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method, float alpha) {
+glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& colorA, glm::vec3& colorD, glm::vec3& colorS, int method, float alpha) {
 	if (method == AMBIENT) {
-		return color * estAmbientColor(K, L);
+		return colorA * estAmbientColor(K, L);
 	}
 	else if (method == DIFFUSE) {
-		return color * estDiffuseColor(K, L, N, S);
+		return colorD * estDiffuseColor(K, L, N, S);
 	}
 	else if (method == SPECULAR) {
-		return color * estSpecularColor(K, L, V, N, S, alpha);
+		return colorS * estSpecularColor(K, L, V, N, S, alpha);
 	}
 	else if(method == PHONG_ILLUMINATION){
-		glm::vec3 Ia = color * estAmbientColor(K, L);
-		glm::vec3 Id = color * estDiffuseColor(K, L, N, S);
-		glm::vec3 Is = color * estSpecularColor(K, L, V, N, S, alpha);
-		return Ia + Id + Is;
+		return colorA * estAmbientColor(K, L) + colorD * estDiffuseColor(K, L, N, S) + colorS * estSpecularColor(K, L, V, N, S, alpha);
 	}
+}
+
+std::vector<glm::vec3&>& Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3 n0, glm::vec3 n1, glm::vec3 n2) {
+	glm::vec3 sourceLight = scene.GetCamera(scene.currentActiveCamera)->origin_up; // debug line
+	glm::vec3 color0 = estColor(
+		model->K,
+		model->L,
+		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		n0,
+		sourceLight /*scene.sourceLight*/,
+		model->lightColorA, model->lightColorD, model->lightColorS,
+		SPECULAR /*PHONG_ILLUMINATION*/,
+		model->alpha
+	);
+	glm::vec3 color1 = estColor(
+		model->K,
+		model->L,
+		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		n0,
+		sourceLight /*scene.sourceLight*/,
+		model->lightColorA, model->lightColorD, model->lightColorS,
+		SPECULAR /*PHONG_ILLUMINATION*/,
+		model->alpha
+	);
+	glm::vec3 color2 = estColor(
+		model->K,
+		model->L,
+		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		n0,
+		sourceLight /*scene.sourceLight*/,
+		model->lightColorA, model->lightColorD, model->lightColorS,
+		SPECULAR /*PHONG_ILLUMINATION*/,
+		model->alpha
+	);
+	std::vector<glm::vec3&> v;
+	v.push_back(color0);
+	v.push_back(color1);
+	v.push_back(color2);
+	return v;
 }
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid) {
@@ -414,20 +457,12 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		glm::vec3 sourceLight = scene.GetCamera(scene.currentActiveCamera)->origin_up;
 
-		// TODO: does the next function making closure the the triangle coloring issue?!?
-		glm::vec3 color  = estColor(
-			model->K,
-			model->L,
-			scene.GetCamera(scene.currentActiveCamera)->origin_eye,
-			n0,
-			sourceLight /*scene.sourceLight*/,
-			model->color,
-			PHONG_ILLUMINATION,
-			model->alpha
-		); // phong_illumination
-		printTriangle(vect0, vect1, vect2, color);
+		std::vector<glm::vec3&>& triangle_colors = estTriangle(scene,model,n0,n1,n2);
+		glm::vec3 tri0 = triangle_colors.at(0);
+		glm::vec3 tri1 = triangle_colors.at(1);
+		glm::vec3 tri2 = triangle_colors.at(2);
+		printTriangle(vect0, vect1, vect2, tri0, tri1, tri2);
 	}
 
 	// up to the checkbox sign:
