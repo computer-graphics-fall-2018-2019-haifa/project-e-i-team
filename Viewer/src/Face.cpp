@@ -1,7 +1,8 @@
 #include "Face.h"
 
-Face::Face(std::vector<int> VIndex) {
+Face::Face(std::vector<int> VIndex , std::vector<int> NIndex) {
 	vertexIndices = VIndex;
+	normalIndices = NIndex;
 }
 
 

@@ -301,6 +301,13 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		}
 	}
 	if (ImGui::CollapsingHeader("Models")) {
+
+		if (ImGui::Button("Add light")) {
+			MeshModel k = Utils::LoadLightSource();
+			scene->AddModel(std::make_shared<MeshModel>(k));
+		}
+		
+
 		static int count = 0;
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
@@ -336,7 +343,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, false, false,blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, false, false, blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z), 0.0f, 0.0f);
 	scene.gridCounter++;
 }
 
