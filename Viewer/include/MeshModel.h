@@ -31,6 +31,11 @@ using namespace std;
 #define YTRANS_FACTOR 20.0f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
+#define AMBIENT				0 
+#define DIFFUSE				1
+#define SPECULAR			2
+#define PHONG_ILLUMINATION	3
+
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
 static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f); // (r,g,b)
@@ -69,6 +74,7 @@ public:
 	float fNlength, vNlength;
 	glm::vec3 lightColorA, lightColorD, lightColorS;
 	float K, L, alpha;
+	int lightType;
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");

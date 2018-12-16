@@ -7,10 +7,6 @@
 #include <imgui/imgui.h>
 
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
-#define AMBIENT				0 
-#define DIFFUSE				1
-#define SPECULAR			2
-#define PHONG_ILLUMINATION	3
 
 /*
  * Renderer class.
@@ -58,5 +54,5 @@ public:
 	method - from the macro you could pick: AMBIENT,DIFFUSE,SPECULAR
 	*/
 	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& colorA, glm::vec3& colorD, glm::vec3& colorS, int method, float alpha = 0.0f); // color material
-	std::vector<glm::vec3>& Renderer::estTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2);
+	std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int method);
 };

@@ -313,7 +313,7 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 	}
 }
 
-std::vector<glm::vec3>& Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2) {
+std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
 	glm::vec3 sourceLight = scene.GetCamera(scene.currentActiveCamera)->origin_up; // debug line
 	glm::vec3 color0 = estColor(
 		model->K,
@@ -321,34 +321,34 @@ std::vector<glm::vec3>& Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n0,
 		sourceLight /*scene.sourceLight*/,
-		model->lightColorA, model->lightColorD, model->lightColorS,
-		SPECULAR /*PHONG_ILLUMINATION*/,
+		model->lightColorA, model->lightColorD, model->lightColorA,
+		method,
 		model->alpha
 	);
 	glm::vec3 color1 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
-		n0,
+		n1,
 		sourceLight /*scene.sourceLight*/,
-		model->lightColorA, model->lightColorD, model->lightColorS,
-		SPECULAR /*PHONG_ILLUMINATION*/,
+		model->lightColorA, model->lightColorD, model->lightColorD,
+		method,
 		model->alpha
 	);
 	glm::vec3 color2 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
-		n0,
+		n2,
 		sourceLight /*scene.sourceLight*/,
 		model->lightColorA, model->lightColorD, model->lightColorS,
-		AMBIENT /*PHONG_ILLUMINATION*/,
+		method,
 		model->alpha
 	);
-	std::vector<glm::vec3> v;
-	v.push_back(color0);
-	v.push_back(color1);
-	v.push_back(color2);
+	std::vector<glm::vec3>* v = new std::vector<glm::vec3>;
+	v->push_back(color0);
+	v->push_back(color1);
+	v->push_back(color2);
 	return v;
 }
 
@@ -467,10 +467,11 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		std::vector<glm::vec3> triangle_colors = estTriangle(scene,model,n0,n1,n2);
-		glm::vec3 tri0 = triangle_colors.at(0);
-		glm::vec3 tri1 = triangle_colors.at(1);
-		glm::vec3 tri2 = triangle_colors.at(2);
+		std::vector<glm::vec3>* triangle_colors = estTriangle(scene,model,n0,n1,n2,model->lightType);
+		glm::vec3 tri0 = triangle_colors->at(0);
+		glm::vec3 tri1 = triangle_colors->at(1);
+		glm::vec3 tri2 = triangle_colors->at(2);
+		delete triangle_colors;
 		printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
 	}
 

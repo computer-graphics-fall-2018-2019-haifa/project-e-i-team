@@ -361,6 +361,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<MeshModel> currentLight = scene->GetModel(scene->activeModelIndex);
 		if (currentLight != nullptr) {
 			glm::mat4x4 Tm(1), Tci(1);
+			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
 			if (ImGui::CollapsingHeader("Light Transformations")) {
 				Tci = handleKeyboardInputs(currentLight);
 				buildLightTranslationsSection(Tci, currentLight);
