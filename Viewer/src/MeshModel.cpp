@@ -63,9 +63,14 @@ void MeshModel::resetModel(float fScaleDef,
 	float vertexNlength,
 	float faceNlength) {
 	worldTransform = Trans::getScale4x4(fScaleDef);
-	showFaceNormals = showFNormals,
-		showVertexNormals = showVNormals,
-		showBoundingBox = false;
+	if (modelName.find("Light Source") != std::string::npos){
+		showFaceNormals = false;
+		showVertexNormals = false;
+	} else {
+		showFaceNormals = showFNormals;
+		showVertexNormals = showVNormals;
+	}
+	showBoundingBox = false;
 	fNcolor = fcolorDef;
 	vNcolor = vcolorDef;
 	BoundingBoxColor = BOUNDING_BOX_COLOR;
