@@ -343,7 +343,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				glm::vec3 mass = currentModel->GetWorldTransformation() * glm::vec4(currentModel->BoundMiddle.x, currentModel->BoundMiddle.y, currentModel->BoundMiddle.z, 1.0f);
 				currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
 			}
-			if (ImGui::CollapsingHeader("Properties")) {
+			if (ImGui::CollapsingHeader("Model Properties")) {
 				buildPropertiesSection(currentModel);
 			}
 		}
@@ -366,7 +366,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				buildLightTranslationsSection(Tci, currentLight);
 				currentLight->UpdateLeftworldTransform(Tci);
 			}
-			if (ImGui::CollapsingHeader("Properties")) {
+			if (ImGui::CollapsingHeader("Light Properties")) {
 				buildLightPropertiesSection(currentLight);
 			}
 		}

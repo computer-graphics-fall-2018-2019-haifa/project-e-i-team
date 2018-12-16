@@ -16,6 +16,10 @@ public:
 			glm::highp_mat4::col_type(0.0f, 0.0f, factor, 0.0f),
 			glm::highp_mat4::col_type(0.0f, 0.0f, 0.0f, 1.0f));
 	}
+	static glm::mat2x2 getxRotate2x2(float teta) {
+		return glm::mat2x2(glm::highp_mat2::col_type(cos(teta), (-1)*sin(teta)),
+			glm::highp_mat2::col_type(sin(teta), cos(teta)));
+	}
 	static glm::mat4x4 getxRotate4x4(float teta) {
 		return glm::mat4x4(glm::highp_mat4::col_type(1.0f, 0.0f, 0.0f, 0.0f),
 			glm::highp_mat4::col_type(0.0f, cos(teta), (-1)*sin(teta), 0.0f),
