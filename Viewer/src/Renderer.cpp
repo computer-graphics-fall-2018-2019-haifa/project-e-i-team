@@ -68,7 +68,6 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-
 void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color) {
 	float min_x = a.x;
 	if (b.x < min_x)min_x = b.x;
@@ -100,7 +99,6 @@ void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 co
 	}
 }
 
-
 glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p) {
 	float w1_up = a.x * (c.y - a.y) + (p.y - a.y) * (c.x - a.x) - p.x * (c.y - a.y);
 	float w1_down = (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y);
@@ -113,6 +111,7 @@ glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec
 	return glm::vec2(w1, w2);
 
 }
+
 // huge of complexity than Bresenham algorithm
 void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color) {
 	float delta_p = p2 - p1;
@@ -261,6 +260,44 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	DrawLine(vect5.x, vect4.x, vect5.y, vect4.y, model->BoundingBoxColor);
 }
 
+glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint, glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength) {
+	glm::vec3 u0 = vec1 - vec0;
+	glm::vec3 u1 = vec2 - vec0;
+	// return the normal as length of length
+	glm::vec3 v = normalizeVector(basePoint, glm::cross(u0, u1), fNlength);
+	return v;
+}
+
+float estAmbientColor(float K, float L) {
+	return K * L;
+}
+
+float estDiffuseColor(float K, float L, glm::vec3 N, glm::vec3 S) {
+	return K * L * glm::dot(N, S);
+}
+
+float estSpecularColor(float K, float L, glm::vec3 V, glm::vec3 N, glm::vec3 S, float alpha) {
+	glm::vec3 R = 2.0f * N * glm::dot(N, S) - S;
+	return K * L * pow(glm::dot(R, V), alpha);
+}
+
+glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method, float alpha) {
+	if (method == AMBIENT) {
+		return color * estAmbientColor(K, L);
+	}
+	else if (method == DIFFUSE) {
+		return color * estDiffuseColor(K, L, N, S);
+	}
+	else if (method == SPECULAR) {
+		return color * estSpecularColor(K, L, V, N, S, alpha);
+	}
+	else if(method == PHONG_ILLUMINATION){
+		glm::vec3 Ia = color * estAmbientColor(K, L);
+		glm::vec3 Id = color * estDiffuseColor(K, L, N, S);
+		glm::vec3 Is = color * estSpecularColor(K, L, V, N, S, alpha);
+		return Ia + Id + Is;
+	}
+}
 
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
@@ -377,7 +414,20 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		printTriangle(vect0, vect1, vect2, model->color);
+		glm::vec3 sourceLight = scene.GetCamera(scene.currentActiveCamera)->origin_up;
+
+		// TODO: does the next function making closure the the triangle coloring issue?!?
+		glm::vec3 color  = estColor(
+			model->K,
+			model->L,
+			scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+			n0,
+			sourceLight /*scene.sourceLight*/,
+			model->color,
+			PHONG_ILLUMINATION,
+			model->alpha
+		); // phong_illumination
+		printTriangle(vect0, vect1, vect2, color);
 	}
 
 	// up to the checkbox sign:
@@ -398,14 +448,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 			//DrawLine(vect3.x, n3.x, vect2.y, n3.y, vertexColor); // => aim to grid usage only!
 		}
 	}
-}
-
-glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2,float fNlength) {
-	glm::vec3 u0 = vec1 - vec0;
-	glm::vec3 u1 = vec2 - vec0;
-	// return the normal as length of length
-	glm::vec3 v = normalizeVector(basePoint,glm::cross(u0, u1), fNlength);
-	return v;
 }
 
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {

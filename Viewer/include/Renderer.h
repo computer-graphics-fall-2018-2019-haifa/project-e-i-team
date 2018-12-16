@@ -7,6 +7,10 @@
 #include <imgui/imgui.h>
 
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
+#define AMBIENT				0 
+#define DIFFUSE				1
+#define SPECULAR			2
+#define PHONG_ILLUMINATION	3
 
 /*
  * Renderer class.
@@ -44,4 +48,14 @@ public:
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
+	/*
+	K - fraction of  light  reflected from surface
+	L - light intensity
+	V - Viewer/Camera pinhole
+	N - vertex's normal
+	S - source light
+	alpha - shininess coefficient
+	method - from the macro you could pick: AMBIENT,DIFFUSE,SPECULAR
+	*/
+	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method,float alpha = 0.0f); // color material
 };

@@ -13,7 +13,8 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	normals(normals),
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
-	BoundMiddle(BoundMiddle)
+	BoundMiddle(BoundMiddle),
+	K(1.0f), L(1.0f), alpha(0.1f)
 {
 	resetModel();
 }
@@ -22,7 +23,8 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	modelName(model->GetModelName()),
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
-	normals(model->GetNormals())
+	normals(model->GetNormals()),
+	K(1.0f), L(1.0f), alpha(0.1f)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }

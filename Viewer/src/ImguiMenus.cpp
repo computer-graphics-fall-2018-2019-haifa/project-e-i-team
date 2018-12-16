@@ -246,6 +246,11 @@ void buildModelLocalTransformationsSection(glm::mat4x4& Tm,std::shared_ptr<MeshM
 }
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
+	ImGui::SliderFloat("Fraction Light Reclected", &(currentModel->K), 0.0f, 1.0f);
+	ImGui::SliderFloat("Light Intensity", &(currentModel->L),0.0f, 1.0f);
+	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 90.0f);
+
+
 	ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
