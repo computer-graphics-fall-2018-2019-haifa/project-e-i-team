@@ -68,39 +68,42 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-float getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
+/*
+float Renderer::getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
 	glm::vec2 proj_rot_vec = glm::normalize(-glm::dot(c - a, b - a) * (c - a) * Trans::getxRotate2x2(M_PI / 2.0f));
 	glm::vec2 height = (proj_rot_vec - glm::normalize(b));
 	float A = glm::length(height) * glm::length(c - a) / 2.0f;
 	return A;
 }
+*/
 
-glm::vec3& interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& a, glm::vec2& b, glm::vec2& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
-	float A = getTriangleArea(a, b, c);
-	float Ab = getTriangleArea(a, p, c);
-	float Ac = getTriangleArea(b, p, a);
-	float Aa = getTriangleArea(c, p, b);
-	return (color0 * (Aa / A) + color1 * (Ab / A) + color2 * (Ac / A));
+glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& a, glm::vec2& b, glm::vec2& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
+	float Wb = ((a.y - c.y) * (p.x - c.x) + (c.x - a.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
+	float Wa = ((c.y - b.y) * (p.x - c.x) + (b.x - c.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
+	float Wc = 1 - Wb - Wa;
+
+	// Wa,Wb,Wc are weight which is depended on a,b,c relatively and provided as weight to the colors from a,b,c to interpolate:
+	return glm::vec3(Wa*color0 + Wb * color1 + Wc * color2);
 }
 
 void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color0, glm::vec3& color1, glm::vec3& color2) {
 	float min_x = a.x;
-	if (b.x < min_x)min_x = b.x;
-	if (c.x < min_x)min_x = c.x;
+	if (b.x < min_x) min_x = b.x;
+	if (c.x < min_x) min_x = c.x;
 
 	float min_y = a.y;
-	if (b.y < min_y)min_y = b.y;
-	if (c.y < min_y)min_y = c.y;
+	if (b.y < min_y) min_y = b.y;
+	if (c.y < min_y) min_y = c.y;
 
 	float max_x = a.x;
-	if (b.x > max_x)max_x = b.x;
-	if (c.x > max_x)max_x = c.x;
+	if (b.x > max_x) max_x = b.x;
+	if (c.x > max_x) max_x = c.x;
 
 	float max_y = a.y;
-	if (b.y > max_y)max_y = b.y;
-	if (c.y > max_y)max_y = c.y;
+	if (b.y > max_y) max_y = b.y;
+	if (c.y > max_y) max_y = c.y;
 
-	for (int x = min_x; x<=max_x ; x++) {
+	for (int x = min_x; x <= max_x ; x++) {
 		for (int y = min_y; y <= max_y; y++) {
 			glm::vec2 p(x, y);
 			glm::vec2 w = CalculateW12(a, b, c, p);
@@ -108,8 +111,8 @@ void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3
 			float w2 = w[1];
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
-				// need baricentric coordinate here!
-				glm::vec3 p_color = (glm::vec2(w1,w2),a, b, c, color0, color1, color2);
+				// baricentric coordinates for p = (w1,w2) color interpolation:
+				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec2(w1,w2),a, b, c, color0, color1, color2);
 				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, p_color);
 			}
 		}
@@ -471,7 +474,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		glm::vec3 tri0 = triangle_colors->at(0);
 		glm::vec3 tri1 = triangle_colors->at(1);
 		glm::vec3 tri2 = triangle_colors->at(2);
-		delete triangle_colors;
+		delete triangle_colors; // must be here!
 		printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
 	}
 
@@ -488,9 +491,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 			DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
 			DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
 			DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
-
-			// TODO: is there the same implementation as to triangle or another is exist?!?
-			//DrawLine(vect3.x, n3.x, vect2.y, n3.y, vertexColor); // => aim to grid usage only!
 		}
 	}
 }
