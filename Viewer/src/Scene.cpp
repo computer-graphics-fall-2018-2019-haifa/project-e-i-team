@@ -2,10 +2,11 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() : currentActiveCamera(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0) {}
+Scene::Scene() : currentActiveCamera(0), currentactivePointLightIndex(0), activePointLightIndex(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0) {}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
+
 
 void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth, glm::vec3 eye)
 {
@@ -40,6 +41,16 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int wi
 	this->activeCameraIndex++;
 }
 
+
+void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth)
+{
+	PointLight p(model);
+	PointLights.push_back(std::make_shared<PointLight>(p));
+	this->activePointLightIndex++;
+}
+
+
+
 std::vector<Face> Scene::getModelfaces(int indexModel) const {
 	return models[indexModel]->GetFaces();
 }
@@ -52,8 +63,16 @@ std::vector<Face> Scene::getCamerafaces(int indexModel) {
 	return cameras.at(indexModel)->GetFaces();
 }
 
+std::vector<Face> Scene::getPointLightfaces(int indexModel) {
+	return PointLights.at(indexModel)->GetFaces();
+}
+
 glm::vec3 Scene::getCameraVertices(int indexModel, int indexVertex) {
 	return cameras.at(indexModel)->GetVerticeByIndex(indexVertex);
+}
+
+glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex) {
+	return PointLights[indexModel]->GetVerticeByIndex(indexVertex);
 }
 
 glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const {
@@ -65,6 +84,13 @@ std::shared_ptr<MeshModel> Scene::GetModel(int index) const {
 		return nullptr;
 	}
 	return models[index];
+}
+
+std::shared_ptr<PointLight> Scene::GetPointLight(int index) const {
+	if (PointLights.size() == 0) {
+		return nullptr;
+	}
+	return PointLights[index];
 }
 
 int Scene::modelName2Index(std::string name) {
@@ -80,8 +106,16 @@ std::vector<glm::vec3> Scene::getCameraNormals(int indexModel) {
 	return cameras.at(indexModel)->GetNormals();
 }
 
+std::vector<glm::vec3> Scene::getPointLightNormals(int indexModel) {
+	return PointLights.at(indexModel)->GetNormals();
+}
+
 const int Scene::GetCameraCount() const { 
 	return cameras.size(); 
+}
+
+const int Scene::GetPointLightCount() const {
+	return PointLights.size();
 }
 
 void Scene::SetActiveCameraIndex(int index) {
@@ -91,6 +125,11 @@ void Scene::SetActiveCameraIndex(int index) {
 std::shared_ptr<Camera> Scene::GetCamera(int index) {
 	if (index  < 0 || index >= cameras.size()) { return NULL; }
 	return cameras[index];
+}
+
+std::shared_ptr<PointLight> Scene::GetPointLight(int index) {
+	if (index < 0 || index >= PointLights.size()) { return NULL; }
+	return PointLights[index];
 }
 
 const int Scene::GetActiveCameraIndex() const { 

@@ -86,6 +86,7 @@ public:
 	void MeshModel::resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
 		bool showFNormals = true,
 		bool showVNormals = true,
+		bool isPointLight = false,
 		glm::vec4 vcolorDef = VERTEX_NORMAL_COLOR,
 		glm::vec4 fcolorDef = FACE_NORMAL_COLOR,
 		glm::vec3* modelColor = getRandColor(),

@@ -25,7 +25,7 @@ private:
 	void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color);
 	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
 	void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io, int k, bool isCameraModel = false);
-	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io,bool isCameraModel=false,bool isGrid = false);
+	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io,bool isCameraModel=false,bool isGrid = false, bool isPointLight=false);
 	glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
 	void Renderer::printTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 color);

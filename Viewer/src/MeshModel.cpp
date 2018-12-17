@@ -57,13 +57,14 @@ void MeshModel::UpdateLeftworldTransform(glm::mat4x4 T) {
 void MeshModel::resetModel(float fScaleDef,
 	bool showFNormals,
 	bool showVNormals,
+	bool isPointLight,
 	glm::vec4 vcolorDef,
 	glm::vec4 fcolorDef,
 	glm::vec3* modelColor,
 	float vertexNlength,
 	float faceNlength) {
 	worldTransform = Trans::getScale4x4(fScaleDef);
-	if (modelName.find("Light Source") != std::string::npos){
+	if (isPointLight){
 		showFaceNormals = false;
 		showVertexNormals = false;
 	} else {
