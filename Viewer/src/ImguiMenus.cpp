@@ -275,7 +275,7 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 	ImGui::SliderFloat("Fraction Light Reclected", &(currentModel->K), 0.0f, 1.0f);
 	ImGui::SliderFloat("Light Intensity", &(currentModel->L), 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 1.0f, 512.0f);
+	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 1.0f);
 
 	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA)); // Edit 3 floats representing a color
 	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD)); // Edit 3 floats representing a color

@@ -317,7 +317,7 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 }
 
 std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
-	glm::vec3 sourceLight = scene.GetCamera(scene.currentActiveCamera)->origin_up; // debug line
+	glm::vec3 sourceLight = glm::vec3(400,400,400); //scene.GetCamera(scene.currentActiveCamera)->origin_up; // debug line
 	glm::vec3 color0 = estColor(
 		model->K,
 		model->L,
