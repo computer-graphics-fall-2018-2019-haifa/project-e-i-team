@@ -378,7 +378,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	if (ImGui::CollapsingHeader("Mesh Rendering")) {
 		if (ImGui::Button("Add light")) {
-			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\demo.obj"); 
+			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj"); 
 			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
 
 		}
