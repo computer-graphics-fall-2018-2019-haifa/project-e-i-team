@@ -355,7 +355,7 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	return v;
 }
 
-void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid) {
+void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid, bool isPointLight) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
@@ -372,6 +372,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	glm::vec3 modelVec;
 	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v0); }
+	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v0); }
 	else { modelVec = scene.getModelVertices(k, v0); }
 	float x0 = modelVec.x;
 	float y0 = modelVec.y;
@@ -380,6 +381,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	// => (x0,y0,z0)
 
 	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v1); }
+	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v1); }
 	else { modelVec = scene.getModelVertices(k, v1); }
 	float x1 = modelVec.x;
 	float y1 = modelVec.y;
@@ -388,6 +390,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	// => (x1,y1,z1)
 
 	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v2); } 
+	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v2); }
 	else { modelVec = scene.getModelVertices(k, v2); }
 	float x2 = modelVec.x;
 	float y2 = modelVec.y;
@@ -410,7 +413,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	std::shared_ptr<MeshModel> model = NULL;
 	if(isCameraModel){
 		model = scene.GetCamera(k);
-	} else {
+	}
+	else if (isPointLight) { model = scene.GetPointLight(k); }
+	else {
 		model = scene.GetModel(k);
 	}
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
@@ -499,6 +504,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
+
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
@@ -529,6 +535,23 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			
 		}
 	}
+
+
+	int PointLightCount = scene.GetPointLightCount();
+	if (PointLightCount > 0) {
+		for (int k = 0; k < PointLightCount; k++) {
+			
+			std::vector<Face> faces = scene.getPointLightfaces(k);
+			std::vector<glm::vec3> vNormals = scene.getPointLightNormals(k);
+			for (auto face = faces.begin(); face != faces.end(); ++face) {
+				showMeshObject(scene, face, vNormals, k, io, false,false,true);
+			}
+			
+
+		}
+	}
+
+	
 }
 
 /*

@@ -7,6 +7,7 @@
 #include <memory>
 #include "MeshModel.h"
 #include "Camera.h"
+#include "PointLight.h"
 
 /*
  * Scene class.
@@ -16,15 +17,20 @@ class Scene {
 private:
 	std::vector<std::shared_ptr<MeshModel>> models;
 	std::vector< std::shared_ptr<Camera>> cameras;
+	std::vector< std::shared_ptr<PointLight>> PointLights;
+
 public:
-	int currentActiveCamera,activeCameraIndex,activeModelIndex,gridCounter;
+	int currentActiveCamera,activeCameraIndex, currentactivePointLightIndex,activePointLightIndex,activeModelIndex,gridCounter;
 	
 	Scene();
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
+	void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth);
 	void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth, glm::vec3 eye = glm::vec3(0, 0, 0));
 	const int GetCameraCount() const;
+	const int GetPointLightCount() const;
 	std::shared_ptr<Camera> GetCamera(int index);
+	std::shared_ptr<PointLight> GetPointLight(int index);
 	void SetActiveCameraIndex(int index);
 	const int GetActiveCameraIndex() const;
 	void SetActiveModelIndex(int index);
@@ -32,10 +38,14 @@ public:
 	std::vector<Face> Scene::getModelfaces(int indexModel) const;
 	std::vector<glm::vec3> Scene::getModelNormals(int indexModel) const;
 	std::vector<Face> Scene::getCamerafaces(int indexModel);
+	std::vector<Face> Scene::getPointLightfaces(int indexModel);
 	std::vector<glm::vec3> Scene::getCameraNormals(int indexModel);
+	std::vector<glm::vec3> Scene::getPointLightNormals(int indexModel);
 	glm::vec3 Scene::getCameraVertices(int indexModel, int indexVertex);
+	glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex);
 	glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const;
 	std::shared_ptr<MeshModel> Scene::GetModel(int index) const;
+	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;
 	int Scene::modelName2Index(std::string name);
 	// BUG - do not use it - required a series test before changing to use this general-mass function
 	glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model);

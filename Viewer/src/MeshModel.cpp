@@ -59,6 +59,7 @@ void MeshModel::UpdateLeftworldTransform(glm::mat4x4 T) {
 void MeshModel::resetModel(float fScaleDef,
 	bool showFNormals,
 	bool showVNormals,
+	bool isPointLight,
 	glm::vec4 vcolorDef,
 	glm::vec4 fcolorDef,
 	glm::vec3* modelColor,

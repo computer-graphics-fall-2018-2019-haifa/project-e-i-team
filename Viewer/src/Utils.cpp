@@ -57,10 +57,91 @@ MeshModel Utils::LoadGridModel() {
 	return MeshModel(grid_faces, grid_vertices, grid_vertices,glm::vec3(0,0,0) , glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), "Grid");
 }
 
+MeshModel Utils::LoadLightSource() {
+	static int Light_counter = -1;
+	std::vector<Face> Light_faces;
+	std::vector<glm::vec3> Light_vertices;
+	std::vector<glm::vec3> Light_normals;
+	int d = 1;
+	int n = 2 * d;
+
+	Light_vertices.push_back(glm::vec3(d, d, d));	//1
+	Light_vertices.push_back(glm::vec3(d, d, -d));	//2
+	Light_vertices.push_back(glm::vec3(d, -d, d));	//3
+	Light_vertices.push_back(glm::vec3(d, -d, -d));	//4
+	Light_vertices.push_back(glm::vec3(-d, d, d));	//5
+	Light_vertices.push_back(glm::vec3(-d, d, -d));	//6
+	Light_vertices.push_back(glm::vec3(-d, -d, d));	//7
+	Light_vertices.push_back(glm::vec3(-d, -d, -d));//8
+
+	Light_normals.push_back(glm::vec3(n, n, n));	//1
+	Light_normals.push_back(glm::vec3(n, n, -n));	//2
+	Light_normals.push_back(glm::vec3(n, -n, n));	//3
+	Light_normals.push_back(glm::vec3(n, -n, -n));	//4
+	Light_normals.push_back(glm::vec3(-n, n, n));	//5
+	Light_normals.push_back(glm::vec3(-n, n, -n));	//6
+	Light_normals.push_back(glm::vec3(-n, -n, n));	//7
+	Light_normals.push_back(glm::vec3(-n, -n, -n));//8
+	
+	std::vector<int> vertexIndices;
+
+	
+	vertexIndices = { 1 , 2 , 6};
+	Face f1(vertexIndices, vertexIndices);
+	Light_faces.push_back(f1);
+	vertexIndices = { 1  , 5   , 6};
+	Face f2(vertexIndices, vertexIndices);
+	Light_faces.push_back(f2);
+
+	vertexIndices = { 5    , 6 , 8 };
+	Face f3(vertexIndices, vertexIndices);
+	Light_faces.push_back(f3);
+	vertexIndices = { 5 , 7  , 8 };
+	Face f4(vertexIndices, vertexIndices);
+	Light_faces.push_back(f4);
+
+	vertexIndices = { 1 , 5  , 7 };
+	Face f5(vertexIndices, vertexIndices);
+	Light_faces.push_back(f5);
+	vertexIndices = { 1  , 3 , 7 };
+	Face f6(vertexIndices, vertexIndices);
+	Light_faces.push_back(f6);
+
+	vertexIndices = { 1  , 2  , 4 };
+	Face f7(vertexIndices, vertexIndices);
+	Light_faces.push_back(f7);
+	vertexIndices = { 1 , 3 , 4 };
+	Face f8(vertexIndices, vertexIndices);
+	Light_faces.push_back(f8);
+
+	vertexIndices = { 2 , 4  , 6 };
+	Face f9(vertexIndices, vertexIndices);
+	Light_faces.push_back(f9);
+	vertexIndices = { 4, 6  , 8 };
+	Face f10(vertexIndices, vertexIndices);
+	Light_faces.push_back(f10);
+
+	vertexIndices = { 3   , 4  , 7 };
+	Face f11(vertexIndices, vertexIndices);
+	Light_faces.push_back(f11);
+	vertexIndices = { 4   , 7  , 8 };
+	Face f12(vertexIndices, vertexIndices);
+	Light_faces.push_back(f12);
+
+	glm::vec3 BoundMin(-d, -d, -d);
+	glm::vec3 BoundMax(d, d, d);
+	glm::vec3 BoundMiddle(0, 0, 0);
+
+	
+	Light_counter++;
+	return MeshModel(Light_faces, Light_vertices, Light_normals, BoundMin, BoundMax, BoundMiddle, "Light Source "+ Light_counter);
+}
+
 
 MeshModel Utils::LoadMeshModel(const std::string& filePath)
 {
 	std::vector<Face> faces;
+
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::ifstream ifile(filePath.c_str());

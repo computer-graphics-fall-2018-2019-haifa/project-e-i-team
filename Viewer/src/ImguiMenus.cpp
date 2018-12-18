@@ -66,6 +66,33 @@ const char* getModelNames(Scene* scene) {
 	return comboList;
 }
 
+const char* getPointLightNames(Scene* scene) {
+	int length = 0;
+	length = scene->activePointLightIndex;
+	if (length == 0) {
+		char* empty = new char[1]{ '\0' };
+		return empty;
+	}
+	std::string cStr = "";
+	for (size_t i = 0; i < length; i++) {
+		char num = '0' + i;
+		//std::string s("Your name is ");
+		//s += num;
+		std::string modelName = "Point Light ";
+		modelName += num;
+		cStr += modelName;
+		cStr += '\0';
+	}
+	cStr += '\0';
+	int listLength = cStr.length();
+	char* comboList = new char[listLength];
+	if (listLength == 1) { comboList[0] = cStr.at(0); }
+	for (size_t i = 0; i < listLength; i++) {
+		comboList[i] = cStr.at(i);
+	}
+	return comboList;
+}
+
 const char* getCamerasNames(int length) {
 	string cStr = "";
 	for (size_t i = 0; i < length; i++) {
@@ -110,6 +137,7 @@ glm::mat4x4 handleKeyboardInputs(std::shared_ptr<MeshModel> model) {
 		float ftx = model->fTranslatex;
 		model->fTranslatex -= XTRANS_FACTOR;
 		Tm = Trans::getTranslate4x4(model->fTranslatex - ftx, 0, 0);
+		
 	}
 	else if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))){
 		float ftx = model->fTranslatex;
@@ -328,7 +356,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	if (ImGui::CollapsingHeader("Models")) {
 		static int count = 0;
 		const char* items = getModelNames(scene);
-		ImGui::Combo("Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
+		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
 			glm::mat4x4 Tm(1),Tci(1);
@@ -350,24 +378,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	if (ImGui::CollapsingHeader("Mesh Rendering")) {
 		if (ImGui::Button("Add light")) {
-			/*
-			MeshModel k = Utils::LoadLightSource();
-			scene->AddModel(std::make_shared<MeshModel>(k));
-			*/
+			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\demo.obj"); 
+			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
+
 		}
 		static int count = 0;
-		const char* items = getModelNames(scene);
-		ImGui::Combo("Light Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
-		std::shared_ptr<MeshModel> currentLight = scene->GetModel(scene->activeModelIndex);
+		const char* items = getPointLightNames(scene);
+		ImGui::Combo("Light Name", &(scene->currentactivePointLightIndex), items, IM_ARRAYSIZE(items));
+		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->currentactivePointLightIndex);
 		if (currentLight != nullptr) {
+			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
 			glm::mat4x4 Tm(1), Tci(1);
 			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
-			if (ImGui::CollapsingHeader("Light Transformations")) {
+			if (ImGui::CollapsingHeader("Light Translations")) {
 				Tci = handleKeyboardInputs(currentLight);
 				buildLightTranslationsSection(Tci, currentLight);
-				currentLight->UpdateLeftworldTransform(Tci);
+				glm::vec4 C(currentLight->Center.x, currentLight->Center.y, currentLight->Center.z,1);
+				C = Tci * C;
+				currentLight->Center = glm::vec3(C.x / C.w, C.y / C.w, C.z / C.w);
+				currentLight->UpdateworldTransform(Tci);
 			}
-			if (ImGui::CollapsingHeader("Light Properties")) {
+			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
 			}
 		}
@@ -385,7 +416,7 @@ void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
 	glm::vec4 blackColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	scene.GetModel(0)->resetModel(1.0f, false, false,blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z),0.0f, 0.0f);
+	scene.GetModel(0)->resetModel(1.0f, false, false,false, blackColor, blackColor, &glm::vec3(blackColor.x, blackColor.y, blackColor.z), 0.0f, 0.0f);
 	scene.gridCounter++;
 }
 
@@ -416,6 +447,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 					nfdresult_t result = NFD_OpenDialog("obj;png,jpg", NULL, &outPath);
 					if (result == NFD_OKAY) {
 						MeshModel k = Utils::LoadMeshModel(outPath);
+						cout << "(" << k.BoundMiddle.x << " , " << k.BoundMiddle.y << " , " << k.BoundMiddle.z << ")" << endl;
+						
 						scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(outPath)));
 						free(outPath);
 					}
