@@ -348,33 +348,39 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 }
 
 std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
-	glm::vec3 sourceLight = scene.GetPointLight(scene.currentactivePointLightIndex)->Center;
+	glm::vec3* sourceLight = nullptr;
+	if (scene.activePointLightIndex > 0) {
+		sourceLight = &scene.GetPointLight(scene.currentactivePointLightIndex)->Center;
+	}
+	if(sourceLight == nullptr) sourceLight = &n0;
 	glm::vec3 color0 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n0,
-		sourceLight,
+		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorA,
 		method,
 		model->alpha
 	);
+	if (sourceLight == nullptr) sourceLight = &n0;
 	glm::vec3 color1 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n1,
-		sourceLight,
+		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorD,
 		method,
 		model->alpha
 	);
+	if (sourceLight == nullptr) sourceLight = &n0;
 	glm::vec3 color2 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n2,
-		sourceLight,
+		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorS,
 		method,
 		model->alpha
