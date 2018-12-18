@@ -86,6 +86,37 @@ glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& 
 	return glm::vec3(Wa*color0 + Wb * color1 + Wc * color2);
 }
 
+void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color) {
+	float min_x = a.x;
+	if (b.x < min_x) min_x = b.x;
+	if (c.x < min_x) min_x = c.x;
+
+	float min_y = a.y;
+	if (b.y < min_y) min_y = b.y;
+	if (c.y < min_y) min_y = c.y;
+
+	float max_x = a.x;
+	if (b.x > max_x) max_x = b.x;
+	if (c.x > max_x) max_x = c.x;
+
+	float max_y = a.y;
+	if (b.y > max_y) max_y = b.y;
+	if (c.y > max_y) max_y = c.y;
+
+	for (int x = min_x; x <= max_x; x++) {
+		for (int y = min_y; y <= max_y; y++) {
+			glm::vec2 p(x, y);
+			glm::vec2 w = CalculateW12(a, b, c, p);
+			float w1 = w[0];
+			float w2 = w[1];
+
+			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
+				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, color);
+			}
+		}
+	}
+}
+
 void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color0, glm::vec3& color1, glm::vec3& color2) {
 	float min_x = a.x;
 	if (b.x < min_x) min_x = b.x;
@@ -317,13 +348,13 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 }
 
 std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
-	glm::vec3 sourceLight = glm::vec3(400,400,400); //scene.GetCamera(scene.currentActiveCamera)->origin_up; // debug line
+	glm::vec3 sourceLight = scene.GetPointLight(scene.currentactivePointLightIndex)->Center;
 	glm::vec3 color0 = estColor(
 		model->K,
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n0,
-		sourceLight /*scene.sourceLight*/,
+		sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorA,
 		method,
 		model->alpha
@@ -333,7 +364,7 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n1,
-		sourceLight /*scene.sourceLight*/,
+		sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorD,
 		method,
 		model->alpha
@@ -343,7 +374,7 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 		model->L,
 		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
 		n2,
-		sourceLight /*scene.sourceLight*/,
+		sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorS,
 		method,
 		model->alpha
@@ -475,12 +506,16 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		std::vector<glm::vec3>* triangle_colors = estTriangle(scene,model,n0,n1,n2,model->lightType);
-		glm::vec3 tri0 = triangle_colors->at(0);
-		glm::vec3 tri1 = triangle_colors->at(1);
-		glm::vec3 tri2 = triangle_colors->at(2);
-		delete triangle_colors; // must be here!
-		printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
+		if (!isPointLight) {
+			std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
+			glm::vec3 tri0 = triangle_colors->at(0);
+			glm::vec3 tri1 = triangle_colors->at(1);
+			glm::vec3 tri2 = triangle_colors->at(2);
+			delete triangle_colors; // must be here!
+			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
+		} else {
+			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), model->color);
+		}
 	}
 
 	// up to the checkbox sign:
