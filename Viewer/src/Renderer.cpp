@@ -549,38 +549,61 @@ float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
 
 
 void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
-	///////////////////////////////////////////////////////////////////
-	//TODO:
-	//1. - shift to (0,0)
-	//2. normalize
-	//3. * size
-	//4. + shift
-	//////////////////////////////////////////////////////////////////
-
 	glm::vec2 from_plus; 
 	glm::vec2 from_minus; 
-	float width_baseTriangle = 35;
+	glm::vec2 middle_plus_far;
+	glm::vec2 middle_minus_far;
+	glm::vec2 middle_plus;
+	glm::vec2 middle_minus;
+	glm::vec2 middle((from.x+to.x)/2, (from.y + to.y) / 2);
+	float width_baseTriangle = 15;
+	float width_middle = 35;
 	if ((from.y - to.y) == 0) {
 		from_plus = glm::vec2(from.x, from.y + (width_baseTriangle/2));
 		from_minus = glm::vec2(from.x, from.y - (width_baseTriangle / 2));
+		middle_plus_far = glm::vec2(middle.x, middle.y + (width_middle / 2));
+		middle_minus_far = glm::vec2(middle.x, middle.y - (width_middle / 2));
+		middle_plus = glm::vec2(middle.x, middle.y + (width_baseTriangle / 2));
+		middle_minus = glm::vec2(middle.x, middle.y - (width_baseTriangle / 2));
 	}
 	else if ((from.x - to.x) == 0) {
 		from_plus = glm::vec2(from.x+ (width_baseTriangle / 2), from.y+1);
 		from_minus = glm::vec2(from.x- (width_baseTriangle / 2), from.y);
+		middle_plus_far = glm::vec2(middle.x + (width_middle / 2), middle.y + 1);
+		middle_minus_far = glm::vec2(middle.x - (width_middle / 2), middle.y);
+		middle_plus = glm::vec2(middle.x + (width_baseTriangle / 2), middle.y + 1);
+		middle_minus = glm::vec2(middle.x - (width_baseTriangle / 2), middle.y);
 	}
 	else {
 		float m1 = (from.y - to.y) / (from.x - to.x);
 		float m2 = -1 / m1;
+		float m3 = m2;
 		float b2 = from.y - m2 * from.x;
+		float b3 = middle.y - m3 * middle.x;
 		//Now we have: y = m2 * x + b2
+		//And: y = m3 * x + b3
 		from_plus = glm::vec2(from.x + 1, m2*(from.x + 1) + b2);
 		from_minus = glm::vec2(from.x - 1, m2*(from.x - 1) + b2);
-		float d = Distance(from_plus, from_minus);
-		float shift = width_baseTriangle / d;
-		from_plus = glm::vec2(from.x + shift, m2*(from.x + shift) + b2);
-		from_minus = glm::vec2(from.x - shift, m2*(from.x - shift) + b2);
+		middle_plus_far = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
+		middle_minus_far = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
+		middle_plus = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
+		middle_minus = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
+		float d2 = Distance(from_plus, from_minus);
+		float d3 = Distance(middle_plus_far, middle_minus_far);
+		float d4 = Distance(middle_plus, middle_minus);
+		float shift2 = width_baseTriangle / d2;
+		float shift3 = width_middle / d3;
+		float shift4 = width_baseTriangle / d4;
+		from_plus = glm::vec2(from.x + shift2, m2*(from.x + shift2) + b2);
+		from_minus = glm::vec2(from.x - shift2, m2*(from.x - shift2) + b2);
+		middle_plus_far = glm::vec2(middle.x + shift3, m3*(middle.x + shift3) + b3);
+		middle_minus_far = glm::vec2(middle.x - shift3, m3*(middle.x - shift3) + b3);
+		middle_plus = glm::vec2(middle.x + shift4, m3*(middle.x + shift4) + b3);
+		middle_minus = glm::vec2(middle.x - shift4, m3*(middle.x - shift4) + b3);
 	}
-	printTriangle(from_minus,to, from_plus, color);
+	printTriangle(from_minus,middle_plus, from_plus, color);
+	printTriangle(middle_minus, from_minus, middle_plus, color);
+	printTriangle(to, middle_minus_far, middle_plus_far, color);
 }
 
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
