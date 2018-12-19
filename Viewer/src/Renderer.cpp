@@ -392,6 +392,24 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	return v;
 }
 
+void Renderer::drawAmbientLight(glm::vec2 base, glm::vec3 color) {
+	int shift = 20;
+	int shift12 = 5;
+	glm::vec2 Left1(base.x - shift, base.y - shift12);
+	glm::vec2 Left2(base.x - shift, base.y + shift12);
+	glm::vec2 Right1(base.x + shift, base.y + shift12);
+	glm::vec2 Right2(base.x + shift, base.y - shift12);
+	glm::vec2 Up1(base.x - shift12, base.y + shift);
+	glm::vec2 Up2(base.x + shift12, base.y + shift);
+	glm::vec2 Down1(base.x + shift12, base.y - shift);
+	glm::vec2 Down2(base.x - shift12, base.y - shift);
+
+	printTriangle(Up1, Up2, Down1, color);
+	printTriangle(Down1, Down2, Up1, color);
+	printTriangle(Left1, Left2, Right1, color);
+	printTriangle(Right1, Right2, Left1, color);
+}
+
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid, bool isPointLight) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
 	glm::mat4x4 Mc = glm::mat4x4(1);
@@ -545,9 +563,6 @@ float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
 	return sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2));
 }
 
-
-
-
 void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
 	glm::vec2 from_plus; 
 	glm::vec2 from_minus; 
@@ -679,6 +694,27 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 	
+
+	
+	
+	AmbientLight* Ambient = scene.GetAmbient();
+	glm::vec3 AmbientBasePoint3 = Ambient->GetBaseVector();
+	glm::vec4 AmbientBasePoint4(AmbientBasePoint3.x, AmbientBasePoint3.y, AmbientBasePoint3.z, 1);
+	
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
+	glm::mat4x4 Mc = glm::mat4x4(1);
+	glm::mat4x4 Mp = glm::mat4x4(1);
+	if (active_camera != NULL) {
+		Mc = active_camera->Getview();
+		Mp = active_camera->GetProjection();
+	}
+	glm::mat4x4 seriesTransform = Mp * Mc * Ambient->GetWorldTransformation();
+	AmbientBasePoint4 = seriesTransform * AmbientBasePoint4;
+	AmbientBasePoint4 = AmbientBasePoint4 / AmbientBasePoint4.w;
+	
+	glm::vec2 AmbientBasePoint2(AmbientBasePoint4.x, AmbientBasePoint4.y);
+	
+	drawAmbientLight(AmbientBasePoint2, Ambient->color);
 	
 }
 

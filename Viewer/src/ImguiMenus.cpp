@@ -417,7 +417,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		if (ImGui::Button("Add Parallel Light")) {
 			scene->AddParallelLight();
 		}
-		const char* items = getLightNames(scene->SizeParallel, "Parallel Light ");;
+		const char* items = getLightNames(scene->SizeParallel, "Parallel Light ");
 		ImGui::Combo("Light Name", &(scene->CurrParallel), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
@@ -444,11 +444,27 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 	}
 	else {
-		if (ImGui::Button("Add Ambient Light")) {
+	
+		AmbientLight* currentLight = scene->GetAmbient();
+		ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
+		glm::mat4x4 Tm(1), Tci(1);
 
-			//scene->AddAmbientLight();
-
+/*
+		std::shared_ptr<MeshModel> c = std::shared_ptr<MeshModel>(currentLight);
+		if (ImGui::CollapsingHeader("World Transformations")) {
+			Tci = handleKeyboardInputs(c);
+			buildModelWorldTransformationsSection(Tci, c);
+			currentLight->UpdateLeftworldTransform(Tci);
 		}
+		if (ImGui::CollapsingHeader("Local Transformations")) {
+			Tm = handleKeyboardInputs(c);
+			buildModelLocalTransformationsSection(Tm, c);
+			glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
+			currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+		}*/
+		
+
+	
 	}
 		
 	

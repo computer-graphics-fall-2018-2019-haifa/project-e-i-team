@@ -1,8 +1,9 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
+#define ORIGIN AmbientLight(glm::vec3(0,0,0))
 
-Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0),CurrParallel(0), SizeCam(0),activeModelIndex(0), gridCounter(0) {}
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), Ambient(&AmbientLight(ORIGIN)){}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
@@ -56,8 +57,6 @@ void Scene::AddParallelLight(glm::vec3 DirectionVector)
 	this->SizeParallel++;
 }
 
-
-
 std::vector<Face> Scene::getModelfaces(int indexModel) const {
 	return models[indexModel]->GetFaces();
 }
@@ -98,6 +97,10 @@ std::shared_ptr<PointLight> Scene::GetPointLight(int index) const {
 		return nullptr;
 	}
 	return PointLights[index];
+}
+
+AmbientLight* Scene::GetAmbient() const {
+	return Ambient;
 }
 
 std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const {
