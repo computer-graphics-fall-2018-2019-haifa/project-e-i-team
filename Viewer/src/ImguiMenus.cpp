@@ -66,19 +66,19 @@ const char* getModelNames(Scene* scene) {
 	return comboList;
 }
 
-const char* getPointLightNames(Scene* scene) {
-	int length = 0;
-	length = scene->SizePoint;
-	if (length == 0) {
+
+
+const char* getLightNames(int size,string str) {
+	if (size == 0) {
 		char* empty = new char[1]{ '\0' };
 		return empty;
 	}
 	std::string cStr = "";
-	for (size_t i = 0; i < length; i++) {
+	for (size_t i = 0; i < size; i++) {
 		char num = '0' + i;
 		//std::string s("Your name is ");
 		//s += num;
-		std::string modelName = "Point Light ";
+		std::string modelName = str;
 		modelName += num;
 		cStr += modelName;
 		cStr += '\0';
@@ -388,7 +388,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
 			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
 		}
-		const char* items = getPointLightNames(scene);
+		const char* items = getLightNames(scene->SizePoint, "Point Light ");
 		ImGui::Combo("Light Name", &(scene->CurrPoint), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
@@ -410,13 +410,38 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
 			}
-			
+
 		}
 	}
 	else if (type == 3) {
 		if (ImGui::Button("Add Parallel Light")) {
 			scene->AddParallelLight();
 		}
+		const char* items = getLightNames(scene->SizeParallel, "Parallel Light ");;
+		ImGui::Combo("Light Name", &(scene->CurrParallel), items, IM_ARRAYSIZE(items));
+		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
+		if (currentLight != nullptr) {
+			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
+			glm::mat4x4 Tm(1), Tci(1);
+			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
+
+			if (ImGui::CollapsingHeader("World Transformations")) {
+				Tci = handleKeyboardInputs(currentLight);
+				buildModelWorldTransformationsSection(Tci, currentLight);
+				currentLight->UpdateLeftworldTransform(Tci);
+			}
+			if (ImGui::CollapsingHeader("Local Transformations")) {
+				Tm = handleKeyboardInputs(currentLight);
+				buildModelLocalTransformationsSection(Tm, currentLight);
+				glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
+				currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+			}
+			if (ImGui::CollapsingHeader("Properties")) {
+				buildLightPropertiesSection(currentLight);
+			}
+
+		}
+
 	}
 	else {
 		if (ImGui::Button("Add Ambient Light")) {

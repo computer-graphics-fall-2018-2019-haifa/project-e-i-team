@@ -548,15 +548,14 @@ float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
 
 
 
-void Renderer::drawParallelLight(glm::vec3 color, const ImGuiIO& io) {
-	glm::vec2 from(0, 0);
-	float x = io.MousePos.x - (viewportWidth / 2);
-	float y = (viewportHeight/2) - io.MousePos.y;
-	glm::vec2 to(x, y);
-
-
-
-
+void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
+	///////////////////////////////////////////////////////////////////
+	//TODO:
+	//1. - shift to (0,0)
+	//2. normalize
+	//3. * size
+	//4. + shift
+	//////////////////////////////////////////////////////////////////
 
 	glm::vec2 from_plus; 
 	glm::vec2 from_minus; 
@@ -620,33 +619,43 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 
-
 	int PointLightCount = scene.GetPointLightCount();
 	if (PointLightCount > 0) {
 		for (int k = 0; k < PointLightCount; k++) {
-			
 			std::vector<Face> faces = scene.getPointLightfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getPointLightNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
 				showMeshObject(scene, face, vNormals, k, io, false,false,true);
 			}
-			
-
 		}
 	}
 
 	int ParallelLightCount = scene.GetParallelLightCount();
 	if (ParallelLightCount > 0) {
 		for (int k = 0; k < ParallelLightCount; k++) {
-			glm::vec3 from =  scene.GetParallelLight(k)->GetfromVector();
-			glm::vec3 to = scene.GetParallelLight(k)->GetToVector();
-
-			
-
-
+			std::shared_ptr<ParallelLight> p = scene.GetParallelLight(k);
+			glm::vec3 from3 = p->GetfromVector();
+			glm::vec4 from4(from3.x, from3.y, from3.z, 1);
+			glm::vec3 to3 = p->GetToVector();
+			glm::vec4 to4(to3.x, to3.y, to3.z, 1);
+			std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
+			glm::mat4x4 Mc = glm::mat4x4(1);
+			glm::mat4x4 Mp = glm::mat4x4(1);
+			if (active_camera != NULL) {
+				Mc = active_camera->Getview();
+				Mp = active_camera->GetProjection();
+			}
+			glm::mat4x4 seriesTransform = Mp * Mc * p->GetWorldTransformation();
+			from4 = seriesTransform * from4;
+			from4 = from4 / from4.w;
+			to4 = seriesTransform * to4;
+			to4 = to4 / to4.w;
+			glm::vec2 from2(from4.x, from4.y);
+			glm::vec2 to2(to4.x, to4.y);
+			drawParallelLight(from2, to2, glm::vec3(0, 0, 0));
 		}
 	}
-	drawParallelLight(glm::vec3(0,0,0),io);
+	
 	
 }
 

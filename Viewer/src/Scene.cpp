@@ -2,7 +2,7 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeCam(0),activeModelIndex(0), gridCounter(0) {}
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0),CurrParallel(0), SizeCam(0),activeModelIndex(0), gridCounter(0) {}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
