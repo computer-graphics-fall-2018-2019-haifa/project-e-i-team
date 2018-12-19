@@ -2,7 +2,7 @@
 #include "MeshModel.h"
 #include <string>
 
-Scene::Scene() : currentActiveCamera(0), currentactivePointLightIndex(0), activePointLightIndex(0),activeCameraIndex(0),activeModelIndex(0), gridCounter(0) {}
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeCam(0),activeModelIndex(0), gridCounter(0) {}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
@@ -38,7 +38,7 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int wi
 	Camera c(model, eye4, at4, up4,mass);
 
 	cameras.push_back(std::make_shared<Camera>(c));
-	this->activeCameraIndex++;
+	this->SizeCam++;
 }
 
 
@@ -46,7 +46,14 @@ void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, in
 {
 	PointLight p(model);
 	PointLights.push_back(std::make_shared<PointLight>(p));
-	this->activePointLightIndex++;
+	this->SizePoint++;
+}
+
+void Scene::AddParallelLight(glm::vec3 DirectionVector)
+{
+	ParallelLight p(DirectionVector);
+	ParallelLights.push_back(std::make_shared<ParallelLight>(p));
+	this->SizeParallel++;
 }
 
 
@@ -93,6 +100,13 @@ std::shared_ptr<PointLight> Scene::GetPointLight(int index) const {
 	return PointLights[index];
 }
 
+std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const {
+	if (ParallelLights.size() == 0) {
+		return nullptr;
+	}
+	return ParallelLights[index];
+}
+
 int Scene::modelName2Index(std::string name) {
 	for (size_t i = 0; i < models.size(); i++) {
 		if (models[i]->GetModelName().compare(name) == 0) {
@@ -118,8 +132,12 @@ const int Scene::GetPointLightCount() const {
 	return PointLights.size();
 }
 
+const int Scene::GetParallelLightCount() const {
+	return ParallelLights.size();
+}
+
 void Scene::SetActiveCameraIndex(int index) {
-	if (index >= 0 && index < cameras.size()) { activeCameraIndex = index; }
+	if (index >= 0 && index < cameras.size()) { SizeCam = index; }
 }
 
 std::shared_ptr<Camera> Scene::GetCamera(int index) {
@@ -133,7 +151,7 @@ std::shared_ptr<PointLight> Scene::GetPointLight(int index) {
 }
 
 const int Scene::GetActiveCameraIndex() const { 
-	return activeCameraIndex;
+	return SizeCam;
 }
 
 void Scene::SetActiveModelIndex(int index) {
@@ -203,7 +221,7 @@ glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model) {
 }
 
 void Scene::SetFocusOnCurrentModel() {
-	std::shared_ptr<Camera> camera = GetCamera(currentActiveCamera);
+	std::shared_ptr<Camera> camera = GetCamera(CurrCam);
 	std::shared_ptr<MeshModel> model = GetModel(activeModelIndex);
 
 	glm::vec4 _at = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1);
@@ -230,7 +248,7 @@ void Scene::WholeWorldTransfer(glm::mat4x4& Tcm,glm::mat4x4& Tc) {
 	}
 	for (int i = 0; i < GetCameraCount(); i++) {
 		std::shared_ptr<Camera> camera = GetCamera(i);
-		if (i != activeCameraIndex) {
+		if (i != SizeCam) {
 			glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
 			camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
 		}

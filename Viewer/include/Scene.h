@@ -8,6 +8,7 @@
 #include "MeshModel.h"
 #include "Camera.h"
 #include "PointLight.h"
+#include "ParallelLight.h"
 
 /*
  * Scene class.
@@ -18,17 +19,24 @@ private:
 	std::vector<std::shared_ptr<MeshModel>> models;
 	std::vector< std::shared_ptr<Camera>> cameras;
 	std::vector< std::shared_ptr<PointLight>> PointLights;
+	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
+
 
 public:
-	int currentActiveCamera,activeCameraIndex, currentactivePointLightIndex,activePointLightIndex,activeModelIndex,gridCounter;
+	int CurrCam, SizeCam;
+	int CurrPoint, SizePoint;
+	int CurrParallel, SizeParallel;
+	int activeModelIndex, gridCounter;
 	
 	Scene();
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
 	void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth);
+	void Scene::AddParallelLight(glm::vec3 DirectionVector=glm::vec3(1,0,0));
 	void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth, glm::vec3 eye = glm::vec3(0, 0, 0));
 	const int GetCameraCount() const;
 	const int GetPointLightCount() const;
+	const int GetParallelLightCount() const;
 	std::shared_ptr<Camera> GetCamera(int index);
 	std::shared_ptr<PointLight> GetPointLight(int index);
 	void SetActiveCameraIndex(int index);
@@ -45,6 +53,7 @@ public:
 	glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex);
 	glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const;
 	std::shared_ptr<MeshModel> Scene::GetModel(int index) const;
+	std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const;
 	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;
 	int Scene::modelName2Index(std::string name);
 	// BUG - do not use it - required a series test before changing to use this general-mass function

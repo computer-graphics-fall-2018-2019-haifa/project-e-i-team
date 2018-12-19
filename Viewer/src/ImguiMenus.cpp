@@ -68,7 +68,7 @@ const char* getModelNames(Scene* scene) {
 
 const char* getPointLightNames(Scene* scene) {
 	int length = 0;
-	length = scene->activePointLightIndex;
+	length = scene->SizePoint;
 	if (length == 0) {
 		char* empty = new char[1]{ '\0' };
 		return empty;
@@ -315,17 +315,24 @@ void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
 	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	ImGui::TextColored(textColor, "Scene Menu:");
+	
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
-	if (ImGui::CollapsingHeader("Cameras")) {
+	
+	static int type = 1;
+	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source"};
+	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
+	ImGui::TextColored(textColor, "");
+	ImGui::TextColored(textColor, "-------------------------");
+	ImGui::TextColored(textColor, "");
+	if (type == 0) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
 		}
-		const char* cameras = getCamerasNames(scene->activeCameraIndex);
-		ImGui::Combo("Active Camera", &(scene->currentActiveCamera), cameras, IM_ARRAYSIZE(cameras));
-		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->currentActiveCamera);
+		const char* cameras = getCamerasNames(scene->SizeCam);
+		ImGui::Combo("Active Camera", &(scene->CurrCam), cameras, IM_ARRAYSIZE(cameras));
+		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->CurrCam);
 		if (currentCam != NULL) {
 			Tcm = handleKeyboardInputs(currentCam);
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
@@ -344,8 +351,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
 				currentCam->SetOrthographicProjection(aspectratio, frameBufferWidth);
-			} else {
-				currentCam->SetPerspectiveProjection(aspectratio,frameBufferWidth);
+			}
+			else {
+				currentCam->SetPerspectiveProjection(aspectratio, frameBufferWidth);
 			}
 			scene->WholeWorldTransfer(Tcm, Tc);
 			if (ImGui::Button("Focus On Current Model")) {
@@ -353,13 +361,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	if (ImGui::CollapsingHeader("Models")) {
-		static int count = 0;
+	else if (type == 1) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
-			glm::mat4x4 Tm(1),Tci(1);
+			glm::mat4x4 Tm(1), Tci(1);
 			if (ImGui::CollapsingHeader("Model World Transformations")) {
 				Tci = handleKeyboardInputs(currentModel);
 				buildModelWorldTransformationsSection(Tci, currentModel);
@@ -376,33 +383,50 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	if (ImGui::CollapsingHeader("Mesh Rendering")) {
-		if (ImGui::Button("Add light")) {
-			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj"); 
+	else if (type == 2) {
+		if (ImGui::Button("Add Point Light")) {
+			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
 			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
-
 		}
-		static int count = 0;
 		const char* items = getPointLightNames(scene);
-		ImGui::Combo("Light Name", &(scene->currentactivePointLightIndex), items, IM_ARRAYSIZE(items));
-		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->currentactivePointLightIndex);
+		ImGui::Combo("Light Name", &(scene->CurrPoint), items, IM_ARRAYSIZE(items));
+		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
 			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
 			glm::mat4x4 Tm(1), Tci(1);
 			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
-			if (ImGui::CollapsingHeader("Light Translations")) {
+
+			if (ImGui::CollapsingHeader("World Transformations")) {
 				Tci = handleKeyboardInputs(currentLight);
-				buildLightTranslationsSection(Tci, currentLight);
-				glm::vec4 C(currentLight->Center.x, currentLight->Center.y, currentLight->Center.z,1);
-				C = Tci * C;
-				currentLight->Center = glm::vec3(C.x / C.w, C.y / C.w, C.z / C.w);
-				currentLight->UpdateworldTransform(Tci);
+				buildModelWorldTransformationsSection(Tci, currentLight);
+				currentLight->UpdateLeftworldTransform(Tci);
+			}
+			if (ImGui::CollapsingHeader("Local Transformations")) {
+				Tm = handleKeyboardInputs(currentLight);
+				buildModelLocalTransformationsSection(Tm, currentLight);
+				glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
+				currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
 			}
+			
 		}
 	}
+	else if (type == 3) {
+		if (ImGui::Button("Add Parallel Light")) {
+			scene->AddParallelLight();
+		}
+	}
+	else {
+		if (ImGui::Button("Add Ambient Light")) {
+
+			//scene->AddAmbientLight();
+
+		}
+	}
+		
+	
 	ImGui::Text("");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::Text("");
