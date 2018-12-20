@@ -11,7 +11,7 @@
 PointLight::PointLight(std::shared_ptr<MeshModel> model) :
 	MeshModel(model)
 {
-	int Radius = 800;
+	/*int Radius = 800;
 	int RadiusPow2 = pow(Radius, 2);
 	int x = (rand() % (2 * (Radius - 1))) - (Radius - 1);
 	int x_pow = pow(x, 2);
@@ -19,8 +19,8 @@ PointLight::PointLight(std::shared_ptr<MeshModel> model) :
 	int y = (rand() % (2 * help)) - (help);
 	int y_pow = pow(y, 2);
 	int z = sqrt(RadiusPow2 - x_pow - y_pow);
-	cout << "(" << x << " , " << y << " , " << z << ")" << endl;
-	
+	cout << "(" << x << " , " << y << " , " << z << ")" << endl;*/
+	int x = 0, y = 0, z = 0;
 
 	Center = glm::vec3(x, y, z);
 	

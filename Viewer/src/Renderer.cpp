@@ -247,7 +247,7 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 }
 
 void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool isCameraModel) {
-	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
 
@@ -349,14 +349,14 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 
 std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
 	glm::vec3* sourceLight = nullptr;
-	if (scene.activePointLightIndex > 0) {
-		sourceLight = &scene.GetPointLight(scene.currentactivePointLightIndex)->Center;
+	if (scene.SizePoint > 0) {
+		sourceLight = &scene.GetPointLight(scene.CurrPoint)->Center;
 	}
 	if(sourceLight == nullptr) sourceLight = &n0;
 	glm::vec3 color0 = estColor(
 		model->K,
 		model->L,
-		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		scene.GetCamera(scene.CurrCam)->origin_eye,
 		n0,
 		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorA,
@@ -367,7 +367,7 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	glm::vec3 color1 = estColor(
 		model->K,
 		model->L,
-		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		scene.GetCamera(scene.CurrCam)->origin_eye,
 		n1,
 		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorD,
@@ -378,7 +378,7 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	glm::vec3 color2 = estColor(
 		model->K,
 		model->L,
-		scene.GetCamera(scene.currentActiveCamera)->origin_eye,
+		scene.GetCamera(scene.CurrCam)->origin_eye,
 		n2,
 		*sourceLight,
 		model->lightColorA, model->lightColorD, model->lightColorS,
@@ -392,8 +392,26 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	return v;
 }
 
+void Renderer::drawAmbientLight(glm::vec2 base, glm::vec3 color) {
+	int shift = 20;
+	int shift12 = 5;
+	glm::vec2 Left1(base.x - shift, base.y - shift12);
+	glm::vec2 Left2(base.x - shift, base.y + shift12);
+	glm::vec2 Right1(base.x + shift, base.y + shift12);
+	glm::vec2 Right2(base.x + shift, base.y - shift12);
+	glm::vec2 Up1(base.x - shift12, base.y + shift);
+	glm::vec2 Up2(base.x + shift12, base.y + shift);
+	glm::vec2 Down1(base.x + shift12, base.y - shift);
+	glm::vec2 Down2(base.x - shift12, base.y - shift);
+
+	printTriangle(Up1, Up2, Down1, color);
+	printTriangle(Down1, Down2, Up1, color);
+	printTriangle(Left1, Left2, Right1, color);
+	printTriangle(Right1, Right2, Left1, color);
+}
+
 void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid, bool isPointLight) {
-	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.currentActiveCamera);
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
 	if (active_camera != NULL) {
@@ -541,6 +559,68 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	}
 }
 
+float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
+	return sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2));
+}
+
+void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
+	glm::vec2 from_plus; 
+	glm::vec2 from_minus; 
+	glm::vec2 middle_plus_far;
+	glm::vec2 middle_minus_far;
+	glm::vec2 middle_plus;
+	glm::vec2 middle_minus;
+	glm::vec2 middle((from.x+to.x)/2, (from.y + to.y) / 2);
+	float width_baseTriangle = 15;
+	float width_middle = 35;
+	if ((from.y - to.y) == 0) {
+		from_plus = glm::vec2(from.x, from.y + (width_baseTriangle/2));
+		from_minus = glm::vec2(from.x, from.y - (width_baseTriangle / 2));
+		middle_plus_far = glm::vec2(middle.x, middle.y + (width_middle / 2));
+		middle_minus_far = glm::vec2(middle.x, middle.y - (width_middle / 2));
+		middle_plus = glm::vec2(middle.x, middle.y + (width_baseTriangle / 2));
+		middle_minus = glm::vec2(middle.x, middle.y - (width_baseTriangle / 2));
+	}
+	else if ((from.x - to.x) == 0) {
+		from_plus = glm::vec2(from.x+ (width_baseTriangle / 2), from.y+1);
+		from_minus = glm::vec2(from.x- (width_baseTriangle / 2), from.y);
+		middle_plus_far = glm::vec2(middle.x + (width_middle / 2), middle.y + 1);
+		middle_minus_far = glm::vec2(middle.x - (width_middle / 2), middle.y);
+		middle_plus = glm::vec2(middle.x + (width_baseTriangle / 2), middle.y + 1);
+		middle_minus = glm::vec2(middle.x - (width_baseTriangle / 2), middle.y);
+	}
+	else {
+		float m1 = (from.y - to.y) / (from.x - to.x);
+		float m2 = -1 / m1;
+		float m3 = m2;
+		float b2 = from.y - m2 * from.x;
+		float b3 = middle.y - m3 * middle.x;
+		//Now we have: y = m2 * x + b2
+		//And: y = m3 * x + b3
+		from_plus = glm::vec2(from.x + 1, m2*(from.x + 1) + b2);
+		from_minus = glm::vec2(from.x - 1, m2*(from.x - 1) + b2);
+		middle_plus_far = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
+		middle_minus_far = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
+		middle_plus = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
+		middle_minus = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
+		float d2 = Distance(from_plus, from_minus);
+		float d3 = Distance(middle_plus_far, middle_minus_far);
+		float d4 = Distance(middle_plus, middle_minus);
+		float shift2 = width_baseTriangle / d2;
+		float shift3 = width_middle / d3;
+		float shift4 = width_baseTriangle / d4;
+		from_plus = glm::vec2(from.x + shift2, m2*(from.x + shift2) + b2);
+		from_minus = glm::vec2(from.x - shift2, m2*(from.x - shift2) + b2);
+		middle_plus_far = glm::vec2(middle.x + shift3, m3*(middle.x + shift3) + b3);
+		middle_minus_far = glm::vec2(middle.x - shift3, m3*(middle.x - shift3) + b3);
+		middle_plus = glm::vec2(middle.x + shift4, m3*(middle.x + shift4) + b3);
+		middle_minus = glm::vec2(middle.x - shift4, m3*(middle.x - shift4) + b3);
+	}
+	printTriangle(from_minus,middle_plus, from_plus, color);
+	printTriangle(middle_minus, from_minus, middle_plus, color);
+	printTriangle(to, middle_minus_far, middle_plus_far, color);
+}
+
 void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
@@ -566,7 +646,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	//Render All cameras in scene [*** Except the current camera ***]
 	if (camerasCount > 0) {
 		for (int k = 0; k < camerasCount; k++) {
-			if (scene.currentActiveCamera != k) {
+			if (scene.CurrCam != k) {
 				std::vector<Face> faces = scene.getCamerafaces(k);
 				std::vector<glm::vec3> vNormals = scene.getCameraNormals(k);
 				for (auto face = faces.begin(); face != faces.end(); ++face) {
@@ -577,21 +657,64 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 		}
 	}
 
-
 	int PointLightCount = scene.GetPointLightCount();
 	if (PointLightCount > 0) {
 		for (int k = 0; k < PointLightCount; k++) {
-			
 			std::vector<Face> faces = scene.getPointLightfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getPointLightNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
 				showMeshObject(scene, face, vNormals, k, io, false,false,true);
 			}
-			
-
 		}
 	}
 
+	int ParallelLightCount = scene.GetParallelLightCount();
+	if (ParallelLightCount > 0) {
+		for (int k = 0; k < ParallelLightCount; k++) {
+			std::shared_ptr<ParallelLight> p = scene.GetParallelLight(k);
+			glm::vec3 from3 = p->GetfromVector();
+			glm::vec4 from4(from3.x, from3.y, from3.z, 1);
+			glm::vec3 to3 = p->GetToVector();
+			glm::vec4 to4(to3.x, to3.y, to3.z, 1);
+			std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
+			glm::mat4x4 Mc = glm::mat4x4(1);
+			glm::mat4x4 Mp = glm::mat4x4(1);
+			if (active_camera != NULL) {
+				Mc = active_camera->Getview();
+				Mp = active_camera->GetProjection();
+			}
+			glm::mat4x4 seriesTransform = Mp * Mc * p->GetWorldTransformation();
+			from4 = seriesTransform * from4;
+			from4 = from4 / from4.w;
+			to4 = seriesTransform * to4;
+			to4 = to4 / to4.w;
+			glm::vec2 from2(from4.x, from4.y);
+			glm::vec2 to2(to4.x, to4.y);
+			drawParallelLight(from2, to2, glm::vec3(0, 0, 0));
+		}
+	}
+	
+
+	
+	
+	AmbientLight* Ambient = scene.GetAmbient();
+	glm::vec3 AmbientBasePoint3 = Ambient->GetBaseVector();
+	glm::vec4 AmbientBasePoint4(AmbientBasePoint3.x, AmbientBasePoint3.y, AmbientBasePoint3.z, 1);
+	
+	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
+	glm::mat4x4 Mc = glm::mat4x4(1);
+	glm::mat4x4 Mp = glm::mat4x4(1);
+	if (active_camera != NULL) {
+		Mc = active_camera->Getview();
+		Mp = active_camera->GetProjection();
+	}
+	glm::mat4x4 seriesTransform = Mp * Mc * Ambient->GetWorldTransformation();
+	AmbientBasePoint4 = seriesTransform * AmbientBasePoint4;
+	AmbientBasePoint4 = AmbientBasePoint4 / AmbientBasePoint4.w;
+	
+	glm::vec2 AmbientBasePoint2(AmbientBasePoint4.x, AmbientBasePoint4.y);
+	
+	drawAmbientLight(AmbientBasePoint2, Ambient->color);
 	
 }
 
