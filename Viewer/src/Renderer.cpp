@@ -697,7 +697,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 
 	
 	
-	AmbientLight* Ambient = scene.GetAmbient();
+	std::shared_ptr<AmbientLight> Ambient = scene.GetAmbient();
 	glm::vec3 AmbientBasePoint3 = Ambient->GetBaseVector();
 	glm::vec4 AmbientBasePoint4(AmbientBasePoint3.x, AmbientBasePoint3.y, AmbientBasePoint3.z, 1);
 	

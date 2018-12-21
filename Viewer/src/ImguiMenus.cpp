@@ -399,13 +399,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ImGui::CollapsingHeader("World Transformations")) {
 				Tci = handleKeyboardInputs(currentLight);
 				buildModelWorldTransformationsSection(Tci, currentLight);
-				currentLight->UpdateLeftworldTransform(Tci);
+				currentLight->UpdateworldTransform(Tci);
 			}
 			if (ImGui::CollapsingHeader("Local Transformations")) {
 				Tm = handleKeyboardInputs(currentLight);
 				buildModelLocalTransformationsSection(Tm, currentLight);
-				glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
-				currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+				currentLight->UpdateworldTransform(Tm);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
@@ -428,43 +427,34 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			if (ImGui::CollapsingHeader("World Transformations")) {
 				Tci = handleKeyboardInputs(currentLight);
 				buildModelWorldTransformationsSection(Tci, currentLight);
-				currentLight->UpdateLeftworldTransform(Tci);
+				currentLight->UpdateworldTransform(Tci);
 			}
 			if (ImGui::CollapsingHeader("Local Transformations")) {
 				Tm = handleKeyboardInputs(currentLight);
 				buildModelLocalTransformationsSection(Tm, currentLight);
-				glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
-				currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+				currentLight->UpdateworldTransform(Tm);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
 			}
-
 		}
-
 	}
 	else {
-	
-		AmbientLight* currentLight = scene->GetAmbient();
+		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
 		ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-		glm::mat4x4 Tm(1), Tci(1);
+		glm::mat4x4 Tt(1), Ttci(1);
 
-/*
-		std::shared_ptr<MeshModel> c = std::shared_ptr<MeshModel>(currentLight);
 		if (ImGui::CollapsingHeader("World Transformations")) {
-			Tci = handleKeyboardInputs(c);
-			buildModelWorldTransformationsSection(Tci, c);
-			currentLight->UpdateLeftworldTransform(Tci);
+			Ttci = handleKeyboardInputs(currentLight);
+			buildModelWorldTransformationsSection(Ttci, currentLight);
+			currentLight->UpdateworldTransform(Ttci);
 		}
-		if (ImGui::CollapsingHeader("Local Transformations")) {
-			Tm = handleKeyboardInputs(c);
-			buildModelLocalTransformationsSection(Tm, c);
-			glm::vec3 mass = currentLight->GetWorldTransformation() * glm::vec4(currentLight->BoundMiddle.x, currentLight->BoundMiddle.y, currentLight->BoundMiddle.z, 1.0f);
-			currentLight->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
-		}*/
 		
-
-	
+		if (ImGui::CollapsingHeader("Local Transformations")) {
+			Tt = handleKeyboardInputs(currentLight);
+			buildModelLocalTransformationsSection(Tt, currentLight);
+			currentLight->UpdateworldTransform(Tt);
+		}
 	}
 		
 	
