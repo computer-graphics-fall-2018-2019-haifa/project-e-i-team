@@ -690,7 +690,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			to4 = to4 / to4.w;
 			glm::vec2 from2(from4.x, from4.y);
 			glm::vec2 to2(to4.x, to4.y);
-			drawParallelLight(from2, to2, glm::vec3(0, 0, 0));
+			drawParallelLight(from2, to2, p->color);
 		}
 	}
 	

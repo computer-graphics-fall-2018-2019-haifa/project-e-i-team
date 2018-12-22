@@ -393,18 +393,21 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
 			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			glm::mat4x4 Tm(1), Tci(1);
 			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
 
-			if (ImGui::CollapsingHeader("World Transformations")) {
-				Tci = handleKeyboardInputs(currentLight);
+			glm::mat4x4 T(1), Tci(1), Tk(1);
+			Tk = handleKeyboardInputs(currentLight);
+			currentLight->UpdateworldTransform(Tk);
+			if (ImGui::CollapsingHeader("local Transformations")) {
 				buildModelWorldTransformationsSection(Tci, currentLight);
-				currentLight->UpdateworldTransform(Tci);
+				glm::vec3 location = currentLight->GetLocationAfterTrans();
+				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
+				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
+				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("Local Transformations")) {
-				Tm = handleKeyboardInputs(currentLight);
-				buildModelLocalTransformationsSection(Tm, currentLight);
-				currentLight->UpdateworldTransform(Tm);
+			if (ImGui::CollapsingHeader("World Transformations")) {
+				buildModelLocalTransformationsSection(T, currentLight);
+				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
@@ -421,18 +424,22 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
 			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			glm::mat4x4 Tm(1), Tci(1);
 			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
 
-			if (ImGui::CollapsingHeader("World Transformations")) {
-				Tci = handleKeyboardInputs(currentLight);
+			glm::mat4x4 T(1), Tci(1), Tk(1);
+
+			Tk = handleKeyboardInputs(currentLight);
+			currentLight->UpdateworldTransform(Tk);
+			if (ImGui::CollapsingHeader("local Transformations")) {
 				buildModelWorldTransformationsSection(Tci, currentLight);
-				currentLight->UpdateworldTransform(Tci);
+				glm::vec3 location = currentLight->GetLocationAfterTrans();
+				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
+				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
+				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("Local Transformations")) {
-				Tm = handleKeyboardInputs(currentLight);
-				buildModelLocalTransformationsSection(Tm, currentLight);
-				currentLight->UpdateworldTransform(Tm);
+			if (ImGui::CollapsingHeader("World Transformations")) {
+				buildModelLocalTransformationsSection(T, currentLight);
+				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
 				buildLightPropertiesSection(currentLight);
@@ -442,18 +449,20 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	else {
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
 		ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-		glm::mat4x4 Tt(1), Ttci(1);
+		glm::mat4x4 T(1), Tci(1) , Tk(1);
 
-		if (ImGui::CollapsingHeader("World Transformations")) {
-			Ttci = handleKeyboardInputs(currentLight);
-			buildModelWorldTransformationsSection(Ttci, currentLight);
-			currentLight->UpdateworldTransform(Ttci);
+		Tk = handleKeyboardInputs(currentLight);
+		currentLight->UpdateworldTransform(Tk);
+		if (ImGui::CollapsingHeader("local Transformations")) {
+			buildModelWorldTransformationsSection(Tci, currentLight);
+			glm::vec3 location = currentLight->GetLocationAfterTrans();
+			glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
+			glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
+			currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 		}
-		
-		if (ImGui::CollapsingHeader("Local Transformations")) {
-			Tt = handleKeyboardInputs(currentLight);
-			buildModelLocalTransformationsSection(Tt, currentLight);
-			currentLight->UpdateworldTransform(Tt);
+		if (ImGui::CollapsingHeader("World Transformations")) {
+			buildModelLocalTransformationsSection(T, currentLight);
+			currentLight->UpdateworldTransform(T);			
 		}
 	}
 		
