@@ -32,6 +32,12 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 }
 MeshModel::~MeshModel() {}
 
+glm::vec3 MeshModel::GetModelLocationAfterTrans() {
+	glm::vec4 BoundMiddle4(BoundMiddle.x, BoundMiddle.y, BoundMiddle.z, 1);
+	glm::vec4 location = GetWorldTransformation() * BoundMiddle4;
+	return glm::vec3(location.x, location.y, location.z);
+}
+
 std::vector<glm::vec3> MeshModel::GetNormals() {
 	return normals;
 }

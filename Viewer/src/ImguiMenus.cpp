@@ -219,57 +219,57 @@ void buildCameraLocalTransformationsSection(std::shared_ptr<Camera> currentCam) 
 	if (diff != 0.0f) { currentCam->roll(diff); }
 }
 
-void buildModelWorldTransformationsSection(glm::mat4x4& Tci,std::shared_ptr<MeshModel> currentModel) {
+void buildLocalTrans(glm::mat4x4& Tci,std::shared_ptr<MeshModel> currentModel) {
 	float fsc = currentModel->wfScale;
-	ImGui::SliderFloat("Model World Scale", &(currentModel->wfScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+	ImGui::SliderFloat("Local Scale", &(currentModel->wfScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 	if (currentModel->wfScale >= 0 && fsc != currentModel->wfScale) { Tci = Trans::getScale4x4(currentModel->wfScale / fsc); }
 
 	float frx = currentModel->wfRotatex, diff = 0.0f;
-	ImGui::SliderFloat("Model World Rotate By X", &(currentModel->wfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate By X", &(currentModel->wfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatex - frx;
 	if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
 	float fry = currentModel->wfRotatey;
-	ImGui::SliderFloat("Model World Rotate By Y", &(currentModel->wfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate By Y", &(currentModel->wfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatey - fry;
 	if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
 	float frz = currentModel->wfRotatez;
-	ImGui::SliderFloat("Model World Rotate By Z", &(currentModel->wfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate By Z", &(currentModel->wfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatez - frz;
 	if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 }
 
-void buildModelLocalTransformationsSection(glm::mat4x4& Tm,std::shared_ptr<MeshModel> currentModel) {
+void buildWorldTrans(glm::mat4x4& Tm,std::shared_ptr<MeshModel> currentModel) {
 	float fsc = currentModel->fScale;
-	ImGui::SliderFloat("Model Local Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+	ImGui::SliderFloat("World Scale", &(currentModel->fScale), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 	if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 	float diff = 0.0f;
 	float frx = currentModel->fRotatex;
-	ImGui::SliderFloat("Model Local Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatex - frx;
 	if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
 
 	float ftx = currentModel->fTranslatex;
-	ImGui::SliderFloat("Model Local Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 
 	float fry = currentModel->fRotatey;
-	ImGui::SliderFloat("Model Local Rotate By Y", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate By Y", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatey - fry;
 	if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
 
 	float fty = currentModel->fTranslatey;
-	ImGui::SliderFloat("Model Local Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 	float frz = currentModel->fRotatez;
-	ImGui::SliderFloat("Model Local Rotate By Z", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate By Z", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatez - frz;
 	if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
 
 	float ftz = currentModel->fTranslatez;
-	ImGui::SliderFloat("Model Local Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 }
 
@@ -366,17 +366,20 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
-			glm::mat4x4 Tm(1), Tci(1);
-			if (ImGui::CollapsingHeader("Model World Transformations")) {
-				Tci = handleKeyboardInputs(currentModel);
-				buildModelWorldTransformationsSection(Tci, currentModel);
-				currentModel->UpdateLeftworldTransform(Tci);
+			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color));
+			glm::mat4x4 T(1), Tci(1), Tk(1);
+			Tk = handleKeyboardInputs(currentModel);
+			currentModel->UpdateworldTransform(Tk);
+			if (ImGui::CollapsingHeader("local Transformations")) {
+				buildLocalTrans(Tci, currentModel);
+				glm::vec3 location = currentModel->GetModelLocationAfterTrans();
+				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
+				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
+				currentModel->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("Model Local Transformations")) {
-				Tm = handleKeyboardInputs(currentModel);
-				buildModelLocalTransformationsSection(Tm, currentModel);
-				glm::vec3 mass = currentModel->GetWorldTransformation() * glm::vec4(currentModel->BoundMiddle.x, currentModel->BoundMiddle.y, currentModel->BoundMiddle.z, 1.0f);
-				currentModel->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tm));
+			if (ImGui::CollapsingHeader("World Transformations")) {
+				buildWorldTrans(T, currentModel);
+				currentModel->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Model Properties")) {
 				buildPropertiesSection(currentModel);
@@ -399,14 +402,14 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
 			if (ImGui::CollapsingHeader("local Transformations")) {
-				buildModelWorldTransformationsSection(Tci, currentLight);
+				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
 			if (ImGui::CollapsingHeader("World Transformations")) {
-				buildModelLocalTransformationsSection(T, currentLight);
+				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
@@ -431,14 +434,14 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
 			if (ImGui::CollapsingHeader("local Transformations")) {
-				buildModelWorldTransformationsSection(Tci, currentLight);
+				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
 			if (ImGui::CollapsingHeader("World Transformations")) {
-				buildModelLocalTransformationsSection(T, currentLight);
+				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
@@ -454,14 +457,14 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
 		if (ImGui::CollapsingHeader("local Transformations")) {
-			buildModelWorldTransformationsSection(Tci, currentLight);
+			buildLocalTrans(Tci, currentLight);
 			glm::vec3 location = currentLight->GetLocationAfterTrans();
 			glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 			glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 			currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 		}
 		if (ImGui::CollapsingHeader("World Transformations")) {
-			buildModelLocalTransformationsSection(T, currentLight);
+			buildWorldTrans(T, currentLight);
 			currentLight->UpdateworldTransform(T);			
 		}
 	}
