@@ -21,7 +21,7 @@ private:
 	std::vector< std::shared_ptr<Camera>> cameras;
 	std::vector< std::shared_ptr<PointLight>> PointLights;
 	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
-	AmbientLight* Ambient;
+	std::shared_ptr<AmbientLight> Ambient;
 public:
 	int CurrCam, SizeCam;
 	int CurrPoint, SizePoint;
@@ -55,7 +55,7 @@ public:
 	std::shared_ptr<MeshModel> Scene::GetModel(int index) const;
 	std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const;
 	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;
-	AmbientLight* Scene::GetAmbient() const;
+	std::shared_ptr<AmbientLight> Scene::GetAmbient() const;
 	int Scene::modelName2Index(std::string name);
 	// BUG - do not use it - required a series test before changing to use this general-mass function
 	glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model);

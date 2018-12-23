@@ -13,4 +13,5 @@ public:
 	AmbientLight(glm::vec3 base);
 	~AmbientLight();
 	glm::vec3 GetBaseVector();
+	glm::vec3 GetLocationAfterTrans();
 };

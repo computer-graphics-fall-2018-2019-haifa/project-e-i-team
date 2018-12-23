@@ -15,5 +15,6 @@ public:
 	~ParallelLight();
 	glm::vec3 GetToVector();
 	glm::vec3 GetfromVector();
+	glm::vec3 GetLocationAfterTrans();
 
 };

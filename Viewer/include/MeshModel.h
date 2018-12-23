@@ -66,6 +66,7 @@ private:
 	glm::mat4x4 worldTransform;
 	std::string modelName;
 public:
+	glm::vec3 GetModelLocationAfterTrans();
 	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor;
 	bool showFaceNormals,showVertexNormals,showBoundingBox;
 	glm::vec4 fNcolor,vNcolor;
