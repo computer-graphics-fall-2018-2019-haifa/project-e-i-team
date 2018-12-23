@@ -20,6 +20,7 @@ private:
 	int viewportX,viewportY;
 
 	void putPixel(int x, int y, const glm::vec3& color);
+	void putZ(int i, int j, const float depth);
 	float Renderer::Distance(glm::vec2 v1, glm::vec2 v2);
 	void createBuffers(int viewportWidth, int viewportHeight);	
 	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color);
@@ -45,7 +46,7 @@ public:
 	~Renderer();
 	void Render(Scene& scene, const ImGuiIO& io);
 	void SwapBuffers();
-	void ClearColorBuffer(const glm::vec3& color);
+	void ClearColorBuffer(const glm::vec3& color, const float depth);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	/*
 	K - fraction of  light  reflected from surface
