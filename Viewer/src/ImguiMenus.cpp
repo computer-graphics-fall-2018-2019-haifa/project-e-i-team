@@ -20,6 +20,8 @@
 #include "Renderer.h"
 
 static glm::vec4 backgroundColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
+static float MaxDepth = 4000.0f;
+
 bool showAboutUsWindow = false;
 bool showTransWindow = true;
 bool showDemoWindow = false;
@@ -27,6 +29,10 @@ bool showSimpleWindow = false;
 
 const glm::vec4& GetClearColor(){
 	return backgroundColor;
+}
+
+const float GetMaxDepth() {
+	return MaxDepth;
 }
 
 void buildAboutUsWindow() {

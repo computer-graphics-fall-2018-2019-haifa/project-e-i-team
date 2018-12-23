@@ -14,7 +14,9 @@
 
 using namespace std;
 
-#define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define INDEXCOLOR(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define INDEXZ(width,x,y,c) ((x)+(y)*(width))+(c)
+#define MaxDepth 4000.0f
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -27,6 +29,7 @@ Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int vie
 Renderer::~Renderer()
 {
 	if (colorBuffer) { delete[] colorBuffer; }
+	if (zBuffer) { delete[] zBuffer; }
 }
 
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
@@ -34,30 +37,46 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
 	
-	colorBuffer[INDEX(viewportWidth, i, j, 0)] = color.x;
-	colorBuffer[INDEX(viewportWidth, i, j, 1)] = color.y;
-	colorBuffer[INDEX(viewportWidth, i, j, 2)] = color.z;
+	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = color.x;
+	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = color.y;
+	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = color.z;
+}
+
+void Renderer::putZ(int i, int j, const float depth)
+{
+	if (i < 0) return; if (i >= viewportWidth) return;
+	if (j < 0) return; if (j >= viewportHeight) return;
+
+	zBuffer[INDEXZ(viewportWidth, i, j, 0)] = depth;
 }
 
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 {
 	if (colorBuffer){ delete[] colorBuffer; }
+	if (zBuffer) { delete[] zBuffer; }
+	
 	colorBuffer = new float[3* viewportWidth * viewportHeight];
+	zBuffer = new float[viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++) {
-		for (int y = 0; y < viewportHeight; y++) { putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f)); }
+		for (int y = 0; y < viewportHeight; y++) { 
+			putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f)); 
+			putZ(x, y, MaxDepth);
+		}
 	}
 }
 
-void Renderer::ClearColorBuffer(const glm::vec3& color) {
+void Renderer::ClearColorBuffer(const glm::vec3& color,const float depth) {
 	
 	for (int i = 0; i < viewportWidth; i++) {
 		
 		for (int j = 0; j < viewportHeight; j++) {
-		
+			putZ(i, j, depth);
 			putPixel(i, j, color); 
 		}
 	}
 }
+
+
 
 void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX, int viewportY){
 	this->viewportX = viewportX;
