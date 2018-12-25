@@ -11,7 +11,8 @@ glm::vec3 AmbientLight::GetBaseVector() {
 }
 
 AmbientLight::AmbientLight(glm::vec3 base) :
-	base(base)
+	base(base),
+    La(0.8f), Ld(0.8f), Ls(0.8f)
 {
 	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),
 		&glm::vec3(0, 0, 0), 20, 20);

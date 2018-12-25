@@ -307,12 +307,22 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 }
 
 void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-	ImGui::SliderFloat("Fraction Light Reclected", &(currentModel->K), 0.0f, 1.0f);
-	ImGui::SliderFloat("Light Intensity", &(currentModel->L), 0.0f, 1.0f);
+	float* K = nullptr;
+	float* L = nullptr;
+	if (currentModel->lightType == AMBIENT) {
+		K = &currentModel->Ka;
+	} else if (currentModel->lightType == DIFFUSE) {
+		K = &currentModel->Kd;
+	} else if (currentModel->lightType == SPECULAR) {
+		K = &currentModel->Ks;
+	} else {
+		return;
+	}
+	ImGui::SliderFloat("Fraction Light Reclected", K, 0.0f, 1.0f);
 	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 1.0f);
 
-	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA)); // Edit 3 floats representing a color
-	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD)); // Edit 3 floats representing a color
+	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA));	// Edit 3 floats representing a color
+	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD));	// Edit 3 floats representing a color
 	ImGui::ColorEdit3("Spercular Color", (float*)&(currentModel->lightColorS)); // Edit 3 floats representing a color
 }
 
@@ -329,7 +339,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source"};
 	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
 	ImGui::TextColored(textColor, "");
-	ImGui::TextColored(textColor, "-------------------------");
+	ImGui::TextColored(textColor, "#########################");
 	ImGui::TextColored(textColor, "");
 	if (type == 0) {
 		if (ImGui::Button("Add camera")) {

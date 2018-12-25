@@ -66,7 +66,6 @@ private:
 	glm::mat4x4 worldTransform;
 	std::string modelName;
 public:
-	glm::vec3 GetModelLocationAfterTrans();
 	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor;
 	bool showFaceNormals,showVertexNormals,showBoundingBox;
 	glm::vec4 fNcolor,vNcolor;
@@ -74,7 +73,7 @@ public:
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
 	glm::vec3 lightColorA, lightColorD, lightColorS;
-	float K, L, alpha;
+	float Ka, Kd, Ks, alpha;			// reflected ray of the mesh model it-self
 	int lightType;
 
 	MeshModel(){}
@@ -112,4 +111,5 @@ public:
 	void MeshModel::SetVertexNormalColor(glm::vec4 color);
 	float MeshModel::GetVertexNormalLength();
 	glm::vec4 MeshModel::GetVertexNormalColor();
+	glm::vec3 GetModelLocationAfterTrans();
 };

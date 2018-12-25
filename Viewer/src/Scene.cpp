@@ -98,7 +98,7 @@ std::shared_ptr<PointLight> Scene::GetPointLight(int index) const {
 	if (PointLights.size() == 0) {
 		return nullptr;
 	}
-	return PointLights[index];
+	return PointLights.at(index);
 }
 
 std::shared_ptr<AmbientLight> Scene::GetAmbient() const {
@@ -109,7 +109,7 @@ std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const {
 	if (ParallelLights.size() == 0) {
 		return nullptr;
 	}
-	return ParallelLights[index];
+	return ParallelLights.at(index);
 }
 
 int Scene::modelName2Index(std::string name) {

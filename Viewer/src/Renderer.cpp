@@ -87,21 +87,12 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-/*
-float Renderer::getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
-	glm::vec2 proj_rot_vec = glm::normalize(-glm::dot(c - a, b - a) * (c - a) * Trans::getxRotate2x2(M_PI / 2.0f));
-	glm::vec2 height = (proj_rot_vec - glm::normalize(b));
-	float A = glm::length(height) * glm::length(c - a) / 2.0f;
-	return A;
-}
-*/
-
-glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& a, glm::vec2& b, glm::vec2& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
+glm::vec3& Renderer::interpolate_baricentrically(glm::vec2& p,glm::vec2& a, glm::vec2& b, glm::vec2& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
 	float Wb = ((a.y - c.y) * (p.x - c.x) + (c.x - a.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
 	float Wa = ((c.y - b.y) * (p.x - c.x) + (b.x - c.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
 	float Wc = 1 - Wb - Wa;
 
-	// Wa,Wb,Wc are weight which is depended on a,b,c relatively and provided as weight to the colors from a,b,c to interpolate:
+	// Wa,Wb,Wc are weights which is depended on a,b,c relatively and provided as weight to the colors from a,b,c to interpolate:
 	return glm::vec3(Wa*color0 + Wb * color1 + Wc * color2);
 }
 
@@ -162,7 +153,7 @@ void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
 				// baricentric coordinates for p = (w1,w2) color interpolation:
-				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec2(w1,w2),a, b, c, color0, color1, color2);
+				glm::vec3 p_color = interpolate_baricentrically(glm::vec2(w1,w2),a, b, c, color0, color1, color2);
 				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, p_color);
 			}
 		}
@@ -367,47 +358,87 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 }
 
 std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
-	glm::vec3* sourceLight = nullptr;
-	if (scene.SizePoint > 0) {
-		sourceLight = &scene.GetPointLight(scene.CurrPoint)->Center;
+	std::shared_ptr<AmbientLight> basicAmbientLight = scene.GetAmbient();
+	glm::vec3* pointSourceLightLoc = nullptr;
+	glm::vec3* parallelSourceLightLoc = nullptr;
+	if (scene.GetPointLightCount() > 0) {
+		pointSourceLightLoc = &scene.GetPointLight(scene.GetPointLightCount() - 1)->Center;
 	}
-	if(sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color0 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n0,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorA,
-		method,
-		model->alpha
-	);
-	if (sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color1 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n1,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorD,
-		method,
-		model->alpha
-	);
-	if (sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color2 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n2,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorS,
-		method,
-		model->alpha
-	);
+	if (scene.GetParallelLightCount() > 0) {
+		parallelSourceLightLoc = &scene.GetParallelLight(scene.GetParallelLightCount() - 1)->GetToVector();
+	}
+	glm::vec3 colorp0, colorp1,colorp2, colorpa0, colorpa1, colorpa2;
+	if (!pointSourceLightLoc) {
+		colorp0 = estColor(
+			model->Ka,
+			basicAmbientLight->La,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n0,
+			*pointSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorA,
+			method,
+			model->alpha
+		);
+		colorp1 = estColor(
+			model->Kd,
+			basicAmbientLight->Ld,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n1,
+			*pointSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorD,
+			method,
+			model->alpha
+		);
+		colorp2 = estColor(
+			model->Ks,
+			basicAmbientLight->Ls,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n2,
+			*pointSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorS,
+			method,
+			model->alpha
+		);
+	}
+	if (!parallelSourceLightLoc) {
+		colorpa0 = estColor(
+			model->Ka,
+			basicAmbientLight->La,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n0,
+			*parallelSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorA,
+			method,
+			model->alpha
+		);
+		colorpa1 = estColor(
+			model->Kd,
+			basicAmbientLight->Ld,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n1,
+			*parallelSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorD,
+			method,
+			model->alpha
+		);
+		colorpa2 = estColor(
+			model->Ks,
+			basicAmbientLight->Ls,
+			scene.GetCamera(scene.CurrCam)->origin_eye,
+			n2,
+			*parallelSourceLightLoc,
+			model->lightColorA, model->lightColorD, model->lightColorS,
+			method,
+			model->alpha
+		);
+	}
+	colorp0 = basicAmbientLight->color + colorp0 + colorpa0;
+	colorp1 = basicAmbientLight->color + colorp1 + colorpa1;
+	colorp2 = basicAmbientLight->color + colorp2 + colorpa2;
 	std::vector<glm::vec3>* v = new std::vector<glm::vec3>;
-	v->push_back(color0);
-	v->push_back(color1);
-	v->push_back(color2);
+	v->push_back(colorp0);
+	v->push_back(colorp1);
+	v->push_back(colorp2);
 	return v;
 }
 
@@ -485,13 +516,10 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	// transform face as world transform view:
 	std::shared_ptr<MeshModel> model = NULL;
-	if(isCameraModel){
-		model = scene.GetCamera(k);
-	}
+	if(isCameraModel){ model = scene.GetCamera(k); }
 	else if (isPointLight) { model = scene.GetPointLight(k); }
-	else {
-		model = scene.GetModel(k);
-	}
+	else { model = scene.GetModel(k); }
+
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
 	glm::vec4 vect0 = seriesTransform*vec0;
 	vect0 = vect0 / vect0.w;
@@ -503,15 +531,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if (isGrid) {
 		vect3 = vect3 / vect3.w;
 	}
-
-	/////////////////////////////////////////////////
-	//	test section - line:
-	//	=====================
-	//	glm::vec4 c((model->BoundMiddle).x, (model->BoundMiddle).y, (model->BoundMiddle).z,1);
-	//	c = seriesTransform * c;
-	//	c = c / c.w;
-	//	DrawLine(c.x, 300, c.y, 300, model->BoundingBoxColor);
-	/////////////////////////////////////////////////
 
 	float vNlength = model->GetVertexNormalLength();
 	// transform and normalize vertex normals:
@@ -549,16 +568,12 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
 		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
 	} else {
-		if (!isPointLight) {
-			std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
-			glm::vec3 tri0 = triangle_colors->at(0);
-			glm::vec3 tri1 = triangle_colors->at(1);
-			glm::vec3 tri2 = triangle_colors->at(2);
-			delete triangle_colors; // must be here!
-			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
-		} else {
-			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), model->color);
-		}
+		std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
+		glm::vec3 tri0 = triangle_colors->at(0);
+		glm::vec3 tri1 = triangle_colors->at(1);
+		glm::vec3 tri2 = triangle_colors->at(2);
+		delete triangle_colors; // must be here!
+		printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
 	}
 
 	// up to the checkbox sign:

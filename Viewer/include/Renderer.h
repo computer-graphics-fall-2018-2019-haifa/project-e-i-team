@@ -59,8 +59,7 @@ public:
 	*/
 	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& colorA, glm::vec3& colorD, glm::vec3& colorS, int method, float alpha = 0.0f); // color material
 	std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int method);
-	glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p, glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2);
+	glm::vec3& Renderer::interpolate_baricentrically(glm::vec2& p, glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2);
 	// uniform and simply mesh-model rendering without any ray technique:
 	void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color);
-	//float getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c);
 };

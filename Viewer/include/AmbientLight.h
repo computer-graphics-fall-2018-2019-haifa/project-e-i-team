@@ -4,12 +4,12 @@
 #include <glm/glm.hpp>
 
 
-
 class AmbientLight : public MeshModel
 {
 private:
 	glm::vec3 base;
 public:
+	float La, Ld, Ls;
 	AmbientLight(glm::vec3 base);
 	~AmbientLight();
 	glm::vec3 GetBaseVector();

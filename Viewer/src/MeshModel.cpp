@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName) :
+MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName) :
 	modelName(modelName),
 	vertices(vertices),
 	faces(faces),
@@ -14,7 +14,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
+	Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
 	lightType(AMBIENT)
 {
 	resetModel();
@@ -25,7 +25,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	K(0.0f), L(0.2f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
+	Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
 	lightType(AMBIENT)
 {
 	resetModel(defsize, showFNormals, showVNormals);

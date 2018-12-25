@@ -9,7 +9,8 @@
 
 
 PointLight::PointLight(std::shared_ptr<MeshModel> model) :
-	MeshModel(model)
+	MeshModel(model),
+    La(0.8f), Ld(0.8f), Ls(0.8f)
 {
 	/*int Radius = 800;
 	int RadiusPow2 = pow(Radius, 2);
