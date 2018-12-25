@@ -32,11 +32,11 @@ Renderer::~Renderer()
 	if (zBuffer) { delete[] zBuffer; }
 }
 
-void Renderer::putPixel(int i, int j, const glm::vec3& color)
+void Renderer::putPixel(int i, int j, float depth, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
-	
+	//////////////check if depth is smaller than zbeffer(x,y)
 	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = color.x;
 	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = color.y;
 	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = color.z;
@@ -95,8 +95,24 @@ float Renderer::getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
 	return A;
 }
 */
+float AreaOfTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
+	glm::vec3 a3(a.x, a.y, 0), b3(b.x, b.y, 0), c3(c.x, c.y, 0);
+	glm::vec3 ab = b3 - a3;
+	glm::vec3 ac = c3 - a3;
+	glm::vec3 cros = glm::cross(ab, ac);
+	return sqrt(pow(cros.x, 2) + pow(cros.y, 2) + pow(cros.z, 2)) / 2;
+}
 
-glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& a, glm::vec2& b, glm::vec2& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
+float GetPointBarycentric(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec2& p) {
+	float A_a = AreaOfTriangle(p, glm::vec2(b.x,b.y), glm::vec2(c.x, c.y));
+	float A_b = AreaOfTriangle(p, glm::vec2(a.x, a.y), glm::vec2(c.x, c.y));
+	float A_c = AreaOfTriangle(p, glm::vec2(b.x, b.y), glm::vec2(a.x, a.y));
+	float A = AreaOfTriangle(glm::vec2(c.x, c.y), glm::vec2(b.x, b.y), glm::vec2(a.x, a.y));
+
+	return (A_a / A) * a.z + (A_b / A) * b.z + (A_c / A) * c.z;
+}
+
+glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec4& p,glm::vec4& a, glm::vec4& b, glm::vec4& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
 	float Wb = ((a.y - c.y) * (p.x - c.x) + (c.x - a.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
 	float Wa = ((c.y - b.y) * (p.x - c.x) + (b.x - c.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
 	float Wc = 1 - Wb - Wa;
@@ -105,7 +121,7 @@ glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec2& p,glm::vec2& 
 	return glm::vec3(Wa*color0 + Wb * color1 + Wc * color2);
 }
 
-void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color) {
+void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
 	float min_x = a.x;
 	if (b.x < min_x) min_x = b.x;
 	if (c.x < min_x) min_x = c.x;
@@ -130,13 +146,14 @@ void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3
 			float w2 = w[1];
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
-				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, color);
+				float depth = GetPointBarycentric(a, b, c, p);
+				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, color);
 			}
 		}
 	}
 }
 
-void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3& color0, glm::vec3& color1, glm::vec3& color2) {
+void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color0, glm::vec3& color1, glm::vec3& color2) {
 	float min_x = a.x;
 	if (b.x < min_x) min_x = b.x;
 	if (c.x < min_x) min_x = c.x;
@@ -162,7 +179,7 @@ void Renderer::printTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c, glm::vec3
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
 				// baricentric coordinates for p = (w1,w2) color interpolation:
-				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec2(w1,w2),a, b, c, color0, color1, color2);
+				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec4(w1,w2,0,1),a, b, c, color0, color1, color2);
 				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, p_color);
 			}
 		}
@@ -203,7 +220,10 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 	}
 }
 
-void Renderer::DrawLine(float p1, float p2, float q1, float q2, const glm::vec3& color) {
+void Renderer::DrawLine(glm::vec4& v1, glm::vec4& v2, const glm::vec3& color) {
+	float p1 = v1.x, p2 = v2.x;
+	float q1 = v1.y, q2 = v2.y;
+
 	float a = (q1 - q2) / (p1 - p2);
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
@@ -313,21 +333,21 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	glm::vec4 vect7 = seriesTransform * vec7;
 	vect7 = vect7 / vect7.w;
 
-	DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->BoundingBoxColor);
-	DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->BoundingBoxColor);
-	DrawLine(vect0.x, vect4.x, vect0.y, vect4.y, model->BoundingBoxColor);
+	DrawLine(vect0, vect1, model->BoundingBoxColor);
+	DrawLine(vect0, vect2, model->BoundingBoxColor);
+	DrawLine(vect0, vect4, model->BoundingBoxColor);
 
-	DrawLine(vect3.x, vect2.x, vect3.y, vect2.y, model->BoundingBoxColor);
-	DrawLine(vect3.x, vect1.x, vect3.y, vect1.y, model->BoundingBoxColor);
-	DrawLine(vect3.x, vect7.x, vect3.y, vect7.y, model->BoundingBoxColor);
+	DrawLine(vect3, vect2, model->BoundingBoxColor);
+	DrawLine(vect3, vect1, model->BoundingBoxColor);
+	DrawLine(vect3, vect7, model->BoundingBoxColor);
 
-	DrawLine(vect6.x, vect7.x, vect6.y, vect7.y, model->BoundingBoxColor);
-	DrawLine(vect6.x, vect2.x, vect6.y, vect2.y, model->BoundingBoxColor);
-	DrawLine(vect6.x, vect4.x, vect6.y, vect4.y, model->BoundingBoxColor);
+	DrawLine(vect6, vect7, model->BoundingBoxColor);
+	DrawLine(vect6, vect2, model->BoundingBoxColor);
+	DrawLine(vect6, vect4, model->BoundingBoxColor);
 
-	DrawLine(vect5.x, vect7.x, vect5.y, vect7.y, model->BoundingBoxColor);
-	DrawLine(vect5.x, vect1.x, vect5.y, vect1.y, model->BoundingBoxColor);
-	DrawLine(vect5.x, vect4.x, vect5.y, vect4.y, model->BoundingBoxColor);
+	DrawLine(vect5, vect7, model->BoundingBoxColor);
+	DrawLine(vect5, vect1, model->BoundingBoxColor);
+	DrawLine(vect5, vect4, model->BoundingBoxColor);
 }
 
 glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint, glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength) {
@@ -411,17 +431,17 @@ std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshM
 	return v;
 }
 
-void Renderer::drawAmbientLight(glm::vec2 base, glm::vec3 color) {
+void Renderer::drawAmbientLight(glm::vec4& base, glm::vec3 color) {
 	int shift = 20;
 	int shift12 = 5;
-	glm::vec2 Left1(base.x - shift, base.y - shift12);
-	glm::vec2 Left2(base.x - shift, base.y + shift12);
-	glm::vec2 Right1(base.x + shift, base.y + shift12);
-	glm::vec2 Right2(base.x + shift, base.y - shift12);
-	glm::vec2 Up1(base.x - shift12, base.y + shift);
-	glm::vec2 Up2(base.x + shift12, base.y + shift);
-	glm::vec2 Down1(base.x + shift12, base.y - shift);
-	glm::vec2 Down2(base.x - shift12, base.y - shift);
+	glm::vec4 Left1(base.x - shift, base.y - shift12, base.z, 1);
+	glm::vec4 Left2(base.x - shift, base.y + shift12, base.z, 1);
+	glm::vec4 Right1(base.x + shift, base.y + shift12, base.z, 1);
+	glm::vec4 Right2(base.x + shift, base.y - shift12, base.z, 1);
+	glm::vec4 Up1(base.x - shift12, base.y + shift, base.z, 1);
+	glm::vec4 Up2(base.x + shift12, base.y + shift, base.z, 1);
+	glm::vec4 Down1(base.x + shift12, base.y - shift, base.z, 1);
+	glm::vec4 Down2(base.x - shift12, base.y - shift, base.z, 1);
 
 	printTriangle(Up1, Up2, Down1, color);
 	printTriangle(Down1, Down2, Up1, color);
@@ -544,10 +564,10 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
 	// draw the object as triangles collection:
 	if(isGrid){
-		DrawLine(vect0.x, vect1.x, vect0.y, vect1.y, model->color);
-		DrawLine(vect0.x, vect2.x, vect0.y, vect2.y, model->color);
-		DrawLine(vect1.x, vect3.x, vect1.y, vect3.y, model->color);
-		DrawLine(vect2.x, vect3.x, vect2.y, vect3.y, model->color);
+		DrawLine(vect0, vect1, model->color);
+		DrawLine(vect0, vect2, model->color);
+		DrawLine(vect1, vect3, model->color);
+		DrawLine(vect2, vect3, model->color);
 	} else {
 		if (!isPointLight) {
 			std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
@@ -555,9 +575,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 			glm::vec3 tri1 = triangle_colors->at(1);
 			glm::vec3 tri2 = triangle_colors->at(2);
 			delete triangle_colors; // must be here!
-			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), tri0, tri1, tri2);
+			printTriangle(vect0, vect1, vect2, tri0, tri1, tri2);
 		} else {
-			printTriangle(glm::vec2(vect0.x, vect0.y), glm::vec2(vect1.x, vect1.y), glm::vec2(vect2.x, vect2.y), model->color);
+			printTriangle(vect0, vect1, vect2, model->color);
 		}
 	}
 
@@ -565,15 +585,16 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if (!isGrid) {
 		if (model->GetFaceNormalView()) {
 			float fVlength = model->GetFaceNormalLength();
-			glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
-			glm::vec3 estfNormal = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
-			DrawLine(basePoint.x, estfNormal.x, basePoint.y, estfNormal.y, model->GetFaceNormalColor());
+			glm::vec4 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3, 1);
+			glm::vec3 estfNormal3 = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+			glm::vec4 estfNormal(estfNormal3.x, estfNormal3.y, estfNormal3.z, 1);
+			DrawLine(basePoint, estfNormal, model->GetFaceNormalColor());
 		}
 		if (model->GetVertexNormalView()) {
 			glm::vec4 vertexColor = model->GetVertexNormalColor();
-			DrawLine(vect0.x, n0.x, vect0.y, n0.y, vertexColor);
-			DrawLine(vect1.x, n1.x, vect1.y, n1.y, vertexColor);
-			DrawLine(vect2.x, n2.x, vect2.y, n2.y, vertexColor);
+			DrawLine(vect0, nt0, vertexColor);
+			DrawLine(vect1, nt1, vertexColor);
+			DrawLine(vect2, nt2, vertexColor);
 		}
 	}
 }
@@ -582,31 +603,31 @@ float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
 	return sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2));
 }
 
-void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
-	glm::vec2 from_plus; 
-	glm::vec2 from_minus; 
-	glm::vec2 middle_plus_far;
-	glm::vec2 middle_minus_far;
-	glm::vec2 middle_plus;
-	glm::vec2 middle_minus;
-	glm::vec2 middle((from.x+to.x)/2, (from.y + to.y) / 2);
+void Renderer::drawParallelLight(glm::vec4& from, glm::vec4& to,glm::vec3 color) {
+	glm::vec4 from_plus; 
+	glm::vec4 from_minus; 
+	glm::vec4 middle_plus_far;
+	glm::vec4 middle_minus_far;
+	glm::vec4 middle_plus;
+	glm::vec4 middle_minus;
+	glm::vec4 middle((from.x + to.x) / 2, (from.y + to.y) / 2, (from.z + to.z) / 2, 1);
 	float width_baseTriangle = 15;
 	float width_middle = 35;
 	if ((from.y - to.y) == 0) {
-		from_plus = glm::vec2(from.x, from.y + (width_baseTriangle/2));
-		from_minus = glm::vec2(from.x, from.y - (width_baseTriangle / 2));
-		middle_plus_far = glm::vec2(middle.x, middle.y + (width_middle / 2));
-		middle_minus_far = glm::vec2(middle.x, middle.y - (width_middle / 2));
-		middle_plus = glm::vec2(middle.x, middle.y + (width_baseTriangle / 2));
-		middle_minus = glm::vec2(middle.x, middle.y - (width_baseTriangle / 2));
+		from_plus = glm::vec4(from.x, from.y + (width_baseTriangle / 2), from.z, 1);
+		from_minus = glm::vec4(from.x, from.y - (width_baseTriangle / 2), from.z, 1);
+		middle_plus_far = glm::vec4(middle.x, middle.y + (width_middle / 2), middle.z, 1);
+		middle_minus_far = glm::vec4(middle.x, middle.y - (width_middle / 2), middle.z, 1);
+		middle_plus = glm::vec4(middle.x, middle.y + (width_baseTriangle / 2), middle.z, 1);
+		middle_minus = glm::vec4(middle.x, middle.y - (width_baseTriangle / 2), middle.z, 1);
 	}
 	else if ((from.x - to.x) == 0) {
-		from_plus = glm::vec2(from.x+ (width_baseTriangle / 2), from.y+1);
-		from_minus = glm::vec2(from.x- (width_baseTriangle / 2), from.y);
-		middle_plus_far = glm::vec2(middle.x + (width_middle / 2), middle.y + 1);
-		middle_minus_far = glm::vec2(middle.x - (width_middle / 2), middle.y);
-		middle_plus = glm::vec2(middle.x + (width_baseTriangle / 2), middle.y + 1);
-		middle_minus = glm::vec2(middle.x - (width_baseTriangle / 2), middle.y);
+		from_plus = glm::vec4(from.x+ (width_baseTriangle / 2), from.y+1, from.z, 1);
+		from_minus = glm::vec4(from.x- (width_baseTriangle / 2), from.y, from.z, 1);
+		middle_plus_far = glm::vec4(middle.x + (width_middle / 2), middle.y + 1, middle.z, 1);
+		middle_minus_far = glm::vec4(middle.x - (width_middle / 2), middle.y, middle.z, 1);
+		middle_plus = glm::vec4(middle.x + (width_baseTriangle / 2), middle.y + 1, middle.z, 1);
+		middle_minus = glm::vec4(middle.x - (width_baseTriangle / 2), middle.y, middle.z, 1);
 	}
 	else {
 		float m1 = (from.y - to.y) / (from.x - to.x);
@@ -616,24 +637,24 @@ void Renderer::drawParallelLight(glm::vec2 from, glm::vec2 to,glm::vec3 color) {
 		float b3 = middle.y - m3 * middle.x;
 		//Now we have: y = m2 * x + b2
 		//And: y = m3 * x + b3
-		from_plus = glm::vec2(from.x + 1, m2*(from.x + 1) + b2);
-		from_minus = glm::vec2(from.x - 1, m2*(from.x - 1) + b2);
-		middle_plus_far = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
-		middle_minus_far = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
-		middle_plus = glm::vec2(middle.x + 1, m3*(middle.x + 1) + b3);
-		middle_minus = glm::vec2(middle.x - 1, m3*(middle.x - 1) + b3);
+		from_plus = glm::vec4(from.x + 1, m2*(from.x + 1) + b2, from.z, 1);
+		from_minus = glm::vec4(from.x - 1, m2*(from.x - 1) + b2, from.z, 1);
+		middle_plus_far = glm::vec4(middle.x + 1, m3*(middle.x + 1) + b3, middle.z, 1);
+		middle_minus_far = glm::vec4(middle.x - 1, m3*(middle.x - 1) + b3, middle.z, 1);
+		middle_plus = glm::vec4(middle.x + 1, m3*(middle.x + 1) + b3, middle.z, 1);
+		middle_minus = glm::vec4(middle.x - 1, m3*(middle.x - 1) + b3, middle.z, 1);
 		float d2 = Distance(from_plus, from_minus);
 		float d3 = Distance(middle_plus_far, middle_minus_far);
 		float d4 = Distance(middle_plus, middle_minus);
 		float shift2 = width_baseTriangle / d2;
 		float shift3 = width_middle / d3;
 		float shift4 = width_baseTriangle / d4;
-		from_plus = glm::vec2(from.x + shift2, m2*(from.x + shift2) + b2);
-		from_minus = glm::vec2(from.x - shift2, m2*(from.x - shift2) + b2);
-		middle_plus_far = glm::vec2(middle.x + shift3, m3*(middle.x + shift3) + b3);
-		middle_minus_far = glm::vec2(middle.x - shift3, m3*(middle.x - shift3) + b3);
-		middle_plus = glm::vec2(middle.x + shift4, m3*(middle.x + shift4) + b3);
-		middle_minus = glm::vec2(middle.x - shift4, m3*(middle.x - shift4) + b3);
+		from_plus = glm::vec4(from.x + shift2, m2*(from.x + shift2) + b2, from.z, 1);
+		from_minus = glm::vec4(from.x - shift2, m2*(from.x - shift2) + b2, from.z, 1);
+		middle_plus_far = glm::vec4(middle.x + shift3, m3*(middle.x + shift3) + b3, middle.z, 1);
+		middle_minus_far = glm::vec4(middle.x - shift3, m3*(middle.x - shift3) + b3, middle.z, 1);
+		middle_plus = glm::vec4(middle.x + shift4, m3*(middle.x + shift4) + b3, middle.z, 1);
+		middle_minus = glm::vec4(middle.x - shift4, m3*(middle.x - shift4) + b3, middle.z, 1);
 	}
 	printTriangle(from_minus,middle_plus, from_plus, color);
 	printTriangle(middle_minus, from_minus, middle_plus, color);
@@ -707,14 +728,9 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			from4 = from4 / from4.w;
 			to4 = seriesTransform * to4;
 			to4 = to4 / to4.w;
-			glm::vec2 from2(from4.x, from4.y);
-			glm::vec2 to2(to4.x, to4.y);
-			drawParallelLight(from2, to2, p->color);
+			drawParallelLight(from4, to4, p->color);
 		}
 	}
-	
-
-	
 	
 	std::shared_ptr<AmbientLight> Ambient = scene.GetAmbient();
 	glm::vec3 AmbientBasePoint3 = Ambient->GetBaseVector();
@@ -730,11 +746,8 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	glm::mat4x4 seriesTransform = Mp * Mc * Ambient->GetWorldTransformation();
 	AmbientBasePoint4 = seriesTransform * AmbientBasePoint4;
 	AmbientBasePoint4 = AmbientBasePoint4 / AmbientBasePoint4.w;
-	
-	glm::vec2 AmbientBasePoint2(AmbientBasePoint4.x, AmbientBasePoint4.y);
-	
-	drawAmbientLight(AmbientBasePoint2, Ambient->color);
-	
+		
+	drawAmbientLight(AmbientBasePoint4, Ambient->color);
 }
 
 /*
