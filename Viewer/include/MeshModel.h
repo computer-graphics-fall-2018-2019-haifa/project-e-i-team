@@ -35,6 +35,9 @@ using namespace std;
 #define DIFFUSE				1
 #define SPECULAR			2
 #define PHONG_ILLUMINATION	3
+#define PARALLEL_LIGHT      4
+#define POINT_LIGHT      5
+
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
@@ -72,7 +75,7 @@ public:
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
-	glm::vec3 lightColorA, lightColorD, lightColorS;
+	glm::vec3 ambientColor, diffuseColor, specularColor;
 	float Ka, Kd, Ks, alpha;			// reflected ray of the mesh model it-self
 	int lightType;
 

@@ -295,7 +295,20 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 	// upper cases are handling the model color which are initiated at first:
-	/*ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color*/
+    float* K = nullptr;
+    if (currentModel->lightType == AMBIENT) {
+        K = &currentModel->Ka;
+    }
+    else if (currentModel->lightType == DIFFUSE) {
+        K = &currentModel->Kd;
+    }
+    else if (currentModel->lightType == SPECULAR) {
+        K = &currentModel->Ks;
+    }
+    ImGui::SliderFloat("Reflected Ray Size", K,0.0f,1.0f);
+    ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->ambientColor));
+    ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->diffuseColor));
+    ImGui::ColorEdit3("Specular Color", (float*)&(currentModel->specularColor));
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
@@ -306,24 +319,34 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 	ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 }
 
-void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-	float* K = nullptr;
-	float* L = nullptr;
-	if (currentModel->lightType == AMBIENT) {
-		K = &currentModel->Ka;
-	} else if (currentModel->lightType == DIFFUSE) {
-		K = &currentModel->Kd;
-	} else if (currentModel->lightType == SPECULAR) {
-		K = &currentModel->Ks;
-	} else {
-		return;
-	}
-	ImGui::SliderFloat("Fraction Light Reclected", K, 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 1.0f);
+void buildPointLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
+    float* L = nullptr;
+    if (currentLight->lightType == AMBIENT) {
+        L = &currentLight->La;
+    }
+    else if (currentLight->lightType == DIFFUSE) {
+        L = &currentLight->Ld;
+    }
+    else if (currentLight->lightType == SPECULAR) {
+        L = &currentLight->Ls;
+    }
+    ImGui::SliderFloat("Light Intensity", L, 0.0f, 1.0f);
+    ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));	// Edit 3 floats representing a color
+}
 
-	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA));	// Edit 3 floats representing a color
-	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD));	// Edit 3 floats representing a color
-	ImGui::ColorEdit3("Spercular Color", (float*)&(currentModel->lightColorS)); // Edit 3 floats representing a color
+void buildParallelLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
+    float* L = nullptr;
+    if (currentLight->lightType == AMBIENT) {
+        L = &currentLight->La;
+    }
+    else if (currentLight->lightType == DIFFUSE) {
+        L = &currentLight->Ld;
+    }
+    else if (currentLight->lightType == SPECULAR) {
+        L = &currentLight->Ls;
+    }
+    ImGui::SliderFloat("Light Intensity", L, 0.0f, 1.0f);
+    ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));	// Edit 3 floats representing a color
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -386,7 +409,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentModel);
 			currentModel->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentModel);
 				glm::vec3 location = currentModel->GetModelLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -417,7 +440,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -429,7 +452,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
-				buildLightPropertiesSection(currentLight);
+                buildPointLightPropertiesSection(currentLight);
 			}
 
 		}
@@ -449,7 +472,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -461,7 +484,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				currentLight->UpdateworldTransform(T);
 			}
 			if (ImGui::CollapsingHeader("Properties")) {
-				buildLightPropertiesSection(currentLight);
+                buildParallelLightPropertiesSection(currentLight);
 			}
 		}
 	}
@@ -472,7 +495,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
-		if (ImGui::CollapsingHeader("local Transformations")) {
+		if (ImGui::CollapsingHeader("Local Transformations")) {
 			buildLocalTrans(Tci, currentLight);
 			glm::vec3 location = currentLight->GetLocationAfterTrans();
 			glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);

@@ -24,14 +24,6 @@ ParallelLight::ParallelLight(glm::vec3 to) :
     La(0.8f), Ld(0.8f), Ls(0.8f)
 {
 	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1), &glm::vec3(0, 0, 0), 20, 20);
-
-	/*
-	glm::vec3 zero(0, 0, 0);
-	std::vector<Face> faces;
-	std::vector<glm::vec3> vertices , normals;
-	vertices.push_back(from);
-	vertices.push_back(to);
-	MeshModel({}, vertices, {}, zero, zero, zero, "Parallel Light");*/
 }
 
 glm::vec3 ParallelLight::GetLocationAfterTrans() {

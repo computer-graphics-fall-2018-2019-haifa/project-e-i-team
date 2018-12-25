@@ -14,7 +14,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
+	Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), ambientColor(0.8f, 0.8f, 0.8f), diffuseColor(0.8f, 0.8f, 0.8f), specularColor(0.8f, 0.8f, 0.8f),
 	lightType(AMBIENT)
 {
 	resetModel();
@@ -25,7 +25,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), lightColorA(0.8f, 0.8f, 0.8f), lightColorD(0.8f, 0.8f, 0.8f), lightColorS(0.8f, 0.8f, 0.8f),
+    Ka(0.0f), Kd(0.0f), Ks(0.0f), alpha(45.0f), ambientColor(0.8f, 0.8f, 0.8f), diffuseColor(0.8f, 0.8f, 0.8f), specularColor(0.8f, 0.8f, 0.8f),
 	lightType(AMBIENT)
 {
 	resetModel(defsize, showFNormals, showVNormals);
