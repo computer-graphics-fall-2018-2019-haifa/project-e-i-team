@@ -15,7 +15,7 @@
 using namespace std;
 
 #define INDEXCOLOR(width,x,y,c) ((x)+(y)*(width))*3+(c)
-#define INDEXZ(width,x,y,c) ((x)+(y)*(width))+(c)
+#define INDEXZ(width,x,y) ((x)+(y)*(width))
 #define MaxDepth 4000.0f
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
@@ -32,7 +32,7 @@ Renderer::~Renderer()
 	if (zBuffer) { delete[] zBuffer; }
 }
 
-void Renderer::putPixel(int i, int j, float depth, const glm::vec3& color)
+void Renderer::initPixel(int i, int j, const glm::vec3& color)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
@@ -42,7 +42,22 @@ void Renderer::putPixel(int i, int j, float depth, const glm::vec3& color)
 	colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = color.z;
 }
 
-void Renderer::putZ(int i, int j, const float depth)
+void Renderer::putPixel(int i, int j, float depth, const glm::vec3& color)
+{
+	if (i < 0) return; if (i >= viewportWidth) return;
+	if (j < 0) return; if (j >= viewportHeight) return;
+	
+	if (depth < zBuffer[INDEXZ(viewportWidth, i, j)]) {
+		zBuffer[INDEXZ(viewportWidth, i, j)] = depth;
+
+		colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = color.x;
+		colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = color.y;
+		colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = color.z;
+	}
+
+}
+
+void Renderer::initZ(int i, int j, const float depth)
 {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
@@ -59,8 +74,8 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 	zBuffer = new float[viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++) {
 		for (int y = 0; y < viewportHeight; y++) { 
-			putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f)); 
-			putZ(x, y, MaxDepth);
+			initPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f)); 
+			initZ(x, y, MaxDepth);
 		}
 	}
 }
@@ -70,8 +85,8 @@ void Renderer::ClearColorBuffer(const glm::vec3& color,const float depth) {
 	for (int i = 0; i < viewportWidth; i++) {
 		
 		for (int j = 0; j < viewportHeight; j++) {
-			putZ(i, j, depth);
-			putPixel(i, j, color); 
+			initZ(i, j, depth);
+			initPixel(i, j, color);
 		}
 	}
 }
@@ -103,13 +118,30 @@ float AreaOfTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
 	return sqrt(pow(cros.x, 2) + pow(cros.y, 2) + pow(cros.z, 2)) / 2;
 }
 
-float GetPointBarycentric(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec2& p) {
+float GetPointBarycentricTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec2& p) {
 	float A_a = AreaOfTriangle(p, glm::vec2(b.x,b.y), glm::vec2(c.x, c.y));
 	float A_b = AreaOfTriangle(p, glm::vec2(a.x, a.y), glm::vec2(c.x, c.y));
 	float A_c = AreaOfTriangle(p, glm::vec2(b.x, b.y), glm::vec2(a.x, a.y));
 	float A = AreaOfTriangle(glm::vec2(c.x, c.y), glm::vec2(b.x, b.y), glm::vec2(a.x, a.y));
 
 	return (A_a / A) * a.z + (A_b / A) * b.z + (A_c / A) * c.z;
+}
+
+float GetPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
+	float alfa;
+	if (v1.x != v2.x) {
+		alfa = (p.x - v2.x) / (v1.x - v2.x);
+		return alfa * v1.z + (1 - alfa) * v2.z;
+	}
+	else if (v1.y != v2.y) {
+		alfa = (p.y - v2.y) / (v1.y - v2.y);
+		return alfa * v1.z + (1 - alfa) * v2.z;
+	}
+	else {
+		float minZ = v1.z;
+		if (v2.z < minZ) minZ = v2.z;
+		return minZ;
+	}	
 }
 
 glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec4& p,glm::vec4& a, glm::vec4& b, glm::vec4& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
@@ -146,7 +178,7 @@ void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3
 			float w2 = w[1];
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
-				float depth = GetPointBarycentric(a, b, c, p);
+				float depth = GetPointBarycentricTriangle(a, b, c, p);
 				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, color);
 			}
 		}
@@ -178,9 +210,10 @@ void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3
 			float w2 = w[1];
 
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
+				float depth = GetPointBarycentricTriangle(a, b, c, p);
 				// baricentric coordinates for p = (w1,w2) color interpolation:
 				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec4(w1,w2,0,1),a, b, c, color0, color1, color2);
-				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, p_color);
+				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
 			}
 		}
 	}
@@ -200,7 +233,10 @@ glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec
 }
 
 // huge of complexity than Bresenham algorithm
-void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color) {
+void Renderer::NaiveAlg(glm::vec4& v1, glm::vec4& v2, const glm::vec3& color) {
+	float p1 = v1.x, p2 = v2.x;
+	float q1 = v1.y, q2 = v2.y;
+	
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
 	float m = delta_q / delta_p;
@@ -216,7 +252,8 @@ void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3&
 	}
 	for (; x <= to; x++) {
 		y = round(m*x + c);
-		putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, color);
+		float depth = GetPointBarycentricLine(v1, v2, glm::vec2(x, y));
+		putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, depth, color);
 	}
 }
 
@@ -227,33 +264,35 @@ void Renderer::DrawLine(glm::vec4& v1, glm::vec4& v2, const glm::vec3& color) {
 	float a = (q1 - q2) / (p1 - p2);
 	if (a >= 0 && a <= 1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2, false, false, false, color);
+			BresenhamAlg(v1, v2, p1, p2, q1, q2, false, false, false, color);
 		} else {
-			BresenhamAlg(p2, p1, q2, q1, false, false, false, color);
+			BresenhamAlg(v1, v2, p2, p1, q2, q1, false, false, false, color);
 		}
 	} else if (a > 1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2, true, false, false, color);
+			BresenhamAlg(v1, v2, q1, q2, p1, p2, true, false, false, color);
 		} else {
-			BresenhamAlg(q2, q1, p2, p1, true, false, false, color);
+			BresenhamAlg(v1, v2, q2, q1, p2, p1, true, false, false, color);
 		}
 	} else if (a < 0 && a >= -1) {
 		if (p1 < p2) {
-			BresenhamAlg(p1, p2, q1, q2 + 2*(q1-q2), false, true, false, color);
+			BresenhamAlg(v1, v2, p1, p2, q1, q2 + 2*(q1-q2), false, true, false, color);
 		} else {
-			BresenhamAlg(p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false, color);
+			BresenhamAlg(v1, v2, p2, p1, q2, q1 + 2 * (q2 - q1), false, true, false, color);
 		}
 	} else if (a < -1) {
 		if (q1 < q2) {
-			BresenhamAlg(q1, q2, p1, p2+2*(p1-p2), true, true, false, color);
+			BresenhamAlg(v1, v2, q1, q2, p1, p2+2*(p1-p2), true, true, false, color);
 		} else {
-			BresenhamAlg(q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true, color);
+			BresenhamAlg(v1, v2, q1, q2 + 2 * (q1 - q2), p1, p2, true, false, true, color);
 		}
 	}
 }
 
+
+
 // fully tested
-void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color) {
+void Renderer::BresenhamAlg(glm::vec4& v1, glm::vec4& v2,float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color) {
 	float x, y, e;
 	float delta_p = p2 - p1;
 	float delta_q = q2 - q1;
@@ -273,12 +312,15 @@ void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_
 
 		if (switch_print) {
 			if (NegY) {
-				putPixel((viewportWidth / 2) + y , (viewportHeight / 2) - x + 2*p1, color);
+				float depth = GetPointBarycentricLine(v1, v2, glm::vec2(y, -x + 2 * p1));
+				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) - x + 2 * p1, depth, color);
 			} else {
-				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x,color);
+				float depth = GetPointBarycentricLine(v1, v2, glm::vec2(y, x));
+				putPixel((viewportWidth / 2) + y, (viewportHeight / 2) + x, depth, color);
 			}
 		} else {
-			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, color);
+			float depth = GetPointBarycentricLine(v1, v2, glm::vec2(x, y));
+			putPixel((viewportWidth / 2) + x, (viewportHeight / 2) + y, depth, color);
 		}
 		x++;
 		e = e + 2 * delta_q;
@@ -575,7 +617,8 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 			glm::vec3 tri1 = triangle_colors->at(1);
 			glm::vec3 tri2 = triangle_colors->at(2);
 			delete triangle_colors; // must be here!
-			printTriangle(vect0, vect1, vect2, tri0, tri1, tri2);
+			//printTriangle(vect0, vect1, vect2, tri0, tri1, tri2);
+			printTriangle(vect0, vect1, vect2, model->color);
 		} else {
 			printTriangle(vect0, vect1, vect2, model->color);
 		}

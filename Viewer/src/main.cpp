@@ -39,12 +39,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-	glm::vec3 a3(10, 0, 0), b3(-10, 0, 0), c3(0, 5, 0);
-	glm::vec3 ab = b3 - a3;
-	glm::vec3 ac = c3 - a3;
-	glm::vec3 cros = glm::cross(ab, ac);
-	cout<< sqrt(pow(cros.x, 2) + pow(cros.y, 2) + pow(cros.z, 2)) / 2;
-	/*
+	
 	srand(time(NULL)); // init clock to pseudo random usage
 
 	// Create GLFW window
@@ -88,7 +83,7 @@ int main(int argc, char **argv)
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
-	*/
+	
     return 0;
 }
 

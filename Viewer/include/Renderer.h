@@ -19,13 +19,14 @@ private:
 	int viewportWidth,viewportHeight;
 	int viewportX,viewportY;
 
-	void putPixel(int x, int y,float depth, const glm::vec3& color);
-	void putZ(int i, int j, const float depth);
+	void putPixel(int i, int j, float depth, const glm::vec3& color);
+	void initPixel(int x, int y, const glm::vec3& color);
+	void initZ(int i, int j, const float depth);
 	float Renderer::Distance(glm::vec2 v1, glm::vec2 v2);
 	void createBuffers(int viewportWidth, int viewportHeight);	
-	void Renderer::NaiveAlg(float p1, float p2, float q1, float q2, const glm::vec3& color);
+	void Renderer::NaiveAlg(glm::vec4& v1, glm::vec4& v2, const glm::vec3& color);
 	void Renderer::DrawLine(glm::vec4& v1, glm::vec4& v2, const glm::vec3& color);
-	void Renderer::BresenhamAlg(float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
+	void Renderer::BresenhamAlg(glm::vec4& v1, glm::vec4& v2, float p1, float p2, float q1, float q2, bool switch_print, bool NegX, bool NegY, const glm::vec3& color);
 	void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io, int k, bool isCameraModel = false);
 	void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormal,int k, const ImGuiIO& io,bool isCameraModel=false,bool isGrid = false, bool isPointLight=false);
 	void Renderer::drawAmbientLight(glm::vec4& base, glm::vec3 color);
