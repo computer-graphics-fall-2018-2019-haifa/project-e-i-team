@@ -39,7 +39,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char **argv)
 {
-	
 	srand(time(NULL)); // init clock to pseudo random usage
 
 	// Create GLFW window

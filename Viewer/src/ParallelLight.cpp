@@ -39,4 +39,16 @@ glm::vec3 ParallelLight::GetLocationAfterTrans() {
 	return glm::vec3(location.x, location.y, location.z);
 }
 
+glm::vec3 ParallelLight::GetDirectionAfterTrans() {
+	glm::vec4 from4(from.x, from.y, from.z, 1);
+	glm::vec4 from_location = GetWorldTransformation() * from4;
+
+	glm::vec4 to4(to.x, to.y, to.z, 1);
+	glm::vec4 to_location = GetWorldTransformation() * to4;
+
+	glm::vec4 direction = to_location - from_location;
+
+	return glm::vec3(direction.x, direction.y, direction.z);
+}
+
 ParallelLight::~ParallelLight() {}

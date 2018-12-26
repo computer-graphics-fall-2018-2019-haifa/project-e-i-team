@@ -392,6 +392,18 @@ void Renderer::RenderBoundingBox(Scene& scene, const ImGuiIO& io , int k, bool i
 	DrawLine(vect5, vect4, model->BoundingBoxColor);
 }
 
+// Compute the cosine of the angle between the light vector and the normal vector
+// Returns a value between 0 and 1
+float ComputeCosAlpha(glm::vec3 vertex, glm::vec3 normalDirection, glm::vec3 lightPosition)
+{
+	glm::vec3 lightDirection = lightPosition - vertex;
+	float CosAlpha = glm::dot(glm::normalize(normalDirection) , glm::normalize(lightDirection));
+	
+	if (CosAlpha < 0)return 0;
+	else return CosAlpha;
+}
+
+
 glm::vec3 Renderer::GetEstimatedFaceNormal(glm::vec3 basePoint, glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength) {
 	glm::vec3 u0 = vec1 - vec0;
 	glm::vec3 u1 = vec2 - vec0;
@@ -612,32 +624,63 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		DrawLine(vect2, vect3, model->color);
 	} else {
 		if (!isPointLight) {
-			std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
-			glm::vec3 tri0 = triangle_colors->at(0);
-			glm::vec3 tri1 = triangle_colors->at(1);
-			glm::vec3 tri2 = triangle_colors->at(2);
-			delete triangle_colors; // must be here!
+			float flatshading = 1;
+
+			if (model->GetFaceNormalView()) {
+				float fVlength = model->GetFaceNormalLength();
+				glm::vec4 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3, 1);
+				glm::vec3 estfNormal3 = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+				glm::vec4 estfNormal(estfNormal3.x, estfNormal3.y, estfNormal3.z, 1);
+				DrawLine(basePoint, estfNormal, model->GetFaceNormalColor());
+			}
+			if (model->GetVertexNormalView()) {
+				glm::vec4 vertexColor = model->GetVertexNormalColor();
+				DrawLine(vect0, nt0, vertexColor);
+				DrawLine(vect1, nt1, vertexColor);
+				DrawLine(vect2, nt2, vertexColor);
+
+				std::shared_ptr<AmbientLight> Ambient = scene.GetAmbient();
+				glm::vec3 AmbientBasePoint3 = Ambient->GetBaseVector();
+				glm::vec4 L4(AmbientBasePoint3.x, AmbientBasePoint3.y, AmbientBasePoint3.z, 1);
+				glm::mat4x4 seriesTransform = Mp * Mc * Ambient->GetWorldTransformation();
+				L4 = seriesTransform * L4;
+				L4 = L4 / L4.w;
+				float fVlength = model->GetFaceNormalLength();
+				glm::vec4 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3, 1);
+				glm::vec3 estfNormal3 = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
+				glm::vec4 estfNormal(estfNormal3.x, estfNormal3.y, estfNormal3.z, 1);
+				flatshading = ComputeCosAlpha(basePoint, estfNormal - basePoint, glm::vec3(L4.x, L4.y, L4.z));
+			
+				//int PointLightCount = scene.GetPointLightCount();
+				//if (PointLightCount > 0) {
+				//	for (int k = 0; k < PointLightCount; k++) {
+				//		PointLight p = scene.GetPointLight(k);
+				//		p.GetLocationAfterTrans();
+				//		//complete here
+				//	}
+				//}
+
+				//int ParallelLightCount = scene.GetParallelLightCount();
+				//if (ParallelLightCount > 0) {
+				//	for (int k = 0; k < ParallelLightCount; k++) {
+				//		std::shared_ptr<ParallelLight> p = scene.GetParallelLight(k);
+				//		p->GetDirectionAfterTrans();
+				//		//complete here
+				//	}
+				//}
+			}
+			
+			
+			//std::vector<glm::vec3>* triangle_colors = estTriangle(scene, model, n0, n1, n2, model->lightType);
+			//glm::vec3 tri0 = triangle_colors->at(0);
+			//glm::vec3 tri1 = triangle_colors->at(1);
+			//glm::vec3 tri2 = triangle_colors->at(2);
+			//delete triangle_colors; // must be here!
 			//printTriangle(vect0, vect1, vect2, tri0, tri1, tri2);
-			printTriangle(vect0, vect1, vect2, model->color);
+			
+			printTriangle(vect0, vect1, vect2, flatshading * model->color);
 		} else {
 			printTriangle(vect0, vect1, vect2, model->color);
-		}
-	}
-
-	// up to the checkbox sign:
-	if (!isGrid) {
-		if (model->GetFaceNormalView()) {
-			float fVlength = model->GetFaceNormalLength();
-			glm::vec4 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3, 1);
-			glm::vec3 estfNormal3 = GetEstimatedFaceNormal(basePoint, vect0, vect1, vect2, fVlength);
-			glm::vec4 estfNormal(estfNormal3.x, estfNormal3.y, estfNormal3.z, 1);
-			DrawLine(basePoint, estfNormal, model->GetFaceNormalColor());
-		}
-		if (model->GetVertexNormalView()) {
-			glm::vec4 vertexColor = model->GetVertexNormalColor();
-			DrawLine(vect0, nt0, vertexColor);
-			DrawLine(vect1, nt1, vertexColor);
-			DrawLine(vect2, nt2, vertexColor);
 		}
 	}
 }
@@ -746,7 +789,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 			std::vector<Face> faces = scene.getPointLightfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getPointLightNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
-				showMeshObject(scene, face, vNormals, k, io, false,false,true);
+				showMeshObject(scene, face, vNormals, k, io, false, false, true);
 			}
 		}
 	}
