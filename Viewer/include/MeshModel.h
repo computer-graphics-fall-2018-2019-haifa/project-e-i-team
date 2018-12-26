@@ -69,7 +69,7 @@ private:
 	glm::mat4x4 worldTransform;
 	std::string modelName;
 public:
-	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor;
+	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor, estfNormal;
 	bool showFaceNormals,showVertexNormals,showBoundingBox;
 	glm::vec4 fNcolor,vNcolor;
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;

@@ -3,7 +3,7 @@
 #include <string>
 #define ORIGIN AmbientLight(glm::vec3(0,0,0))
 
-Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0){
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), shadingType(PHONGY) {
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
 }
 
@@ -258,4 +258,12 @@ void Scene::WholeWorldTransfer(glm::mat4x4& Tcm,glm::mat4x4& Tc) {
 			camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
 		}
 	}
+}
+
+void Scene::setShadingType(int shade) {
+    shadingType = shade;
+}
+
+int Scene::getShadingType() {
+    return shadingType;
 }

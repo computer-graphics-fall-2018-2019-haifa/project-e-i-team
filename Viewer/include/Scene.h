@@ -11,6 +11,10 @@
 #include "ParallelLight.h"
 #include "AmbientLight.h"
 
+#define PHONGY  0
+#define GOURAUD 1
+#define FLAT    2
+
 /*
  * Scene class.
  * This class holds all the scene information (models, cameras, lights, etc..)
@@ -22,6 +26,7 @@ private:
 	std::vector< std::shared_ptr<PointLight>> PointLights;
 	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
 	std::shared_ptr<AmbientLight> Ambient;
+    int shadingType;
 public:
 	int CurrCam, SizeCam;
 	int CurrPoint, SizePoint;
@@ -60,5 +65,7 @@ public:
 	// BUG - do not use it - required a series test before changing to use this general-mass function
 	glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model);
 	void Scene::SetFocusOnCurrentModel();
-	void WholeWorldTransfer(glm::mat4x4& Tcm, glm::mat4x4& Tc);
+	void Scene::WholeWorldTransfer(glm::mat4x4& Tcm, glm::mat4x4& Tc);
+    int Scene::getShadingType();
+    void Scene::setShadingType(int shade);
 };

@@ -12,16 +12,19 @@ glm::vec3 AmbientLight::GetBaseVector() {
 
 AmbientLight::AmbientLight(glm::vec3 base) :
 	base(base),
-    La(0.8f), Ld(0.8f), Ls(0.8f)
+    Ka(0.8f), La(0.8f),ambientLight(ambientColor*0.8f*0.8f)
 {
-	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),
-		&glm::vec3(0, 0, 0), 20, 20);
+	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),&glm::vec3(0, 0, 0), 20, 20);
 }
 
 glm::vec3 AmbientLight::GetLocationAfterTrans() {
 	glm::vec4 base4(base.x, base.y, base.z, 1);
 	glm::vec4 location = GetWorldTransformation() * base4;
 	return glm::vec3(location.x, location.y, location.z);
+}
+
+float AmbientLight::estAmbientColor(float K, float L) {
+    return K * L;
 }
 
 AmbientLight::~AmbientLight() {}

@@ -2,6 +2,11 @@
 #include <imgui/imgui.h>
 #include "Scene.h"
 
+#define PARALLEL_LIGHT_SECTION  3
+#define POINT_LIGHT_SECTION     2
+#define MODEL_SECTION           1
+#define CAMERA_SECTION          0
+
 void DrawImguiMenus(ImGuiIO& io, Scene& scene, int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight);
 const glm::vec4& GetClearColor();
 const float GetMaxDepth();
