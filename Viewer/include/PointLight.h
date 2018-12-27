@@ -10,7 +10,7 @@ class PointLight : public MeshModel
 
 public:
 	glm::vec3 Center;
-
+	float Ld, Ls;
 	PointLight(std::shared_ptr<MeshModel> model);
 	glm::vec3 GetLocationAfterTrans();
 	~PointLight();

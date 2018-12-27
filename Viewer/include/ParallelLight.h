@@ -11,6 +11,7 @@ private:
 	glm::vec3 from;
 	glm::vec3 to;
 public:
+	float Ld, Ls;
 	ParallelLight(glm::vec3 to);
 	~ParallelLight();
 	glm::vec3 GetToVector();
