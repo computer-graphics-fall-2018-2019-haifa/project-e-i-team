@@ -102,14 +102,6 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	createOpenGLBuffer();
 }
 
-/*
-float Renderer::getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
-	glm::vec2 proj_rot_vec = glm::normalize(-glm::dot(c - a, b - a) * (c - a) * Trans::getxRotate2x2(M_PI / 2.0f));
-	glm::vec2 height = (proj_rot_vec - glm::normalize(b));
-	float A = glm::length(height) * glm::length(c - a) / 2.0f;
-	return A;
-}
-*/
 float AreaOfTriangle(glm::vec2& a, glm::vec2& b, glm::vec2& c) {
 	glm::vec3 a3(a.x, a.y, 0), b3(b.x, b.y, 0), c3(c.x, c.y, 0);
 	glm::vec3 ab = b3 - a3;
@@ -144,14 +136,6 @@ float GetPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
 	}	
 }
 
-glm::vec3& Renderer::interpolate_baricentric_coordinate(glm::vec4& p,glm::vec4& a, glm::vec4& b, glm::vec4& c,glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
-	float Wb = ((a.y - c.y) * (p.x - c.x) + (c.x - a.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
-	float Wa = ((c.y - b.y) * (p.x - c.x) + (b.x - c.x) * (p.y - c.y)) / ((a.y - c.y) * (b.x - c.x) + (c.x - a.x) * (b.y - c.y));
-	float Wc = 1 - Wb - Wa;
-
-	// Wa,Wb,Wc are weight which is depended on a,b,c relatively and provided as weight to the colors from a,b,c to interpolate:
-	return glm::vec3(Wa*color0 + Wb * color1 + Wc * color2);
-}
 
 void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
 	float min_x = a.x;
@@ -212,7 +196,7 @@ void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3
 			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
 				float depth = GetPointBarycentricTriangle(a, b, c, p);
 				// baricentric coordinates for p = (w1,w2) color interpolation:
-				glm::vec3 p_color = interpolate_baricentric_coordinate(glm::vec4(w1,w2,0,1),a, b, c, color0, color1, color2);
+				glm::vec3 p_color = barycentric_interpolation(glm::vec4(w1,w2,0,1),a, b, c, color0, color1, color2);
 				putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
 			}
 		}
@@ -398,7 +382,6 @@ float ComputeCosAlpha(glm::vec3 vertex, glm::vec3 normalDirection, glm::vec3 lig
 {
 	glm::vec3 lightDirection = lightPosition - vertex;
 	float CosAlpha = glm::dot(glm::normalize(normalDirection) , glm::normalize(lightDirection));
-	
 	if (CosAlpha < 0)return 0;
 	else return CosAlpha;
 }
@@ -438,51 +421,6 @@ glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm:
 	else if(method == PHONG_ILLUMINATION){
 		return colorA * estAmbientColor(K, L) + colorD * estDiffuseColor(K, L, N, S) + colorS * estSpecularColor(K, L, V, N, S, alpha);
 	}
-}
-
-std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec3& n0, glm::vec3& n1, glm::vec3& n2,int method) {
-	glm::vec3* sourceLight = nullptr;
-	if (scene.SizePoint > 0) {
-		sourceLight = &scene.GetPointLight(scene.CurrPoint)->Center;
-	}
-	if(sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color0 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n0,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorA,
-		method,
-		model->alpha
-	);
-	if (sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color1 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n1,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorD,
-		method,
-		model->alpha
-	);
-	if (sourceLight == nullptr) sourceLight = &n0;
-	glm::vec3 color2 = estColor(
-		model->K,
-		model->L,
-		scene.GetCamera(scene.CurrCam)->origin_eye,
-		n2,
-		*sourceLight,
-		model->lightColorA, model->lightColorD, model->lightColorS,
-		method,
-		model->alpha
-	);
-	std::vector<glm::vec3>* v = new std::vector<glm::vec3>;
-	v->push_back(color0);
-	v->push_back(color1);
-	v->push_back(color2);
-	return v;
 }
 
 void Renderer::drawAmbientLight(glm::vec4& base, glm::vec3 color) {
