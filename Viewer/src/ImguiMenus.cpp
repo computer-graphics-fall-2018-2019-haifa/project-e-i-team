@@ -294,8 +294,9 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 }
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-	// upper cases are handling the model color which are initiated at first:
-	/*ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color)); // Edit 3 floats representing a color*/
+    ImGui::SliderFloat("Diffuse Reflected Ray", &(currentModel->Kd), 0.0f, 1.0f);
+    ImGui::SliderFloat("Specular Reflected Ray", &(currentModel->Ks), 0.0f, 1.0f);
+    ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 200.0f);
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
@@ -310,28 +311,19 @@ void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
 	ImGui::SliderFloat("Light Reclected", &(currentLight->Ka), 0.0f, 1.0f);
 	ImGui::SliderFloat("Light Intensity", &(currentLight->La), 0.0f, 1.0f);
 	ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+    currentLight->color = currentLight->color * currentLight->Ka * currentLight->La;
 }
 
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
-	ImGui::SliderFloat("Diffuse Light Reclected", &(currentLight->Kd), 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular Light Reclected", &(currentLight->Ks), 0.0f, 1.0f);
-
 	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess Light", &(currentLight->alpha), 0.0f, 1.0f);
-
 	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
 	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
-	ImGui::SliderFloat("Diffuse Light Reclected", &(currentLight->Kd), 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular Light Reclected", &(currentLight->Ks), 0.0f, 1.0f);
-
 	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess Light", &(currentLight->alpha), 0.0f, 1.0f);
-
 	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
 	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
 }
@@ -341,17 +333,12 @@ void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
 	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-	
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
-	
-	ImGui::Combo("Illumination Model", &scene->shadingType, "Phongy\0Gouraud\0Flat", 3);
-
+	ImGui::Combo("Shading Model", &(scene->shadingType), "Phongy\0Gouraud\0Flat", 3);
 	static int type = 1;
 	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source"};
 	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
-	ImGui::TextColored(textColor, "");
-	ImGui::TextColored(textColor, "-------------------------");
 	ImGui::TextColored(textColor, "");
 	if (type == 0) {
 		if (ImGui::Button("Add camera")) {
@@ -423,7 +410,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Light Name", &(scene->CurrPoint), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
-			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
+			//ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
 			currentLight->lightType = POINT_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
@@ -453,7 +440,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Light Name", &(scene->CurrParallel), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
-			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
+			//ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
 			currentLight->lightType = PARALLEL_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 
@@ -477,7 +464,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	else {
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
-		ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
 		currentLight->lightType = AMBIENT_LIGHT;
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
 
@@ -494,6 +480,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			buildWorldTrans(T, currentLight);
 			currentLight->UpdateworldTransform(T);			
 		}
+        if (ImGui::CollapsingHeader("Properties")) {
+            buildLightPropertiesSection(currentLight);
+        }
 	}
 		
 	

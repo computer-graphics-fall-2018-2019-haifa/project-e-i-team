@@ -15,8 +15,8 @@ AmbientLight::AmbientLight(glm::vec3 base) :
 	Ka(1.0f), La(1.0f),
 	color(0,0,0)
 {
-	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),
-		&glm::vec3(0, 0, 0), 20, 20);
+	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),&glm::vec3(0, 0, 0), 20, 20);
+    color = color * Ka * La;
 }
 
 glm::vec3 AmbientLight::GetLocationAfterTrans() {

@@ -16,7 +16,7 @@ using namespace std;
 #define POS_DOUBLE_PI 2.2f*M_PI
 
 #define MAX_NORMAL_LENGTH 100.0f
-#define MIN_NORMAL_LENGTH 50.0f
+#define MIN_NORMAL_LENGTH 0.0f
 
 #define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
@@ -31,9 +31,17 @@ using namespace std;
 #define YTRANS_FACTOR 20.0f
 #define BLACK_COLOR_LINE glm::vec4(0.0f, 0.0f, 0.0f,1.0f)
 
-#define AMBIENT				0 
-#define DIFFUSE				1
-#define SPECULAR			2
+#define POINT_LIGHT     0
+#define PARALLEL_LIGHT  1
+#define AMBIENT_LIGHT   2
+
+#define AMBIENT			0 
+#define DIFFUSE			1
+#define SPECULAR		2
+
+#define PHONGY          0
+#define GOURAUD         1
+#define FLAT            2
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
