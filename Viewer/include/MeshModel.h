@@ -34,7 +34,6 @@ using namespace std;
 #define AMBIENT				0 
 #define DIFFUSE				1
 #define SPECULAR			2
-#define PHONG_ILLUMINATION	3
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
@@ -73,9 +72,10 @@ public:
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
-	glm::vec3 lightColorA, lightColorD, lightColorS;
-	float K, L, alpha;
+	glm::vec3 diffuseColor, specularColor;
+	float Kd, Ks, alpha;
 	int lightType;
+	glm::vec3 estfNormal;
 
 	MeshModel(){}
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");

@@ -11,6 +11,14 @@
 #include "ParallelLight.h"
 #include "AmbientLight.h"
 
+#define PHONGY			0
+#define GOURAUD			1
+#define FLAT			2
+
+#define POINT_LIGHT		0
+#define PARALLEL_LIGHT	1
+#define AMBIENT_LIGHT	2
+
 /*
  * Scene class.
  * This class holds all the scene information (models, cameras, lights, etc..)
@@ -27,6 +35,7 @@ public:
 	int CurrPoint, SizePoint;
 	int CurrParallel, SizeParallel;
 	int activeModelIndex, gridCounter;
+	int shadingType;
 	
 	Scene();
 	void AddModel(const std::shared_ptr<MeshModel>& model);

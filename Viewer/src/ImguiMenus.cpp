@@ -306,14 +306,34 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
 	ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 }
 
-void buildLightPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-	ImGui::SliderFloat("Fraction Light Reclected", &(currentModel->K), 0.0f, 1.0f);
-	ImGui::SliderFloat("Light Intensity", &(currentModel->L), 0.0f, 1.0f);
-	ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 1.0f);
+void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
+	ImGui::SliderFloat("Light Reclected", &(currentLight->Ka), 0.0f, 1.0f);
+	ImGui::SliderFloat("Light Intensity", &(currentLight->La), 0.0f, 1.0f);
+	ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+}
 
-	ImGui::ColorEdit3("Ambient Color", (float*)&(currentModel->lightColorA)); // Edit 3 floats representing a color
-	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentModel->lightColorD)); // Edit 3 floats representing a color
-	ImGui::ColorEdit3("Spercular Color", (float*)&(currentModel->lightColorS)); // Edit 3 floats representing a color
+void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
+	ImGui::SliderFloat("Diffuse Light Reclected", &(currentLight->Kd), 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Light Reclected", &(currentLight->Ks), 0.0f, 1.0f);
+
+	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
+	ImGui::SliderFloat("Shininess Light", &(currentLight->alpha), 0.0f, 1.0f);
+
+	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
+	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
+}
+
+void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
+	ImGui::SliderFloat("Diffuse Light Reclected", &(currentLight->Kd), 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Light Reclected", &(currentLight->Ks), 0.0f, 1.0f);
+
+	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
+	ImGui::SliderFloat("Shininess Light", &(currentLight->alpha), 0.0f, 1.0f);
+
+	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
+	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -325,6 +345,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
 	
+	ImGui::Combo("Illumination Model", &scene->shadingType, "Phongy\0Gouraud\0Flat", 3);
+
 	static int type = 1;
 	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source"};
 	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
@@ -376,7 +398,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentModel);
 			currentModel->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentModel);
 				glm::vec3 location = currentModel->GetModelLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -402,12 +424,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
 			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
-
+			currentLight->lightType = POINT_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -433,13 +454,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
 			ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			ImGui::Combo("Light Type", &(currentLight->lightType), "Ambient\0Diffuse\0Specular\0Phong Illumination", IM_ARRAYSIZE(items));
-
+			currentLight->lightType = PARALLEL_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-			if (ImGui::CollapsingHeader("local Transformations")) {
+			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
@@ -458,11 +478,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	else {
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
 		ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
+		currentLight->lightType = AMBIENT_LIGHT;
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
 
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
-		if (ImGui::CollapsingHeader("local Transformations")) {
+		if (ImGui::CollapsingHeader("Local Transformations")) {
 			buildLocalTrans(Tci, currentLight);
 			glm::vec3 location = currentLight->GetLocationAfterTrans();
 			glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);

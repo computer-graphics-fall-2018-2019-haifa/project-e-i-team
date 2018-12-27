@@ -58,10 +58,17 @@ public:
 	alpha - shininess coefficient
 	method - from the macro you could pick: AMBIENT,DIFFUSE,SPECULAR
 	*/
-	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& colorA, glm::vec3& colorD, glm::vec3& colorS, int method, float alpha = 0.0f); // color material
+	glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method, float alpha = 0.0f);
 	std::vector<glm::vec3>* Renderer::estTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int method);
 	glm::vec3& Renderer::barycentric_interpolation(glm::vec4& p, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2);
 	// uniform and simply mesh-model rendering without any ray technique:
 	void Renderer::printTriangle(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color);
 	//float getTriangleArea(glm::vec2& a, glm::vec2& b, glm::vec2& c);
+	void Renderer::paintTriangleByPhong(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& vect0, glm::vec3& vect1, glm::vec3& vect2, glm::vec3& interpolatedNormal, int lightType);
+	void Renderer::paintTriangleByFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& vect0, glm::vec3& n0, glm::vec3& vect1, glm::vec3& n1, glm::vec3& vect2, glm::vec3& n2, int lightType);
+	void Renderer::paintTriangleByGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& vect0, glm::vec3& n0, glm::vec3& vect1, glm::vec3& n1, glm::vec3& vect2, glm::vec3& n2, int lightType);
+	void Renderer::DrawLine(glm::vec3& v1, glm::vec3& v2, const glm::vec3& color);
+	void Renderer::printTriangle(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& color0, glm::vec3& color1, glm::vec3& color2);
+	void Renderer::printTriangle(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& color);
+
 };
