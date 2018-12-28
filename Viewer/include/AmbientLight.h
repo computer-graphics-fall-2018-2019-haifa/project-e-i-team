@@ -11,7 +11,6 @@ private:
 	glm::vec3 base;
 public:
 	float Ka, La;
-	glm::vec3 color;
 	AmbientLight(glm::vec3 base);
 	~AmbientLight();
 	glm::vec3 GetBaseVector();

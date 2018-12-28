@@ -296,7 +296,7 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
     ImGui::SliderFloat("Diffuse Reflected Ray", &(currentModel->Kd), 0.0f, 1.0f);
     ImGui::SliderFloat("Specular Reflected Ray", &(currentModel->Ks), 0.0f, 1.0f);
-    ImGui::SliderFloat("Shininess Light", &(currentModel->alpha), 0.0f, 200.0f);
+    ImGui::SliderFloat("Shininess Ray", &(currentModel->alpha), 0.0f, 200.0f);
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
@@ -311,21 +311,18 @@ void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
 	ImGui::SliderFloat("Light Reclected", &(currentLight->Ka), 0.0f, 1.0f);
 	ImGui::SliderFloat("Light Intensity", &(currentLight->La), 0.0f, 1.0f);
 	ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
-    currentLight->color = currentLight->color * currentLight->Ka * currentLight->La;
 }
 
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
 	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
-	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
-	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
+    ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
 	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
-	ImGui::ColorEdit3("Diffuse Color", (float*)&(currentLight->diffuseColor)); // Edit 3 floats representing a color
-	ImGui::ColorEdit3("Specular Color", (float*)&(currentLight->specularColor)); // Edit 3 floats representing a color
+    ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -410,8 +407,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Light Name", &(scene->CurrPoint), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
-			//ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			currentLight->lightType = POINT_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
@@ -434,16 +429,15 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	else if (type == 3) {
 		if (ImGui::Button("Add Parallel Light")) {
-			scene->AddParallelLight();
+            if (scene->GetParallelLightCount() == 0) {
+                scene->AddParallelLight();
+            }
 		}
 		const char* items = getLightNames(scene->SizeParallel, "Parallel Light ");
 		ImGui::Combo("Light Name", &(scene->CurrParallel), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
-			//ImGui::ColorEdit3("Light Color", (float*)&(currentLight->color));
-			currentLight->lightType = PARALLEL_LIGHT;
 			glm::mat4x4 T(1), Tci(1), Tk(1);
-
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
 			if (ImGui::CollapsingHeader("Local Transformations")) {
@@ -464,9 +458,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	else {
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
-		currentLight->lightType = AMBIENT_LIGHT;
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
-
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
 		if (ImGui::CollapsingHeader("Local Transformations")) {

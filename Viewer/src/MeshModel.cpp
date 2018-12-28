@@ -14,8 +14,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	Kd(1.0f), Ks(1.0f), alpha(45.0f), diffuseColor(0.5f, 0.5f, 0.5f), specularColor(0.5f,0.5f,0.5f),
-	lightType(AMBIENT), estfNormal(0,0,0)
+	Kd(1.0f), Ks(1.0f), alpha(45.0f), color(0.5f,0.5f,0.5f),estfNormal(0,0,0)
 {
 	resetModel();
 }
@@ -25,8 +24,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	Kd(1.0f), Ks(1.0f), alpha(45.0f), diffuseColor(0.5f, 0.5f, 0.5f), specularColor(0.5f, 0.5f, 0.5f),
-	lightType(AMBIENT), estfNormal(0, 0, 0)
+	Kd(1.0f), Ks(1.0f), alpha(45.0f),color(0.5f, 0.5f, 0.5f), estfNormal(0, 0, 0)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }

@@ -74,15 +74,13 @@ private:
 	std::string modelName;
 public:
 	glm::vec3 GetModelLocationAfterTrans();
-	glm::vec3 BoundMin,BoundMax,BoundMiddle,color,BoundingBoxColor;
+	glm::vec3 BoundMin,BoundMax,BoundMiddle,BoundingBoxColor, color;
 	bool showFaceNormals,showVertexNormals,showBoundingBox;
 	glm::vec4 fNcolor,vNcolor;
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
-	glm::vec3 diffuseColor, specularColor;
 	float Kd, Ks, alpha;
-	int lightType;
 	glm::vec3 estfNormal;
 
 	MeshModel(){}
