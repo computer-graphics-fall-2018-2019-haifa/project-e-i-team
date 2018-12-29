@@ -6,6 +6,12 @@
 #include <fstream>
 #include <sstream>
 
+MeshModel::MeshModel() : 
+    Kd(1.0f), color(0.0f, 0.0f, 0.0f)
+{ 
+    resetModel(); 
+}
+
 MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName) :
 	modelName(modelName),
 	vertices(vertices),
@@ -14,7 +20,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	Kd(1.0f), Ks(1.0f), alpha(45.0f), color(0.5f,0.5f,0.5f),estfNormal(0,0,0)
+	Ka(1.0f), Kd(1.0f), Ks(1.0f), alpha(0.5f), color(0, 0, 0)
 {
 	resetModel();
 }
@@ -24,7 +30,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	Kd(1.0f), Ks(1.0f), alpha(45.0f),color(0.5f, 0.5f, 0.5f), estfNormal(0, 0, 0)
+	Kd(1.0f), Ks(1.0f), alpha(0.5f),color(0, 0, 0)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }
@@ -60,7 +66,8 @@ void MeshModel::UpdateLeftworldTransform(glm::mat4x4 T) {
 	worldTransform = worldTransform * T;
 }
 
-void MeshModel::resetModel(float fScaleDef,
+void MeshModel::resetModel(
+    float fScaleDef,
 	bool showFNormals,
 	bool showVNormals,
 	bool isPointLight,

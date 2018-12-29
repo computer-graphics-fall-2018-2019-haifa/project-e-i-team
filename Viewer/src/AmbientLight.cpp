@@ -11,11 +11,11 @@ glm::vec3 AmbientLight::GetBaseVector() {
 }
 
 AmbientLight::AmbientLight(glm::vec3 base) :
+    MeshModel(),
 	base(base),
-	Ka(1.0f), La(1.0f)
+    La(1.0f)
 {
 	resetModel(200, false, false, true, glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 0, 1),&glm::vec3(0, 0, 0), 20, 20);
-    color = color * Ka * La;
 }
 
 glm::vec3 AmbientLight::GetLocationAfterTrans() {

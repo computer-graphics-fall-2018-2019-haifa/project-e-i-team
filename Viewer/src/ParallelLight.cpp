@@ -19,6 +19,7 @@ glm::vec3 ParallelLight::GetfromVector() {
 }
 
 ParallelLight::ParallelLight(glm::vec3 to) :
+    MeshModel(),
 	to(to),
 	from(glm::vec3(0, 0, 0)),
 	Ld(1.0f), Ls(1.0f)

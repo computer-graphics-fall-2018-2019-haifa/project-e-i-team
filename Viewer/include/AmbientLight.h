@@ -10,7 +10,7 @@ class AmbientLight : public MeshModel
 private:
 	glm::vec3 base;
 public:
-	float Ka, La;
+	float La;
 	AmbientLight(glm::vec3 base);
 	~AmbientLight();
 	glm::vec3 GetBaseVector();

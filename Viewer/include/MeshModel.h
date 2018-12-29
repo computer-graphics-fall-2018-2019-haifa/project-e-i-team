@@ -42,6 +42,8 @@ using namespace std;
 #define PHONGY          0
 #define GOURAUD         1
 #define FLAT            2
+#define SIMPLE3         3
+#define SIMPLE4         4
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
@@ -80,10 +82,9 @@ public:
 	float fScale, fRotatex, fRotatey, fRotatez, wfScale, wfRotatex, wfRotatey, wfRotatez;
 	float fTranslatex, fTranslatey, fTranslatez;
 	float fNlength, vNlength;
-	float Kd, Ks, alpha;
-	glm::vec3 estfNormal;
+	float Ka, Kd, Ks, alpha;
 
-	MeshModel(){}
+    MeshModel();
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE,bool showFNormals = false, bool showVNormals = false);
 	virtual ~MeshModel();

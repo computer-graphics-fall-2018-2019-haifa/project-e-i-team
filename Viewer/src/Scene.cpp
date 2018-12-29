@@ -3,7 +3,8 @@
 #include <string>
 #define ORIGIN AmbientLight(glm::vec3(0,0,0))
 
-Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0){
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), shadingType(0) 
+{
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
 }
 

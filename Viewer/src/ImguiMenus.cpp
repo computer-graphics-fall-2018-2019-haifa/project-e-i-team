@@ -193,17 +193,17 @@ void buildProjectionsSection(std::shared_ptr<Camera> currentCam) {
 
 void buildCameraWorldTransformationsSection(glm::mat4x4& Tc,std::shared_ptr<Camera> currentCam) {
 	float frx = currentCam->worldfRotatex, diff = 0.0f;
-	ImGui::SliderFloat("Camera World Rotate By X", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Camera World Rotate (X)", &(currentCam->worldfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentCam->worldfRotatex - frx;
 	if (diff != 0.0f) { Tc = Trans::getxRotate4x4(diff); }
 
 	float fry = currentCam->worldfRotatey;
-	ImGui::SliderFloat("Camera World Rotate By Y", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Camera World Rotate (Y)", &(currentCam->worldfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentCam->worldfRotatey - fry;
 	if (diff != 0.0f) { Tc = Trans::getyRotate4x4(diff); }
 
 	float frz = currentCam->worldfRotatez;
-	ImGui::SliderFloat("Camera World Rotate By Z", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Camera World Rotate (Z)", &(currentCam->worldfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentCam->worldfRotatez - frz;
 	if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 }
@@ -231,17 +231,17 @@ void buildLocalTrans(glm::mat4x4& Tci,std::shared_ptr<MeshModel> currentModel) {
 	if (currentModel->wfScale >= 0 && fsc != currentModel->wfScale) { Tci = Trans::getScale4x4(currentModel->wfScale / fsc); }
 
 	float frx = currentModel->wfRotatex, diff = 0.0f;
-	ImGui::SliderFloat("Local Rotate By X", &(currentModel->wfRotatex), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate (X)", &(currentModel->wfRotatex), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatex - frx;
 	if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
 	float fry = currentModel->wfRotatey;
-	ImGui::SliderFloat("Local Rotate By Y", &(currentModel->wfRotatey), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate (Y)", &(currentModel->wfRotatey), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatey - fry;
 	if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
 	float frz = currentModel->wfRotatez;
-	ImGui::SliderFloat("Local Rotate By Z", &(currentModel->wfRotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate (Z)", &(currentModel->wfRotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->wfRotatez - frz;
 	if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 }
@@ -252,77 +252,78 @@ void buildWorldTrans(glm::mat4x4& Tm,std::shared_ptr<MeshModel> currentModel) {
 	if (currentModel->fScale >= 0 && fsc != currentModel->fScale) { Tm = Trans::getScale4x4(currentModel->fScale / fsc); }
 	float diff = 0.0f;
 	float frx = currentModel->fRotatex;
-	ImGui::SliderFloat("World Rotate By X", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate    (X)", &(currentModel->fRotatex), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatex - frx;
 	if (diff != 0.0f) { Tm = Trans::getxRotate4x4(diff); }
 
 	float ftx = currentModel->fTranslatex;
-	ImGui::SliderFloat("World Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate (X)", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 
 	float fry = currentModel->fRotatey;
-	ImGui::SliderFloat("World Rotate By Y", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate    (Y)", &(currentModel->fRotatey), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatey - fry;
 	if (diff != 0.0f) { Tm = Trans::getyRotate4x4(diff); }
 
 	float fty = currentModel->fTranslatey;
-	ImGui::SliderFloat("World Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate (Y)", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 	float frz = currentModel->fRotatez;
-	ImGui::SliderFloat("World Rotate By Z", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("World Rotate    (Z)", &(currentModel->fRotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentModel->fRotatez - frz;
 	if (diff != 0.0f) { Tm = Trans::getzRotate4x4(diff); }
 
 	float ftz = currentModel->fTranslatez;
-	ImGui::SliderFloat("World Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("World Translate (Z)", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 }
 
 void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> currentModel) {
 	float ftx = currentModel->fTranslatex;
-	ImGui::SliderFloat("Light Translate By X", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("Light Translate (X)", &(currentModel->fTranslatex), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftx != currentModel->fTranslatex) { Tm = Trans::getTranslate4x4(currentModel->fTranslatex - ftx, 0, 0); }
 
 	float fty = currentModel->fTranslatey;
-	ImGui::SliderFloat("Light Translate By Y", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("Light Translate (Y)", &(currentModel->fTranslatey), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (fty != currentModel->fTranslatey) { Tm = Trans::getTranslate4x4(0, currentModel->fTranslatey - fty, 0); }
 
 	float ftz = currentModel->fTranslatez;
-	ImGui::SliderFloat("Light Translate By Z", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
+	ImGui::SliderFloat("Light Translate (Z)", &(currentModel->fTranslatez), MIN_TRANSLATION_LENGTH, MAX_TRANSLATION_LENGTH);
 	if (ftz != currentModel->fTranslatez) { Tm = Trans::getTranslate4x4(0, 0, currentModel->fTranslatez - ftz); }
 }
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-    ImGui::SliderFloat("Diffuse Reflected Ray", &(currentModel->Kd), 0.0f, 1.0f);
-    ImGui::SliderFloat("Specular Reflected Ray", &(currentModel->Ks), 0.0f, 1.0f);
-    ImGui::SliderFloat("Shininess Ray", &(currentModel->alpha), 0.0f, 200.0f);
+    ImGui::ColorEdit3("Color", (float*)&(currentModel->color));
+    ImGui::SliderFloat("Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
+    ImGui::SliderFloat("Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
+    ImGui::SliderFloat("Shininess", &(currentModel->alpha), 1.0f, 20.0f);
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
-	ImGui::ColorEdit3("Face Normal Color", (float*)&(currentModel->fNcolor));
-	ImGui::SliderFloat("Face Normal Length", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+	ImGui::ColorEdit3("Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
+	ImGui::SliderFloat("Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
 	ImGui::Checkbox("Vectex Normals", &(currentModel->showVertexNormals));
-	ImGui::ColorEdit3("Vertex Normal Color", (float*)&(currentModel->vNcolor));
-	ImGui::SliderFloat("Vertex Normal Length", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+	ImGui::ColorEdit3("Normal Color  (Vertecies)", (float*)&(currentModel->vNcolor));
+	ImGui::SliderFloat("Normal Length (Vertecies)", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
 	ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
 	ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 }
 
 void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
-	ImGui::SliderFloat("Light Reclected", &(currentLight->Ka), 0.0f, 1.0f);
-	ImGui::SliderFloat("Light Intensity", &(currentLight->La), 0.0f, 1.0f);
+	ImGui::SliderFloat("Reflected Ray", &(currentLight->Ka), 0.0f, 1.0f);
+	ImGui::SliderFloat("Ray Intensity", &(currentLight->La), 0.0f, 1.0f);
 	ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 }
 
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
-	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
+	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
-	ImGui::SliderFloat("Diffuse Light Intensity", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular Light Intensity", &(currentLight->Ls), 0.0f, 1.0f);
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
+	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
@@ -378,7 +379,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
 		if (currentModel != nullptr) {
-			ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color));
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentModel);
 			currentModel->UpdateworldTransform(Tk);
