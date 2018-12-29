@@ -109,15 +109,27 @@ float Renderer::AreaOfTriangle(glm::vec3& a, glm::vec3& b, glm::vec3& c) {
 }
 
 glm::vec3& Renderer::GetColorBarycentricInterpolate(glm::vec4& p, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3 color0, glm::vec3 color1, glm::vec3 color2) {
-	glm::vec3 p0(p.x, p.y, 0);
-	glm::vec3 x0(a.x, a.y, 0);
-	glm::vec3 x1(b.x, b.y, 0);
-	glm::vec3 x2(c.x, c.y, 0);
+    glm::vec3 p0(p.x, p.y, 0);
+    glm::vec3 x0(a.x, a.y, 0);
+    glm::vec3 x1(b.x, b.y, 0);
+    glm::vec3 x2(c.x, c.y, 0);
+    float Sa = AreaOfTriangle(p0, x1, x2);
+    float Sb = AreaOfTriangle(p0, x0, x2);
+    float Sc = AreaOfTriangle(p0, x1, x0);
+    float S = AreaOfTriangle(x2, x1, x0);
+    return glm::vec3((Sa / S) * color0 + (Sb / S) * color1 + (Sc / S) * color2);
+}
+
+glm::vec3& Renderer::GetColorBarycentricInterpolate(glm::vec4& p, glm::vec4& a, glm::vec4& b, glm::vec4& c) {
+	glm::vec3 p0(p);
+	glm::vec3 x0(a);
+	glm::vec3 x1(b);
+	glm::vec3 x2(c);
 	float Sa =  AreaOfTriangle(p0, x1, x2);
 	float Sb =  AreaOfTriangle(p0, x0, x2);
 	float Sc =  AreaOfTriangle(p0, x1, x0);
     float S  =  AreaOfTriangle(x2, x1, x0);
-	return glm::vec3((Sa / S) * color0 + (Sb / S) * color1 + (Sc / S) * color2);
+	return glm::vec3((Sa / S) * a + (Sb / S) * b + (Sc / S) * c);
 }
 
 float Renderer::GetZPointBarycentricInterpolate(glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec2& p) {
@@ -158,58 +170,52 @@ void Renderer::printTriangle(Scene& scene, std::shared_ptr<MeshModel> model,glm:
 	printTriangle(scene, model,glm::vec4(a.x,a.y,a.z,0), glm::vec4(b.x, b.y, b.z, 0), glm::vec4(c.x, c.y, c.z, 0), n0, n1, n2, shader);
 }
 
-void Renderer::printTriangle(Scene& scene,std::shared_ptr<MeshModel> model,glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int shader) {
-	float min_x = a.x;
-	if (b.x < min_x) min_x = b.x;
-	if (c.x < min_x) min_x = c.x;
+void Renderer::printTriangle(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int shader) {
+    float min_x = a.x;
+    if (b.x < min_x) min_x = b.x;
+    if (c.x < min_x) min_x = c.x;
 
-	float min_y = a.y;
-	if (b.y < min_y) min_y = b.y;
-	if (c.y < min_y) min_y = c.y;
+    float min_y = a.y;
+    if (b.y < min_y) min_y = b.y;
+    if (c.y < min_y) min_y = c.y;
 
-	float max_x = a.x;
-	if (b.x > max_x) max_x = b.x;
-	if (c.x > max_x) max_x = c.x;
+    float max_x = a.x;
+    if (b.x > max_x) max_x = b.x;
+    if (c.x > max_x) max_x = c.x;
 
-	float max_y = a.y;
-	if (b.y > max_y) max_y = b.y;
-	if (c.y > max_y) max_y = c.y;
+    float max_y = a.y;
+    if (b.y > max_y) max_y = b.y;
+    if (c.y > max_y) max_y = c.y;
 
-	for (int x = min_x; x <= max_x ; x++) {
-		for (int y = min_y; y <= max_y; y++) {
-			glm::vec2 p(x, y);
-			glm::vec2 w = CalculateW12(a, b, c, p);
-			float w1 = w[0];
-			float w2 = w[1];
+    for (int x = min_x; x <= max_x; x++) {
+        for (int y = min_y; y <= max_y; y++) {
+            glm::vec2 p(x, y);
+            glm::vec2 w = CalculateW12(a, b, c, p);
+            float w1 = w[0];
+            float w2 = w[1];
 
-			if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
-				float depth = GetZPointBarycentricInterpolate(a, b, c, p);
+            if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
+                float depth = GetZPointBarycentricInterpolate(a, b, c, p);
                 glm::vec3 p_color(0, 0, 0);
                 if (shader == PHONGY) {
-                    glm::vec3 estNormal = estTrianglePointNormal(glm::vec3(a.x,a.y,a.z), glm::vec3(b.x,b.y,b.z), glm::vec3(c.x,c.y,c.z), glm::vec3(p.x,p.y,0));
+                    glm::vec3 estNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
                     p_color = computePhongy(scene, model, estNormal);
-                } else if (shader == GOURAUD) {
+                }
+                else if (shader == GOURAUD) {
                     glm::vec3 color0(0, 0, 0), color1(0, 0, 0), color2(0, 0, 0);
-                    computeGouraud(scene, model, glm::vec3(a.x,a.y,a.z), n0, glm::vec3(b.x, b.y, b.z), n1, glm::vec3(c.x, c.y, c.z), n2, &color0, &color1, &color2);
+                    computeGouraud(scene, model, glm::vec3(a.x, a.y, a.z), n0, glm::vec3(b.x, b.y, b.z), n1, glm::vec3(c.x, c.y, c.z), n2, &color0, &color1, &color2);
                     p_color = GetColorBarycentricInterpolate(glm::vec4(w1, w2, 0, 1), a, b, c, color0, color1, color2);
-                } else if (shader == FLAT) {
-                    p_color = computeFlat(scene, model, glm::vec3(a.x, a.y, a.z), glm::vec3(b.x, b.y, b.z), glm::vec3(c.x, c.y, c.z), n0);
-                } else if (shader == SIMPLE3 || shader == SIMPLE4) {
-                    p_color = glm::vec3(n0.x, n0.y, n0.z);
+                }
+                else if (shader == FLAT) {
+                    p_color = computeFlat(scene, model, glm::vec3(a), glm::vec3(b), glm::vec3(c), n0);
+                }
+                else if (shader == SIMPLE3 || shader == SIMPLE4) {
+                    p_color = glm::vec3(n0);
                 }
                 putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
-			}
-		}
-	}
-}
-
-glm::vec3& Renderer::estTrianglePointNormal(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& p) {
-    glm::vec3 basePoint((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3, (a.z + b.z + c.z) / 3);
-    glm::vec3 pn0 = GetEstimatedNormal(basePoint, p, b, c, 1);
-    glm::vec3 pn1 = GetEstimatedNormal(basePoint, p, a, b, 1);
-    glm::vec3 pn2 = GetEstimatedNormal(basePoint, p, a, c, 1);
-    glm::vec3 estPNormal = (pn0 + pn1 + pn2) / 3.0f;
-    return estPNormal;
+            }
+        }
+    }
 }
 
 glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p) {
@@ -402,12 +408,11 @@ float estAmbientColor(float K, float L) {
 }
 
 float estDiffuseColor(float K, float L, glm::vec3 N, glm::vec3 S) {
-	return K * L * glm::dot(N, S);
+	return K * L * glm::max(glm::dot(N, S),0.0f);
 }
 
 float estSpecularColor(float K, float L, glm::vec3 V, glm::vec3 N, glm::vec3 S, float alpha) {
-	glm::vec3 R = 2.0f * glm::dot(N, S) * N - S;
-    float p = pow(glm::dot(R, V), alpha);
+	glm::vec3 R = 2.0f * glm::max(glm::dot(N, S),0.0f) * N - S;
 	return K * pow(glm::dot(R, V), alpha) * L;
 }
 
@@ -582,7 +587,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                         printTriangle(
                             scene, model,
                             vect0, vect1, vect2,
-                            glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),
+                            n0, n1, n2,
                             PHONGY
                         );
                     }
@@ -619,13 +624,13 @@ glm::vec3& Renderer::computePhongy(Scene& scene, std::shared_ptr<MeshModel> mode
     bool isDraw = false;
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S = scene.GetPointLight(i)->Center;// - interpolatedNormal; // must update the location of the center of mass - now it is constant and cannot change the light location due to this
+        glm::vec3 S = scene.GetPointLight(i)->Center - interpolatedNormal; // must update the location of the center of mass - now it is constant and cannot change the light location due to this
         diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(interpolatedNormal), S, model->color, DIFFUSE);
         specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(interpolatedNormal), S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
         diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        phongyPoint = diffuseTotalColor + specularTotalColor;
+        phongyPoint = phongyPoint + diffuseTotalColor + specularTotalColor;
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         isDraw = true;
@@ -635,10 +640,10 @@ glm::vec3& Renderer::computePhongy(Scene& scene, std::shared_ptr<MeshModel> mode
         glm::vec3 color = scene.GetParallelLight(i)->color;
         diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        phongyParallel = diffuseTotalColor + specularTotalColor;
+        phongyParallel = phongyParallel + diffuseTotalColor + specularTotalColor;
     }
     if (isDraw) {
-        return ambientColor + phongyPoint + phongyParallel;
+        return ambientColor + phongyPoint + phongyParallel; // TODO: check RGB overflow
     }
     return glm::vec3(0, 0, 0);
 }
@@ -656,7 +661,7 @@ glm::vec3& Renderer::computeFlat(Scene& scene, std::shared_ptr<MeshModel> model,
         glm::vec3 color = scene.GetPointLight(i)->color;
         diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        flatPoint = diffuseTotalColor + specularTotalColor;
+        flatPoint = flatPoint + diffuseTotalColor + specularTotalColor;
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         isDraw = true;
@@ -666,7 +671,7 @@ glm::vec3& Renderer::computeFlat(Scene& scene, std::shared_ptr<MeshModel> model,
         glm::vec3 color = scene.GetParallelLight(i)->color;
         diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        flatParallel = diffuseTotalColor + specularTotalColor;
+        flatParallel = flatParallel + diffuseTotalColor + specularTotalColor;
     }
     if (isDraw) {
         return ambientColor + flatPoint + flatParallel;

@@ -298,7 +298,7 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
     ImGui::SliderFloat("Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
     ImGui::SliderFloat("Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
     ImGui::SliderFloat("Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
-    ImGui::SliderFloat("Shininess", &(currentModel->alpha), 1.0f, 20.0f);
+    ImGui::SliderInt("Shininess", &(currentModel->alpha), 1, 200);
 	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
