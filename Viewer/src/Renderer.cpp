@@ -517,34 +517,41 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	}
 
 	float vNlength = model->GetVertexNormalLength();
-	// transform and normalize vertex normals:
-	glm::vec3 n0 = vNormals.at(0);
-	glm::vec4 nt0 = seriesTransform*glm::vec4(n0.x,n0.y,n0.z,1);
-	nt0 = nt0 / nt0.w;
-	// return the normal as length of length
-	nt0 = normalizeVector(vect0, nt0, vNlength);
-	n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
+    glm::vec3 n0, n1, n2 ,n3;
+    glm::vec4 nt0, nt1, nt2 ,nt3;
 
-	glm::vec3 n1 = vNormals.at(1);
-	glm::vec4 nt1 = seriesTransform*glm::vec4(n1.x, n1.y, n1.z, 1);
-	nt1 = nt1 / nt1.w;
-	nt1 = normalizeVector(vect1,nt1, vNlength);
-	n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
-	
-	glm::vec3 n2 = vNormals.at(2);
-	glm::vec4 nt2 = seriesTransform*glm::vec4(n2.x, n2.y, n2.z, 1);
-	nt2 = nt2 / nt2.w;
-	nt2 = normalizeVector(vect2,nt2, vNlength);
-	n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
+    bool isNormalPerVertexExist = true;
 
-	glm::vec3 n3;
-	if (isGrid) {
-		n3 = vNormals.at(3);
-		glm::vec4 nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
-		nt3 = normalizeVector(vect3, nt3, vNlength);
-		n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
-	}
+    if (vNormals.size() > 0) {
+        // transform and normalize vertex normals:
+        n0 = vNormals.at(0);
+        nt0 = seriesTransform * glm::vec4(n0.x, n0.y, n0.z, 1);
+        nt0 = nt0 / nt0.w;
+        // return the normal as length of length
+        nt0 = normalizeVector(vect0, nt0, vNlength);
+        n0 = glm::vec3(nt0.x, nt0.y, nt0.z);
 
+        n1 = vNormals.at(1);
+        nt1 = seriesTransform * glm::vec4(n1.x, n1.y, n1.z, 1);
+        nt1 = nt1 / nt1.w;
+        nt1 = normalizeVector(vect1, nt1, vNlength);
+        n1 = glm::vec3(nt1.x, nt1.y, nt1.z);
+
+        n2 = vNormals.at(2);
+        nt2 = seriesTransform * glm::vec4(n2.x, n2.y, n2.z, 1);
+        nt2 = nt2 / nt2.w;
+        nt2 = normalizeVector(vect2, nt2, vNlength);
+        n2 = glm::vec3(nt2.x, nt2.y, nt2.z);
+
+        if (isGrid) {
+            n3 = vNormals.at(3);
+            nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
+            nt3 = normalizeVector(vect3, nt3, vNlength);
+            n3 = glm::vec3(nt3.x, nt3.y, nt3.z);
+        }
+    } else {
+        isNormalPerVertexExist = false;
+    }
 	// draw the object as triangles collection:
 	if(isGrid){
 		DrawLine(vect0, vect1, model->color);
@@ -570,27 +577,31 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 				glm::vec3 v0(vect0.x, vect0.y, vect0.z);
 				glm::vec3 v1(vect1.x, vect1.y, vect1.z);
 				glm::vec3 v2(vect2.x, vect2.y, vect2.z);
-				if (scene.shadingType == PHONGY) {
-                    printTriangle(
-                        scene, model,
-                        vect0, vect1, vect2, 
-                        glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),
-                        PHONGY
-                    );
-				} else if (scene.shadingType == GOURAUD) {
-                    printTriangle(
-                        scene, model, 
-                        v0, v1, v2,
-                        n0, n1, n2,
-                        GOURAUD
-                    );
-				} else if (scene.shadingType == FLAT) {
-                    printTriangle(
-                        scene, model, 
-                        v0, v1, v2,
-                        estfNormal, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 
-                        FLAT
-                    );
+                if (isNormalPerVertexExist) {
+                    if (scene.shadingType == PHONGY) {
+                        printTriangle(
+                            scene, model,
+                            vect0, vect1, vect2,
+                            glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),
+                            PHONGY
+                        );
+                    }
+                    else if (scene.shadingType == GOURAUD) {
+                        printTriangle(
+                            scene, model,
+                            v0, v1, v2,
+                            n0, n1, n2,
+                            GOURAUD
+                        );
+                    }
+                    else if (scene.shadingType == FLAT) {
+                        printTriangle(
+                            scene, model,
+                            v0, v1, v2,
+                            estfNormal, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),
+                            FLAT
+                        );
+                    }
                 }
 			} else {
 				printTriangle(scene, vect0, vect1, vect2, model->color, SIMPLE4);

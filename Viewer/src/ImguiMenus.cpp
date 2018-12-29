@@ -295,6 +295,7 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
     ImGui::ColorEdit3("Color", (float*)&(currentModel->color));
+    ImGui::SliderFloat("Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
     ImGui::SliderFloat("Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
     ImGui::SliderFloat("Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
     ImGui::SliderFloat("Shininess", &(currentModel->alpha), 1.0f, 20.0f);
