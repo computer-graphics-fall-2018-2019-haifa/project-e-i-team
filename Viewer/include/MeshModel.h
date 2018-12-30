@@ -45,20 +45,21 @@ using namespace std;
 #define SIMPLE3         3
 #define SIMPLE4         4
 
-static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f); // (r,g,b)
-static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f); // (r,g,b)
-static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f); // (r,g,b)
+static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);          // (r,g,b)
+static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f);            // (r,g,b)
+static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f);    // (r,g,b)
 
 /*
 getRandColor() success depend on srand(time(NULL)) in the top on main function
 */
 static glm::vec3* getRandColor() {
-	int r = rand() % 256;
-	int g = rand() % 256;
-	int b = rand() % 256;
+	int r = rand() % 1;
+	int g = rand() % 1;
+	int b = rand() % 1;
 	glm::vec3* color = &glm::vec3(r, g, b);
-	//std::cout << "(R=" << r << ",G=" << g << ",B=" << b << ")" << std::endl;
-	return color;
+	// std::cout << "(R=" << r << ",G=" << g << ",B=" << b << ")" << std::endl;
+     //glm::vec3* color = &glm::vec3(0, 0, 0);
+    return color;
 }
 
 /*
@@ -98,7 +99,8 @@ public:
 	std::string MeshModel::GetModelName();
 	void MeshModel::UpdateworldTransform(glm::mat4x4 T);
 	void MeshModel::UpdateLeftworldTransform(glm::mat4x4 T);
-	void MeshModel::resetModel(float fScaleDef = SCALE_OBJ_FACTOR,
+	void MeshModel::resetModel(
+        float fScaleDef = SCALE_OBJ_FACTOR,
 		bool showFNormals = true,
 		bool showVNormals = true,
 		bool isPointLight = false,

@@ -23,11 +23,6 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int wi
 		int y = (rand() % (2 * help)) - (help);
 		int y_pow = pow(y, 2);
 		int z = sqrt(RadiusPow2 - x_pow - y_pow);
-		//cout << "(" << x << " , " << y << " , " << z << ")" << endl;
-
-		/*int x = (rand() % windowHeight) - windowHeight / 2;
-		int y = (rand() % windowHeight) - windowHeight / 2;
-		int z = (rand() % windowHeight) - windowHeight / 2;*/
 		eye = glm::vec3(x, y, z);	
 	}
 	glm::vec3 at = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -168,6 +163,7 @@ const int Scene::GetActiveModelIndex() const {
 	return activeModelIndex; 
 }
 
+/*
 glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model) {
 	cout << "Into: GetModelMassCenter" << endl;
 	float x_avg = 0.0f, y_avg = 0.0f, z_avg = 0.0f;
@@ -225,6 +221,7 @@ glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model) {
 	}
 	return glm::vec3(x_avg, y_avg, z_avg);
 }
+*/
 
 void Scene::SetFocusOnCurrentModel() {
 	std::shared_ptr<Camera> camera = GetCamera(CurrCam);
