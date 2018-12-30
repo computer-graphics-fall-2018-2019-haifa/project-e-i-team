@@ -39,11 +39,10 @@ using namespace std;
 #define DIFFUSE			1
 #define SPECULAR		2
 
-#define PHONGY          0
+#define PHONG          0
 #define GOURAUD         1
 #define FLAT            2
-#define SIMPLE3         3
-#define SIMPLE4         4
+#define SIMPLE          3
 
 static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);          // (r,g,b)
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f);            // (r,g,b)
@@ -53,12 +52,11 @@ static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f);
 getRandColor() success depend on srand(time(NULL)) in the top on main function
 */
 static glm::vec3* getRandColor() {
-	int r = rand() % 1;
-	int g = rand() % 1;
-	int b = rand() % 1;
-	glm::vec3* color = &glm::vec3(r, g, b);
-	// std::cout << "(R=" << r << ",G=" << g << ",B=" << b << ")" << std::endl;
-     //glm::vec3* color = &glm::vec3(0, 0, 0);
+	//int r = (rand() % 256) / 100;
+	//int g = (rand() % 256) / 100;
+	//int b = (rand() % 256) / 100;
+	//glm::vec3* color = &glm::vec3(r, g, b);
+    glm::vec3* color = &glm::vec3(1.0f, 1.0f, 1.0f);
     return color;
 }
 
