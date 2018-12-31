@@ -17,6 +17,7 @@ using namespace std;
 #define INDEXCOLOR(width,x,y,c) ((x)+(y)*(width))*3+(c)
 #define INDEXZ(width,x,y) ((x)+(y)*(width))
 #define MaxDepth 4000.0f
+#define LIGHT_THRESH 0.7f
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -157,10 +158,6 @@ float GetZPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
 	}	
 }
 
-glm::vec2& convolve(glm::vec2& p, float** gaussianKernal) {
-    return *std::make_shared<glm::vec2>(); // do we need to multiply each pixel by itself?! how the operation should be done?!
-}
-
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
     printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE);
 }
@@ -185,15 +182,7 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
     for (int x = min_x; x <= max_x; x++) {
         for (int y = min_y; y <= max_y; y++) {
             glm::vec2 p(x, y);
-            glm::vec2 w;
-            //// what is W12???????
-            //if (scene.gaussianBlur) {
-            //    float** gaussianKernal = scene.GetGaussianKernel();
-            //    w = convolve(CalculateW12(a, b, c, p), gaussianKernal);
-            //}
-            //else {
-            //    w = CalculateW12(a, b, c, p);
-            //}
+            glm::vec2 w = CalculateW12(a, b, c, p);
             float w1 = w[0];
             float w2 = w[1];
 
@@ -885,6 +874,28 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
 	showAllMeshModels(scene, io);
+    if (scene.bloom == 1) {
+        float* pColorBuffer = new float[3 * viewportWidth * viewportHeight];
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
+        Trans::thresh(colorBuffer, viewportWidth, viewportHeight,LIGHT_THRESH);
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
+        Trans::convolve(pColorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel, scene.kernelM, scene.kernelN);
+    } 
+    if (scene.gaussianBlur == 1) {
+        Trans::convolve(colorBuffer,viewportWidth,viewportHeight, scene.gaussianKernel,scene.kernelM,scene.kernelN);
+    }
 }
 
 //##############################

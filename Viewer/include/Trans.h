@@ -1,5 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <stdio.h>
+#include <iostream>
+#include <vector>
 
 class Trans {
 	float deg2rad(float degrees) { return degrees * 0.0174532925; }
@@ -49,11 +52,79 @@ public:
 		glm::mat4x4 toOrigin = Trans::getTranslate4x4(massCenter.x, massCenter.y, massCenter.z);
 		return (toOrigin * T * toZero);
 	}
-    static glm::mat4x4& buildGaussianKernel(float* kernel[],int m,int n,int radius) {
-        for (int i = -(m - 1) / 2; i < (m - 1 / 2);i++) {
-            for (int j = -(n - 1) / 2; j < (n - 1 / 2); j++) {
-                kernel[i + (m - 1) / 2][j + (n - 1) / 2] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius,2)));
+    static void buildGaussianKernel(float kernel[5][5],int m,int n,int radius) {
+        int _M = -(m - 1) / 2;
+        int M = (m - 1) / 2;
+        int _N = -(n - 1) / 2;
+        int N = (n - 1) / 2;
+        for (int i = _M; i <= M;i++) {
+            for (int j = _N; j <= N; j++) {
+                kernel[i + M][j + N] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius,2)));
             }
+        }
+    }
+    static int INDEXCOLOR(int width, int x, int y, int c) {
+        return ((x)+(y)*(width)) * 3 + (c);
+    }
+    static void convolve(float* image ,int viewportWidth,int viewportHeight, float kernel[5][5],int m,int n) {
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                int indexR = INDEXCOLOR(viewportWidth, i, j, 0),indexG = INDEXCOLOR(viewportWidth, i, j, 1), indexB = INDEXCOLOR(viewportWidth, i, j, 2);
+                float convRSummation = 0.0f, convGSummation = 0.0f, convBSummation = 0.0f;
+                for (int r0 = 0; r0 <= n; r0++) {
+                    for (int r1 = 0; r1 <= m; r1++) {
+                        float gaussValue = 0;
+                        int disRow = (i - r0), disCol = (j - r1);
+                        if ((i - (m - 1) / 2) >= 0 && (i + (m - 1) / 2) < viewportWidth &&
+                            (j - (n - 1) / 2) >= 0 && (j + (n - 1) / 2) < viewportHeight) {
+                            gaussValue = kernel[r0][r1];
+                            int R, G, B;
+                            if (disRow >= 0 && disCol >= 0) {
+                                R = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 0);
+                                B = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 1);
+                                G = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 2);
+                            }
+                            else if (disRow < 0 && disCol < 0) {
+                                R = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 0);
+                                B = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 1);
+                                G = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 2);
+                            }
+                            else if (disRow < 0) {
+                                R = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 0);
+                                B = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 1);
+                                G = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 2);
+                            }
+                            else if (disCol < 0) {
+                                R = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 0);
+                                B = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 1);
+                                G = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 2);
+                            }
+                            convRSummation += gaussValue * R;
+                            convGSummation += gaussValue * G;
+                            convBSummation += gaussValue * B;
+                        }
+                    }
+                }
+                image[indexR] = convRSummation;
+                image[indexG] = convGSummation;
+                image[indexB] = convBSummation;
+            }
+        }
+    }
+    static void thresh(float* image, int viewportWidth, int viewportHeight,int th){
+        for (int i = 0; i < viewportWidth;i++) {
+            for (int j = 0; j < viewportHeight;j++) {
+                if (image[INDEXCOLOR(viewportWidth, i, j, 0)] < th) {
+                    image[INDEXCOLOR(viewportWidth, i, j, 0)] = 0.0f;
+                }
+                if (image[INDEXCOLOR(viewportWidth, i, j, 1)] < th) {
+                    image[INDEXCOLOR(viewportWidth, i, j, 1)] = 0.0f;
+                }
+                if (image[INDEXCOLOR(viewportWidth, i, j, 2)] < th) {
+                    image[INDEXCOLOR(viewportWidth, i, j, 2)] = 0.0f;
+                }
+            }
+
         }
     }
 };

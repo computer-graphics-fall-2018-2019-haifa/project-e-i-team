@@ -1,26 +1,16 @@
 #include "Scene.h"
 #include "MeshModel.h"
 #include <string>
-#define ORIGIN AmbientLight(glm::vec3(0,0,0))
+#define ORIGIN AmbientLight(glm::vec3(0, 0, 0))
 
-Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), shadingType(0) 
+Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), 
+shadingType(0), kernelM(5), kernelN(5), gaussianRadius(3),gaussianBlur(0), bloom(0)
 {
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
-    //for (int i = 0; i < 5; i++) {
-    //    gaussianKernel[i] = new float[5];
-    //}
-    //Trans::buildGaussianKernel(gaussianKernel, 5, 5, 3);
+    Trans::buildGaussianKernel(gaussianKernel,kernelM, kernelN, gaussianRadius);
 }
 
-Scene::~Scene() {
-    //for (int i = 0; i < 5; i++) {
-    //    delete[] gaussianKernel[i];
-    //}
-}
-
-float** Scene::GetGaussianKernel() {
-    return gaussianKernel;
-}
+Scene::~Scene() {}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
