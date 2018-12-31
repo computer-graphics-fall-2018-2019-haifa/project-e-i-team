@@ -49,4 +49,11 @@ public:
 		glm::mat4x4 toOrigin = Trans::getTranslate4x4(massCenter.x, massCenter.y, massCenter.z);
 		return (toOrigin * T * toZero);
 	}
+    static glm::mat4x4& buildGaussianKernel(float* kernel[],int m,int n,int radius) {
+        for (int i = -(m - 1) / 2; i < (m - 1 / 2);i++) {
+            for (int j = -(n - 1) / 2; j < (n - 1 / 2); j++) {
+                kernel[i + (m - 1) / 2][j + (n - 1) / 2] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius,2)));
+            }
+        }
+    }
 };

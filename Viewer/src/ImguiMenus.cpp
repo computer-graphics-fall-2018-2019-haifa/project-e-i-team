@@ -333,6 +333,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
+    ImGui::RadioButton("Gaussian Blur", &(scene->gaussianBlur), 0);
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
 	ImGui::Combo("Shading Model", &(scene->shadingType), "Phongy\0Gouraud\0Flat", 3);
 	static int type = 1;

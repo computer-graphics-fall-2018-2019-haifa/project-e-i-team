@@ -6,6 +6,20 @@
 Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), shadingType(0) 
 {
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
+    //for (int i = 0; i < 5; i++) {
+    //    gaussianKernel[i] = new float[5];
+    //}
+    //Trans::buildGaussianKernel(gaussianKernel, 5, 5, 3);
+}
+
+Scene::~Scene() {
+    //for (int i = 0; i < 5; i++) {
+    //    delete[] gaussianKernel[i];
+    //}
+}
+
+float** Scene::GetGaussianKernel() {
+    return gaussianKernel;
 }
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }

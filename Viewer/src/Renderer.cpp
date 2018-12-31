@@ -157,6 +157,10 @@ float GetZPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
 	}	
 }
 
+glm::vec2& convolve(glm::vec2& p, float** gaussianKernal) {
+    return *std::make_shared<glm::vec2>(); // do we need to multiply each pixel by itself?! how the operation should be done?!
+}
+
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
     printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE);
 }
@@ -181,7 +185,15 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
     for (int x = min_x; x <= max_x; x++) {
         for (int y = min_y; y <= max_y; y++) {
             glm::vec2 p(x, y);
-            glm::vec2 w = CalculateW12(a, b, c, p);
+            glm::vec2 w;
+            //// what is W12???????
+            //if (scene.gaussianBlur) {
+            //    float** gaussianKernal = scene.GetGaussianKernel();
+            //    w = convolve(CalculateW12(a, b, c, p), gaussianKernal);
+            //}
+            //else {
+            //    w = CalculateW12(a, b, c, p);
+            //}
             float w1 = w[0];
             float w2 = w[1];
 
