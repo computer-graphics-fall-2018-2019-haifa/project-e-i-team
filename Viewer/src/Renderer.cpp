@@ -113,10 +113,10 @@ glm::vec3& Renderer::GetColorBarycentricInterpolate(glm::vec4& p, glm::vec4& a, 
     glm::vec3 x0(a.x, a.y, 0);
     glm::vec3 x1(b.x, b.y, 0);
     glm::vec3 x2(c.x, c.y, 0);
-    float Sa = AreaOfTriangle(p0, x1, x2);
-    float Sb = AreaOfTriangle(p0, x0, x2);
-    float Sc = AreaOfTriangle(p0, x1, x0);
-    float S = AreaOfTriangle(x2, x1, x0);
+    float Sa =  AreaOfTriangle(p0, x1, x2);
+    float Sb =  AreaOfTriangle(p0, x0, x2);
+    float Sc =  AreaOfTriangle(p0, x1, x0);
+    float S  =  AreaOfTriangle(x2, x1, x0);
     return glm::vec3((Sa / S) * color0 + (Sb / S) * color1 + (Sc / S) * color2);
 }
 
@@ -136,8 +136,7 @@ float Renderer::GetZPointBarycentricInterpolate(glm::vec4& a, glm::vec4& b, glm:
 	float A_a = AreaOfTriangle(glm::vec3(p.x, p.y,  0), glm::vec3(b.x,b.y,0),   glm::vec3(c.x, c.y,0));
 	float A_b = AreaOfTriangle(glm::vec3(p.x, p.y, 0),  glm::vec3(a.x, a.y,0),  glm::vec3(c.x, c.y,0));
 	float A_c = AreaOfTriangle(glm::vec3(p.x, p.y, 0),  glm::vec3(b.x, b.y,0),  glm::vec3(a.x, a.y,0));
-	float A = AreaOfTriangle(glm::vec3(c.x, c.y,0), glm::vec3(b.x, b.y,0), glm::vec3(a.x, a.y,0));
-
+	float A   = AreaOfTriangle(glm::vec3(c.x, c.y,0), glm::vec3(b.x, b.y,0), glm::vec3(a.x, a.y,0));
 	return (A_a / A) * a.z + (A_b / A) * b.z + (A_c / A) * c.z;
 }
 
@@ -189,7 +188,10 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
             if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
                 float depth = GetZPointBarycentricInterpolate(a, b, c, p);
                 glm::vec3 p_color;
-                if (shader == PHONGY) {
+                if (shader == FLAT) {
+                    p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), n0);
+                }
+                else if (shader == PHONGY) {
                     glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
                     p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), interpolatedNormal);
                 }
@@ -197,9 +199,6 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
                     glm::vec3 color0, color1, color2;
                     computeGouraud(scene, scene.GetModel(scene.activeModelIndex), glm::vec3(a), n0, glm::vec3(b), n1, glm::vec3(c), n2, &color0, &color1, &color2);
                     p_color = GetColorBarycentricInterpolate(glm::vec4(w, 0, 1), a, b, c, color0, color1, color2);
-                }
-                else if (shader == FLAT) {
-                    p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), n0);
                 }
                 else if (shader == SIMPLE) {
                     p_color = glm::vec3(n0);
@@ -409,10 +408,10 @@ float estSpecularColor(float K, float L, glm::vec3 V, glm::vec3 N, glm::vec3 S, 
 
 glm::vec3& Renderer::estColor(float K, float L, glm::vec3& V, glm::vec3& N, glm::vec3& S, glm::vec3& color, int method, float alpha) {
 	if (method == DIFFUSE) {
-        return (color * estDiffuseColor(K, L, N, S));
+        return *std::make_shared<glm::vec3>(color * estDiffuseColor(K, L, N, S));
 	}
 	else if (method == SPECULAR) {
-		return (color * estSpecularColor(K, L, V, N, S, alpha));
+		return *std::make_shared<glm::vec3>(color * estSpecularColor(K, L, V, N, S, alpha));
 	}
 }
 
@@ -567,13 +566,18 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 				DrawLine(vect0, nt0, vertexColor);
 				DrawLine(vect1, nt1, vertexColor);
 				DrawLine(vect2, nt2, vertexColor);
-                
-				glm::vec3 v0(vect0.x, vect0.y, vect0.z);
-				glm::vec3 v1(vect1.x, vect1.y, vect1.z);
-				glm::vec3 v2(vect2.x, vect2.y, vect2.z);
 
                 if (isNormalPerVertexExist) {
-                    if (scene.shadingType == PHONG) {
+                    if (scene.shadingType == FLAT) {
+                        glm::vec3 nullNormal1, nullNormal2;
+                        printTriangle(
+                            scene,
+                            vect0, vect1, vect2,
+                            estfNormal, nullNormal1, nullNormal2,
+                            FLAT
+                        );
+                    }
+                    else if (scene.shadingType == PHONG) {
                         printTriangle(
                             scene,
                             vect0, vect1, vect2,
@@ -584,17 +588,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     else if (scene.shadingType == GOURAUD) {
                         printTriangle(
                             scene,
-                            glm::vec4(v0,0), glm::vec4(v1,0), glm::vec4(v2,0),
+                            vect0, vect1, vect2,
                             n0, n1, n2,
                             GOURAUD
-                        );
-                    }
-                    else if (scene.shadingType == FLAT) {
-                        printTriangle(
-                            scene,
-                            glm::vec4(v0,0), glm::vec4(v1,0), glm::vec4(v2,0),
-                            estfNormal, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                            FLAT
                         );
                     }
                 }
@@ -650,9 +646,9 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
     bool isDraw = false;
     for(int i = 0;i < scene.GetPointLightCount();i++){
         isDraw = true;
-        glm::vec3 S0 = (scene.GetPointLight(i))->GetLocationAfterTrans() - vect0; // must update the location of the center of mass - now it is constant and cannot change the light location due to this
-        glm::vec3 S1 = (scene.GetPointLight(i))->GetLocationAfterTrans() - vect1;
-        glm::vec3 S2 = (scene.GetPointLight(i))->GetLocationAfterTrans() - vect2;
+        glm::vec3 S0 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect0;
+        glm::vec3 S1 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect1;
+        glm::vec3 S2 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect2;
         glm::vec3 diffuseColor0 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, DIFFUSE);
         glm::vec3 diffuseColor1 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, DIFFUSE);
         glm::vec3 diffuseColor2 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, DIFFUSE);
@@ -693,14 +689,14 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
         gouraudParallel2 = gouraudParallel2 + diffuseTotalColor2 + specularTotalColor2;
     }
     if (isDraw) {
-        *color0 = *std::make_shared<glm::vec3>(ambientColor + gouraudPoint0 + gouraudParallel0);
-        *color1 = *std::make_shared<glm::vec3>(ambientColor + gouraudPoint1 + gouraudParallel1);
-        *color2 = *std::make_shared<glm::vec3>(ambientColor + gouraudPoint2 + gouraudParallel2);
+        *color0 = ambientColor + gouraudPoint0 + gouraudParallel0;
+        *color1 = ambientColor + gouraudPoint1 + gouraudParallel1;
+        *color2 = ambientColor + gouraudPoint2 + gouraudParallel2;
     }
     else {
-        *color0 = *std::make_shared<glm::vec3>(ambientColor);
-        *color1 = *std::make_shared<glm::vec3>(ambientColor);
-        *color2 = *std::make_shared<glm::vec3>(ambientColor);
+        *color0 = ambientColor;
+        *color1 = ambientColor;
+        *color2 = ambientColor;
     }
 }
 
