@@ -607,7 +607,10 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                             estfNormal, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),
                             FLAT
                         );
-                    }
+					} else {
+						glm::vec3 ambientBasic = scene.GetAmbient()->color * scene.GetAmbient()->Ka * scene.GetAmbient()->La;
+						printTriangle(scene, vect0, vect1, vect2, ambientBasic + model->color, SIMPLE4);
+					}
                 }
 			} else {
 				printTriangle(scene, vect0, vect1, vect2, model->color, SIMPLE4);
