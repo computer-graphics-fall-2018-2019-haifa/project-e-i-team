@@ -7,7 +7,7 @@
 #include <sstream>
 
 MeshModel::MeshModel() : 
-    Kd(1.0f), color(0.0f, 0.0f, 0.0f)
+    Ka(1.0f),Kd(1.0f), Ks(1.0f),color(0.0f, 0.0f, 0.0f)
 { 
     resetModel(); 
 }
@@ -20,7 +20,7 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
-	Ka(1.0f), Kd(1.0f), Ks(1.0f), alpha(0.5f), color(0.0f, 0.0f, 0.0f)
+	Ka(1.0f), Kd(1.0f), Ks(1.0f), alpha(1), color(0.0f, 0.0f, 0.0f)
 {
 	resetModel();
 }
@@ -30,7 +30,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 	vertices(model->GetVertices()),
 	faces(model->GetFaces()),
 	normals(model->GetNormals()),
-	Kd(1.0f), Ks(1.0f), alpha(0.5f),color(0.0f, 0.0f, 0.0f)
+	Kd(1.0f), Ks(1.0f), alpha(1),color(0.0f, 0.0f, 0.0f)
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }

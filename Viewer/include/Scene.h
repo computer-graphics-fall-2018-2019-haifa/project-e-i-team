@@ -30,14 +30,16 @@ private:
 	std::vector< std::shared_ptr<PointLight>> PointLights;
 	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
 	std::shared_ptr<AmbientLight> Ambient;
+    float* gaussianKernel[5];
 public:
 	int CurrCam, SizeCam;
 	int CurrPoint, SizePoint;
 	int CurrParallel, SizeParallel;
 	int activeModelIndex, gridCounter;
-	int shadingType;
+	int shadingType, gaussianBlur,gaussianRadius;
 	
 	Scene();
+    ~Scene();
 	void AddModel(const std::shared_ptr<MeshModel>& model);
 	const int GetModelCount() const;
 	void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth);
@@ -69,4 +71,5 @@ public:
     // glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model); // BUG - do not use it - required a series test before changing to use this general-mass function
 	void Scene::SetFocusOnCurrentModel();
 	void WholeWorldTransfer(glm::mat4x4& Tcm, glm::mat4x4& Tc);
+    float** GetGaussianKernel();
 };
