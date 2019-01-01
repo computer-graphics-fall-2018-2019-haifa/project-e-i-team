@@ -57,9 +57,16 @@ public:
         int M = (m - 1) / 2;
         int _N = -(n - 1) / 2;
         int N = (n - 1) / 2;
-        for (int i = _M; i <= M;i++) {
-            for (int j = _N; j <= N; j++) {
+        float sum = 0.0f;
+        for (int i = _N; i <= N;i++) {
+            for (int j = _M; j <= M; j++) {
                 kernel[i + M][j + N] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius,2)));
+                sum += kernel[i + M][j + N];
+            }
+        }
+        for (int i = _N; i <= N; i++) {
+            for (int j = _M; j <= M; j++) {
+                kernel[i + M][j + N] = (1.0f / sum)*kernel[i + N][j + M];
             }
         }
     }
@@ -67,47 +74,25 @@ public:
         return ((x)+(y)*(width)) * 3 + (c);
     }
     static void convolve(float* image ,int viewportWidth,int viewportHeight, float kernel[5][5],int m,int n) {
-        for (int i = 0; i < viewportWidth; i++) {
-            for (int j = 0; j < viewportHeight; j++) {
-                int indexR = INDEXCOLOR(viewportWidth, i, j, 0),indexG = INDEXCOLOR(viewportWidth, i, j, 1), indexB = INDEXCOLOR(viewportWidth, i, j, 2);
-                float convRSummation = 0.0f, convGSummation = 0.0f, convBSummation = 0.0f;
-                for (int r0 = 0; r0 <= n; r0++) {
-                    for (int r1 = 0; r1 <= m; r1++) {
-                        float gaussValue = 0;
-                        int disRow = (i - r0), disCol = (j - r1);
-                        if ((i - (m - 1) / 2) >= 0 && (i + (m - 1) / 2) < viewportWidth &&
-                            (j - (n - 1) / 2) >= 0 && (j + (n - 1) / 2) < viewportHeight) {
-                            gaussValue = kernel[r0][r1];
-                            int R, G, B;
-                            if (disRow >= 0 && disCol >= 0) {
-                                R = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 0);
-                                B = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 1);
-                                G = INDEXCOLOR(viewportWidth, i + disRow, j + disCol, 2);
-                            }
-                            else if (disRow < 0 && disCol < 0) {
-                                R = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 0);
-                                B = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 1);
-                                G = INDEXCOLOR(viewportWidth, i - disRow, j - disCol, 2);
-                            }
-                            else if (disRow < 0) {
-                                R = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 0);
-                                B = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 1);
-                                G = INDEXCOLOR(viewportWidth, i - disRow, j + disCol, 2);
-                            }
-                            else if (disCol < 0) {
-                                R = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 0);
-                                B = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 1);
-                                G = INDEXCOLOR(viewportWidth, i + disRow, j - disCol, 2);
-                            }
-                            convRSummation += gaussValue * R;
-                            convGSummation += gaussValue * G;
-                            convBSummation += gaussValue * B;
+        for (int width = 0; width < viewportWidth; width++) {
+            for (int height = 0; height < viewportHeight; height++) {
+                float convRSum = 0.0f, convGSum = 0.0f, convBSum = 0.0f;
+                for (int col = 0; col < n; col++) {
+                    for (int row = 0; row < m; row++) {
+                        int wLoc = width + n - col - ((n - 1) / 2), hLoc = height + m - row - ((m - 1) / 2);
+                        if ((wLoc >= 0) && (wLoc < viewportWidth) && (hLoc >= 0) && (hLoc < viewportHeight)) {
+                            float R = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 0)];
+                            float G = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 1)];
+                            float B = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 2)];
+                            convRSum += R;
+                            convGSum += G;
+                            convBSum += B;
                         }
                     }
                 }
-                image[indexR] = convRSummation;
-                image[indexG] = convGSummation;
-                image[indexB] = convBSummation;
+                image[INDEXCOLOR(viewportWidth, width, height, 0)] = convRSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 1)] = convGSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 2)] = convBSum;
             }
         }
     }

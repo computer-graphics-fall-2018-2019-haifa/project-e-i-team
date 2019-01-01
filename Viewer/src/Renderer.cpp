@@ -874,6 +874,8 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
 	showAllMeshModels(scene, io);
+
+    // post effects:
     if (scene.bloom == 1) {
         float* pColorBuffer = new float[3 * viewportWidth * viewportHeight];
         for (int i = 0; i < viewportWidth; i++) {
