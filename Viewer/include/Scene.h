@@ -11,7 +11,7 @@
 #include "ParallelLight.h"
 #include "AmbientLight.h"
 
-#define PHONGY			0
+#define PHONG			0
 #define GOURAUD			1
 #define FLAT			2
 

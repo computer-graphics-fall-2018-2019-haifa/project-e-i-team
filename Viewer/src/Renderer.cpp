@@ -159,7 +159,7 @@ float GetZPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
 }
 
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
-    printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE);
+    printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE_SHADER);
 }
 
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int shader) {
@@ -189,19 +189,19 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
             if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
                 float depth = GetZPointBarycentricInterpolate(a, b, c, p);
                 glm::vec3 p_color;
-                if (shader == FLAT) {
+                if (shader == FLAT_SHADER) {
                     p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), n0);
                 }
-                else if (shader == PHONGY) {
+                else if (shader == PHONG_SHADER) {
                     glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
                     p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), interpolatedNormal);
                 }
-                else if (shader == GOURAUD) {
+                else if (shader == GOURAUD_SHADER) {
                     glm::vec3 color0, color1, color2;
                     computeGouraud(scene, scene.GetModel(scene.activeModelIndex), glm::vec3(a), n0, glm::vec3(b), n1, glm::vec3(c), n2, &color0, &color1, &color2);
                     p_color = GetColorBarycentricInterpolate(glm::vec4(w, 0, 1), a, b, c, color0, color1, color2);
                 }
-                else if (shader == SIMPLE) {
+                else if (shader == SIMPLE_SHADER) {
                     p_color = glm::vec3(n0);
                 }
                 putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
@@ -894,6 +894,13 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
             }
         }
         Trans::convolve(pColorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel, scene.kernelM, scene.kernelN);
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
     } 
     if (scene.gaussianBlur == 1) {
         Trans::convolve(colorBuffer,viewportWidth,viewportHeight, scene.gaussianKernel,scene.kernelM,scene.kernelN);
