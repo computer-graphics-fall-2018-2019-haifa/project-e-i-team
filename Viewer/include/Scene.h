@@ -31,20 +31,38 @@ private:
 	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
 	std::shared_ptr<AmbientLight> Ambient;
 public:
-    float gaussianKernel[5][5] = {  
+    float gaussianKernel3x3[3][3] = {  
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 0}
+                                    };
+    float gaussianKernel5x5[5][5] = {
                                     {0, 0, 0, 0, 0},
                                     {0, 0, 0, 0, 0},
                                     {0, 0, 0, 0, 0},
                                     {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0} 
-                                };
+                                    {0, 0, 0, 0, 0}
+                                    };
+    float gaussianKernel10x10[10][10] = {
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0}
+                                        };
 	int CurrCam, SizeCam;
 	int CurrPoint, SizePoint;
 	int CurrParallel, SizeParallel;
 	int activeModelIndex, gridCounter;
-	int shadingType, gaussianBlur,gaussianRadius;
-    int bloom;
+	int shadingType,gaussianRadius,gaussianMaskSize;
+    int bloom, gaussianBlur;
     int kernelM, kernelN;
+    float bloomThresh;
 	
 	Scene();
     ~Scene();
@@ -79,4 +97,5 @@ public:
     // glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model); // BUG - do not use it - required a series test before changing to use this general-mass function
 	void Scene::SetFocusOnCurrentModel();
 	void WholeWorldTransfer(glm::mat4x4& Tcm, glm::mat4x4& Tc);
+    void Scene::buildGaussian();
 };

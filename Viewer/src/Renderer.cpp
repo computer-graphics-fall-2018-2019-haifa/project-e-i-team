@@ -876,7 +876,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	showAllMeshModels(scene, io);
 
     // post effects:
-    if (scene.bloom == 1) {
+    if (scene.bloom) {
         float* pColorBuffer = new float[3 * viewportWidth * viewportHeight];
         for (int i = 0; i < viewportWidth; i++) {
             for (int j = 0; j < viewportHeight; j++) {
@@ -885,7 +885,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
                 pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
             }
         }
-        Trans::thresh(colorBuffer, viewportWidth, viewportHeight,LIGHT_THRESH);
+        Trans::thresh(colorBuffer, viewportWidth, viewportHeight,scene.bloomThresh);
         for (int i = 0; i < viewportWidth; i++) {
             for (int j = 0; j < viewportHeight; j++) {
                 pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
@@ -893,7 +893,11 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
                 pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
             }
         }
-        Trans::convolve(pColorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel, scene.kernelM, scene.kernelN);
+        switch (scene.gaussianMaskSize) {
+            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);      break;
+            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);      break;
+            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+        }
         for (int i = 0; i < viewportWidth; i++) {
             for (int j = 0; j < viewportHeight; j++) {
                 colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
@@ -902,8 +906,12 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
             }
         }
     } 
-    if (scene.gaussianBlur == 1) {
-        Trans::convolve(colorBuffer,viewportWidth,viewportHeight, scene.gaussianKernel,scene.kernelM,scene.kernelN);
+    if (scene.gaussianBlur) {
+        switch (scene.gaussianMaskSize) {
+            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);  break;
+            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);  break;
+            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+        }
     }
 }
 

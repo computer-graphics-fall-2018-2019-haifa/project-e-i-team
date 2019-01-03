@@ -52,7 +52,25 @@ public:
 		glm::mat4x4 toOrigin = Trans::getTranslate4x4(massCenter.x, massCenter.y, massCenter.z);
 		return (toOrigin * T * toZero);
 	}
-    static void buildGaussianKernel(float kernel[5][5],int m,int n,int radius) {
+    static void buildGaussianKernel3x3(float kernel[3][3], int m, int n, int radius) {
+        int _M = -(m - 1) / 2;
+        int M = (m - 1) / 2;
+        int _N = -(n - 1) / 2;
+        int N = (n - 1) / 2;
+        float sum = 0.0f;
+        for (int i = _N; i <= N; i++) {
+            for (int j = _M; j <= M; j++) {
+                kernel[i + M][j + N] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius, 2)));
+                sum += kernel[i + M][j + N];
+            }
+        }
+        for (int i = _N; i <= N; i++) {
+            for (int j = _M; j <= M; j++) {
+                kernel[i + M][j + N] = (1.0f / sum)*kernel[i + N][j + M];
+            }
+        }
+    }
+    static void buildGaussianKernel5x5(float kernel[5][5],int m,int n,int radius) {
         int _M = -(m - 1) / 2;
         int M = (m - 1) / 2;
         int _N = -(n - 1) / 2;
@@ -70,10 +88,74 @@ public:
             }
         }
     }
+    static void buildGaussianKernel10x10(float kernel[10][10], int m, int n, int radius) {
+        int _M = -(m - 1) / 2;
+        int M = (m - 1) / 2;
+        int _N = -(n - 1) / 2;
+        int N = (n - 1) / 2;
+        float sum = 0.0f;
+        for (int i = _N; i <= N; i++) {
+            for (int j = _M; j <= M; j++) {
+                kernel[i + M][j + N] = expf((-pow(i, 2) - pow(j, 2)) / (2.0f * pow(radius, 2)));
+                sum += kernel[i + M][j + N];
+            }
+        }
+        for (int i = _N; i <= N; i++) {
+            for (int j = _M; j <= M; j++) {
+                kernel[i + M][j + N] = (1.0f / sum)*kernel[i + N][j + M];
+            }
+        }
+    }
     static int INDEXCOLOR(int width, int x, int y, int c) {
         return ((x)+(y)*(width)) * 3 + (c);
     }
-    static void convolve(float* image ,int viewportWidth,int viewportHeight, float kernel[5][5],int m,int n) {
+    static void convolve3x3(float* image, int viewportWidth, int viewportHeight, float kernel[3][3], int m, int n) {
+        for (int width = 0; width < viewportWidth; width++) {
+            for (int height = 0; height < viewportHeight; height++) {
+                float convRSum = 0.0f, convGSum = 0.0f, convBSum = 0.0f;
+                for (int col = 0; col < n; col++) {
+                    for (int row = 0; row < m; row++) {
+                        int wLoc = width + n - col - ((n - 1) / 2), hLoc = height + m - row - ((m - 1) / 2);
+                        if ((wLoc >= 0) && (wLoc < viewportWidth) && (hLoc >= 0) && (hLoc < viewportHeight)) {
+                            float R = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 0)];
+                            float G = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 1)];
+                            float B = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 2)];
+                            convRSum += R;
+                            convGSum += G;
+                            convBSum += B;
+                        }
+                    }
+                }
+                image[INDEXCOLOR(viewportWidth, width, height, 0)] = convRSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 1)] = convGSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 2)] = convBSum;
+            }
+        }
+    }
+    static void convolve5x5(float* image ,int viewportWidth,int viewportHeight, float kernel[5][5],int m,int n) {
+        for (int width = 0; width < viewportWidth; width++) {
+            for (int height = 0; height < viewportHeight; height++) {
+                float convRSum = 0.0f, convGSum = 0.0f, convBSum = 0.0f;
+                for (int col = 0; col < n; col++) {
+                    for (int row = 0; row < m; row++) {
+                        int wLoc = width + n - col - ((n - 1) / 2), hLoc = height + m - row - ((m - 1) / 2);
+                        if ((wLoc >= 0) && (wLoc < viewportWidth) && (hLoc >= 0) && (hLoc < viewportHeight)) {
+                            float R = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 0)];
+                            float G = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 1)];
+                            float B = kernel[col][row] * image[INDEXCOLOR(viewportWidth, wLoc, hLoc, 2)];
+                            convRSum += R;
+                            convGSum += G;
+                            convBSum += B;
+                        }
+                    }
+                }
+                image[INDEXCOLOR(viewportWidth, width, height, 0)] = convRSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 1)] = convGSum;
+                image[INDEXCOLOR(viewportWidth, width, height, 2)] = convBSum;
+            }
+        }
+    }
+    static void convolve10x10(float* image, int viewportWidth, int viewportHeight, float kernel[10][10], int m, int n) {
         for (int width = 0; width < viewportWidth; width++) {
             for (int height = 0; height < viewportHeight; height++) {
                 float convRSum = 0.0f, convGSum = 0.0f, convBSum = 0.0f;

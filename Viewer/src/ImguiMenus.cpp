@@ -477,8 +477,34 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		}
     }
     else if (type == BLUR_SECTION) {
-        ImGui::Combo("Gaussian Blur", &(scene->gaussianBlur), "Disable\0Enable", 2);
-        ImGui::Combo("Bloom Bleeding", &(scene->bloom), "Disable\0Enable", 2);
+        bool rebuild = false;
+        if (ImGui::CollapsingHeader("Gaussian Blur")) {
+            ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
+            int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
+            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
+            if (scene->gaussianBlur) {
+                if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
+                    rebuild = true;
+                }
+            }
+        }
+        if (ImGui::CollapsingHeader("Bloom Bleeding")) {
+            ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
+            int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
+            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
+            ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
+            if (scene->bloom) {
+                scene->gaussianBlur = true;
+                if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
+                    rebuild = true;
+                }
+            }
+        }
+        if (rebuild) {
+            scene->buildGaussian();
+        }
     }
     else {
         std::cout << "Problem while picking a section." << std::endl;
