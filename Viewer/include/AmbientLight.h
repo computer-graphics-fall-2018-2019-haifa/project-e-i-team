@@ -11,8 +11,8 @@ private:
 	glm::vec3 base;
 public:
 	float Ka,La;
-	AmbientLight(glm::vec3 base);
-	~AmbientLight();
-	glm::vec3 GetBaseVector();
-	glm::vec3 GetLocationAfterTrans();
+    AmbientLight::AmbientLight(glm::vec3 base);
+    AmbientLight::~AmbientLight();
+	glm::vec3& AmbientLight::GetBaseVector();
+	glm::vec3& AmbientLight::GetLocationAfterTrans();
 };
