@@ -294,36 +294,36 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 }
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-    ImGui::ColorEdit3("Color", (float*)&(currentModel->color));
-    ImGui::SliderFloat("Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
-    ImGui::SliderFloat("Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
-    ImGui::SliderFloat("Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
-    ImGui::SliderInt("Shininess", &(currentModel->alpha), 1, 200);
-	ImGui::Checkbox("Face Normals", &(currentModel->showFaceNormals));
-	ImGui::ColorEdit3("Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
-	ImGui::SliderFloat("Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-	ImGui::Checkbox("Vectex Normals", &(currentModel->showVertexNormals));
-	ImGui::ColorEdit3("Normal Color  (Vertecies)", (float*)&(currentModel->vNcolor));
-	ImGui::SliderFloat("Normal Length (Vertecies)", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
-	ImGui::Checkbox("Bounding Box", &(currentModel->showBoundingBox));
-	ImGui::ColorEdit3("Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
+    ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color));
+    ImGui::SliderFloat("Model Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
+    ImGui::SliderFloat("Model Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
+    ImGui::SliderFloat("Model Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
+    ImGui::SliderInt("Model Shininess", &(currentModel->alpha), 1, 200);
+	ImGui::Checkbox("Model Face Normals", &(currentModel->showFaceNormals));
+	ImGui::ColorEdit3("Model Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
+	ImGui::SliderFloat("Model Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+	ImGui::Checkbox("Model Vectex Normals", &(currentModel->showVertexNormals));
+	ImGui::ColorEdit3("Model Normal Color  (Vertecies)", (float*)&(currentModel->vNcolor));
+	ImGui::SliderFloat("Model Normal Length (Vertecies)", &(currentModel->vNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
+	ImGui::Checkbox("Model Bounding Box", &(currentModel->showBoundingBox));
+	ImGui::ColorEdit3("Model Bounding Box Color", (float*)&(currentModel->BoundingBoxColor));
 }
 
 void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
-	ImGui::SliderFloat("Reflected Ray", &(currentLight->Ka), 0.0f, 1.0f);
-	ImGui::SliderFloat("Ray Intensity", &(currentLight->La), 0.0f, 1.0f);
-	ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Ambient Light Reflected Ray", &(currentLight->Ka), 0.0f, 1.0f);
+	ImGui::SliderFloat("Ambient Light Ray Intensity", &(currentLight->La), 0.0f, 1.0f);
+	ImGui::ColorEdit3("AmbientLight Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 }
 
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
-    ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
-	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
+    ImGui::ColorEdit3("Point Light Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Point Light Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
 	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
-    ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
-	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
+    ImGui::ColorEdit3("Parallel Light Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Parallel Light Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
 	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
@@ -335,11 +335,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
 	ImGui::Combo("Shading Model", &(scene->shadingType), "Phong\0Gouraud\0Flat", 3);
-	static int type = 1;
-	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source","Blurring"};
-	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
+	//static int type = 1;
+	//const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source","Blurring"};
+	//ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
 	ImGui::TextColored(textColor, "");
-	if (type == CAMERA_SECTION) {
+	//if (type == CAMERA_SECTION) {
+    if(ImGui::CollapsingHeader("Camera")){
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
@@ -375,7 +376,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	else if (type == MODEL_SECTION) {
+	//else if (type == MODEL_SECTION) {
+    if (ImGui::CollapsingHeader("Model")) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
@@ -386,100 +388,104 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             if (ImGui::CollapsingHeader("Model Properties")) {
                 buildPropertiesSection(currentModel);
             }
-			if (ImGui::CollapsingHeader("Local Transformations")) {
+			if (ImGui::CollapsingHeader("Model Local Transformations")) {
 				buildLocalTrans(Tci, currentModel);
 				glm::vec3 location = currentModel->GetModelLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 				currentModel->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("World Transformations")) {
+			if (ImGui::CollapsingHeader("Model World Transformations")) {
 				buildWorldTrans(T, currentModel);
 				currentModel->UpdateworldTransform(T);
 			}
 		}
 	}
-	else if (type == POINT_LIGHT_SECTION) {
+	//else if (type == POINT_LIGHT_SECTION) {
+    if (ImGui::CollapsingHeader("Point Light")) {
 		if (ImGui::Button("Add Point Light")) {
 			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
 			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
 		}
-		const char* items = getLightNames(scene->SizePoint, "Point Light ");
+		const char* items = getLightNames(scene->SizePoint, "Point Light");
 		ImGui::Combo("Light Name", &(scene->CurrPoint), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<PointLight> currentLight = scene->GetPointLight(scene->CurrPoint);
 		if (currentLight != nullptr) {
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-            if (ImGui::CollapsingHeader("Properties")) {
+            if (ImGui::CollapsingHeader("Point Properties")) {
                 buildLightPropertiesSection(currentLight);
             }
-			if (ImGui::CollapsingHeader("Local Transformations")) {
+			if (ImGui::CollapsingHeader("Point Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("World Transformations")) {
+			if (ImGui::CollapsingHeader("Point World Transformations")) {
 				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
 		}
 	}
-	else if (type == PARALLEL_LIGHT_SECTION) {
+	//else if (type == PARALLEL_LIGHT_SECTION) {
+    if (ImGui::CollapsingHeader("Parallel Light")) {
 		if (ImGui::Button("Add Parallel Light")) {
             if (scene->GetParallelLightCount() == 0) {
                 scene->AddParallelLight();
             }
 		}
-		const char* items = getLightNames(scene->SizeParallel, "Parallel Light ");
+		const char* items = getLightNames(scene->SizeParallel, "Parallel Light");
 		ImGui::Combo("Light Name", &(scene->CurrParallel), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<ParallelLight> currentLight = scene->GetParallelLight(scene->CurrParallel);
 		if (currentLight != nullptr) {
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-            if (ImGui::CollapsingHeader("Properties")) {
+            if (ImGui::CollapsingHeader("Parallel Properties")) {
                 buildLightPropertiesSection(currentLight);
             }
-			if (ImGui::CollapsingHeader("Local Transformations")) {
+			if (ImGui::CollapsingHeader("Parallel Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 				currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 			}
-			if (ImGui::CollapsingHeader("World Transformations")) {
+			if (ImGui::CollapsingHeader("Parallel World Transformations")) {
 				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
 		}
 	}
-	else if (type == AMBIENT_LIGHT_SECTION){
+	//else if (type == AMBIENT_LIGHT_SECTION){
+    if (ImGui::CollapsingHeader("Ambient Light")) {
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
-        if (ImGui::CollapsingHeader("Properties")) {
+        if (ImGui::CollapsingHeader("Ambient Properties")) {
             buildLightPropertiesSection(currentLight);
         }
-		if (ImGui::CollapsingHeader("Local Transformations")) {
+		if (ImGui::CollapsingHeader("Ambient Local Transformations")) {
 			buildLocalTrans(Tci, currentLight);
 			glm::vec3 location = currentLight->GetLocationAfterTrans();
 			glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 			glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
 			currentLight->UpdateworldTransform(BacktoOrigin * Tci * toZero);
 		}
-		if (ImGui::CollapsingHeader("World Transformations")) {
+		if (ImGui::CollapsingHeader("Ambient World Transformations")) {
 			buildWorldTrans(T, currentLight);
 			currentLight->UpdateworldTransform(T);			
 		}
     }
-    else if (type == BLUR_SECTION) {
+    //else if (type == BLUR_SECTION) {
+    if (ImGui::CollapsingHeader("Blurring")) {
         bool rebuild = false;
         if (ImGui::CollapsingHeader("Gaussian Blur")) {
-            ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
+            ImGui::Combo("Blur Enable", &(scene->gaussianBlur),"No\0Yes",2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
             ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
@@ -490,7 +496,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             }
         }
         if (ImGui::CollapsingHeader("Bloom Bleeding")) {
-            ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
+            ImGui::Combo("Bleeding Enable", &(scene->bloom), "No\0Yes", 2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
             ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
