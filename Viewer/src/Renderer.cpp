@@ -595,7 +595,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                         );
 					} else {
 						glm::vec3 ambientBasic = scene.GetAmbient()->color * scene.GetAmbient()->Ka * scene.GetAmbient()->La;
-						printTriangle(scene, vect0, vect1, vect2, ambientBasic + model->color, SIMPLE4);
+						printTriangle(scene, vect0, vect1, vect2, ambientBasic + model->color);
 					}
                 }
 			} else {
@@ -615,7 +615,7 @@ glm::vec3& Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel
     bool isDraw = false;
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal);
+		glm::vec3 S = glm::normalize(glm::vec3(100,100,100) - interpolatedNormal); //glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, S, model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
