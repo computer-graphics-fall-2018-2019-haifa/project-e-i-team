@@ -17,6 +17,7 @@ using namespace std;
 #define INDEXCOLOR(width,x,y,c) ((x)+(y)*(width))*3+(c)
 #define INDEXZ(width,x,y) ((x)+(y)*(width))
 #define MaxDepth 4000.0f
+#define LIGHT_THRESH 0.7f
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -157,12 +158,8 @@ float GetZPointBarycentricLine(glm::vec4& v1, glm::vec4& v2, glm::vec2& p) {
 	}	
 }
 
-glm::vec2& convolve(glm::vec2& p, float** gaussianKernal) {
-    return *std::make_shared<glm::vec2>(); // do we need to multiply each pixel by itself?! how the operation should be done?!
-}
-
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& color) {
-    printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE);
+    printTriangle(scene, a, b, c, color, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), SIMPLE_SHADER);
 }
 
 void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4& c, glm::vec3& n0, glm::vec3& n1, glm::vec3& n2, int shader) {
@@ -185,34 +182,26 @@ void Renderer::printTriangle(Scene& scene, glm::vec4& a, glm::vec4& b, glm::vec4
     for (int x = min_x; x <= max_x; x++) {
         for (int y = min_y; y <= max_y; y++) {
             glm::vec2 p(x, y);
-            glm::vec2 w;
-            //// what is W12???????
-            //if (scene.gaussianBlur) {
-            //    float** gaussianKernal = scene.GetGaussianKernel();
-            //    w = convolve(CalculateW12(a, b, c, p), gaussianKernal);
-            //}
-            //else {
-            //    w = CalculateW12(a, b, c, p);
-            //}
+            glm::vec2 w = CalculateW12(a, b, c, p);
             float w1 = w[0];
             float w2 = w[1];
 
             if ((w1 >= 0) && (w2 >= 0) && ((w1 + w2) <= 1)) {
                 float depth = GetZPointBarycentricInterpolate(a, b, c, p);
                 glm::vec3 p_color;
-                if (shader == FLAT) {
+                if (shader == FLAT_SHADER) {
                     p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), n0);
                 }
-                else if (shader == PHONGY) {
+                else if (shader == PHONG_SHADER) {
                     glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
                     p_color = computePhongAndFlat(scene, scene.GetModel(scene.activeModelIndex), interpolatedNormal);
                 }
-                else if (shader == GOURAUD) {
+                else if (shader == GOURAUD_SHADER) {
                     glm::vec3 color0, color1, color2;
                     computeGouraud(scene, scene.GetModel(scene.activeModelIndex), glm::vec3(a), n0, glm::vec3(b), n1, glm::vec3(c), n2, &color0, &color1, &color2);
                     p_color = GetColorBarycentricInterpolate(glm::vec4(w, 0, 1), a, b, c, color0, color1, color2);
                 }
-                else if (shader == SIMPLE) {
+                else if (shader == SIMPLE_SHADER) {
                     p_color = glm::vec3(n0);
                 }
                 putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
@@ -619,30 +608,30 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 }
 
 glm::vec3& Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& interpolatedNormal) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * scene.GetAmbient()->Ka * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * ((scene.GetAmbient()->Ka + model->Ka) / 2) * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
     
     glm::vec3 illuPoint, illuParallel;
     bool isDraw = false;
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S = scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal;
+        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, S, model->color, DIFFUSE);
-        glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
         glm::vec3 diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         glm::vec3 specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        illuPoint = illuPoint + diffuseTotalColor + specularTotalColor;
+        illuPoint = illuPoint + scene.GetPointLight(scene.CurrPoint)->color * (diffuseTotalColor + specularTotalColor);
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S = scene.GetParallelLight(i)->GetDirectionAfterTrans() - interpolatedNormal;
+        glm::vec3 S = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - interpolatedNormal);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, S, model->color, DIFFUSE);
-        glm::vec3 specularColor = estColor(model->Ks, scene.GetParallelLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor = estColor(model->Ks, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetParallelLight(i)->color;
         glm::vec3 diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
         glm::vec3 specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        illuParallel = illuParallel + diffuseTotalColor + specularTotalColor;
+        illuParallel = illuParallel + scene.GetParallelLight(scene.CurrParallel)->color * (diffuseTotalColor + specularTotalColor);
     }
     if(isDraw) {
         return *std::make_shared<glm::vec3>(ambientColor + illuPoint + illuParallel);
@@ -653,7 +642,7 @@ glm::vec3& Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel
 }
 
 void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3& vect0, glm::vec3& n0, glm::vec3& vect1, glm::vec3& n1, glm::vec3& vect2, glm::vec3& n2,glm::vec3* color0, glm::vec3* color1, glm::vec3* color2) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * scene.GetAmbient()->Ka * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * ((scene.GetAmbient()->Ka + model->Ka) / 2) * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
 
     glm::vec3 gouraudPoint0, gouraudPoint1, gouraudPoint2;
@@ -661,15 +650,15 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
     bool isDraw = false;
     for(int i = 0;i < scene.GetPointLightCount();i++){
         isDraw = true;
-        glm::vec3 S0 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect0;
-        glm::vec3 S1 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect1;
-        glm::vec3 S2 = scene.GetPointLight(i)->GetLocationAfterTrans() - vect2;
+        glm::vec3 S0 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect0);
+        glm::vec3 S1 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect1);
+        glm::vec3 S2 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect2);
         glm::vec3 diffuseColor0 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, DIFFUSE);
         glm::vec3 diffuseColor1 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, DIFFUSE);
         glm::vec3 diffuseColor2 = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, DIFFUSE);
-        glm::vec3 specularColor0 = estColor(model->Ks, scene.GetPointLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, SPECULAR, model->alpha);
-        glm::vec3 specularColor1 = estColor(model->Ks, scene.GetPointLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, SPECULAR, model->alpha);
-        glm::vec3 specularColor2 = estColor(model->Ks, scene.GetPointLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor0 = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor1 = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor2 = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
         glm::vec3 diffuseTotalColor0 = glm::vec3(color.x * diffuseColor0.x, color.y * diffuseColor0.y, color.z * diffuseColor0.z);
         glm::vec3 diffuseTotalColor1 = glm::vec3(color.x * diffuseColor1.x, color.y * diffuseColor1.y, color.z * diffuseColor1.z);
@@ -677,21 +666,21 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
         glm::vec3 specularTotalColor0 = glm::vec3(color.x * specularColor0.x, color.y * specularColor0.y, color.z * specularColor0.z);
         glm::vec3 specularTotalColor1 = glm::vec3(color.x * specularColor1.x, color.y * specularColor1.y, color.z * specularColor1.z);
         glm::vec3 specularTotalColor2 = glm::vec3(color.x * specularColor2.x, color.y * specularColor2.y, color.z * specularColor2.z);
-        gouraudPoint0 = gouraudPoint0 + diffuseTotalColor0 + specularTotalColor0;
-        gouraudPoint1 = gouraudPoint1 + diffuseTotalColor1 + specularTotalColor1;
-        gouraudPoint2 = gouraudPoint2 + diffuseTotalColor2 + specularTotalColor2;
+        gouraudPoint0 = gouraudPoint0 + scene.GetPointLight(scene.CurrPoint)->color * (diffuseTotalColor0 + specularTotalColor0);
+        gouraudPoint1 = gouraudPoint1 + scene.GetPointLight(scene.CurrPoint)->color * (diffuseTotalColor1 + specularTotalColor1);
+        gouraudPoint2 = gouraudPoint2 + scene.GetPointLight(scene.CurrPoint)->color * (diffuseTotalColor2 + specularTotalColor2);
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S0 = scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect0;
-        glm::vec3 S1 = scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect1;
-        glm::vec3 S2 = scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect2;
+        glm::vec3 S0 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect0);
+        glm::vec3 S1 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect1);
+        glm::vec3 S2 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - vect2);
         glm::vec3 diffuseColor0 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, DIFFUSE);
         glm::vec3 diffuseColor1 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, DIFFUSE);
         glm::vec3 diffuseColor2 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, DIFFUSE);
-        glm::vec3 specularColor0 = estColor(model->Ks, scene.GetParallelLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, SPECULAR, model->alpha);
-        glm::vec3 specularColor1 = estColor(model->Ks, scene.GetParallelLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, SPECULAR, model->alpha);
-        glm::vec3 specularColor2 = estColor(model->Ks, scene.GetParallelLight(i)->Ls, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor0 = estColor(model->Ks, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n0), S0, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor1 = estColor(model->Ks, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n1), S1, model->color, SPECULAR, model->alpha);
+        glm::vec3 specularColor2 = estColor(model->Ks, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), glm::normalize(n2), S2, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetParallelLight(i)->color;
         glm::vec3 diffuseTotalColor0 = glm::vec3(color.x * diffuseColor0.x, color.y * diffuseColor0.y, color.z * diffuseColor0.z);
         glm::vec3 diffuseTotalColor1 = glm::vec3(color.x * diffuseColor1.x, color.y * diffuseColor1.y, color.z * diffuseColor1.z);
@@ -699,9 +688,9 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
         glm::vec3 specularTotalColor0 = glm::vec3(color.x * specularColor0.x, color.y * specularColor0.y, color.z * specularColor0.z);
         glm::vec3 specularTotalColor1 = glm::vec3(color.x * specularColor1.x, color.y * specularColor1.y, color.z * specularColor1.z);
         glm::vec3 specularTotalColor2 = glm::vec3(color.x * specularColor2.x, color.y * specularColor2.y, color.z * specularColor2.z);
-        gouraudParallel0 = gouraudParallel0 + diffuseTotalColor0 + specularTotalColor0;
-        gouraudParallel1 = gouraudParallel1 + diffuseTotalColor1 + specularTotalColor1;
-        gouraudParallel2 = gouraudParallel2 + diffuseTotalColor2 + specularTotalColor2;
+        gouraudParallel0 = gouraudParallel0 + scene.GetParallelLight(scene.CurrPoint)->color * (diffuseTotalColor0 + specularTotalColor0);
+        gouraudParallel1 = gouraudParallel1 + scene.GetParallelLight(scene.CurrPoint)->color * (diffuseTotalColor1 + specularTotalColor1);
+        gouraudParallel2 = gouraudParallel2 + scene.GetParallelLight(scene.CurrPoint)->color * (diffuseTotalColor2 + specularTotalColor2);
     }
     if (isDraw) {
         *color0 = ambientColor + gouraudPoint0 + gouraudParallel0;
@@ -888,6 +877,45 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
 	showAllMeshModels(scene, io);
+
+    // post effects:
+    if (scene.bloom) {
+        float* pColorBuffer = new float[3 * viewportWidth * viewportHeight];
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
+        Trans::thresh(colorBuffer, viewportWidth, viewportHeight,scene.bloomThresh);
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] + colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
+        switch (scene.gaussianMaskSize) {
+            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);      break;
+            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);      break;
+            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+        }
+        for (int i = 0; i < viewportWidth; i++) {
+            for (int j = 0; j < viewportHeight; j++) {
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 0)];
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 1)];
+                colorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)] = pColorBuffer[INDEXCOLOR(viewportWidth, i, j, 2)];
+            }
+        }
+    } 
+    if (scene.gaussianBlur) {
+        switch (scene.gaussianMaskSize) {
+            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);  break;
+            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);  break;
+            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+        }
+    }
 }
 
 //##############################

@@ -318,29 +318,28 @@ void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
+	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
+	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
 // the main UI building function:
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
-	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
+	ImGui::Begin("Task 2 - Cameras VS. Models", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
-    ImGui::RadioButton("Gaussian Blur", &(scene->gaussianBlur), 0);
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
-	ImGui::Combo("Shading Model", &(scene->shadingType), "Phongy\0Gouraud\0Flat", 3);
+	ImGui::Combo("Shading Model", &(scene->shadingType), "Phong\0Gouraud\0Flat", 3);
 	static int type = 1;
-	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source"};
+	const char* items[] = { "Cameras", "Models", "Point Source", "Parallel Source", "Ambient Source","Blurring"};
 	ImGui::Combo("Section", &type, items, IM_ARRAYSIZE(items));
 	ImGui::TextColored(textColor, "");
-	if (type == 0) {
+	if (type == CAMERA_SECTION) {
 		if (ImGui::Button("Add camera")) {
 			std::string path = Get_Root_Project_Dir("Data\\camera.obj");
 			scene->AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
@@ -376,7 +375,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 		}
 	}
-	else if (type == 1) {
+	else if (type == MODEL_SECTION) {
 		const char* items = getModelNames(scene);
 		ImGui::Combo("Model Name", &(scene->activeModelIndex), items, IM_ARRAYSIZE(items));
 		std::shared_ptr<MeshModel> currentModel = scene->GetModel(scene->activeModelIndex);
@@ -384,6 +383,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentModel);
 			currentModel->UpdateworldTransform(Tk);
+            if (ImGui::CollapsingHeader("Model Properties")) {
+                buildPropertiesSection(currentModel);
+            }
 			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentModel);
 				glm::vec3 location = currentModel->GetModelLocationAfterTrans();
@@ -395,12 +397,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				buildWorldTrans(T, currentModel);
 				currentModel->UpdateworldTransform(T);
 			}
-			if (ImGui::CollapsingHeader("Model Properties")) {
-				buildPropertiesSection(currentModel);
-			}
 		}
 	}
-	else if (type == 2) {
+	else if (type == POINT_LIGHT_SECTION) {
 		if (ImGui::Button("Add Point Light")) {
 			std::string path = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
 			scene->AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth);
@@ -412,6 +411,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
+            if (ImGui::CollapsingHeader("Properties")) {
+                buildLightPropertiesSection(currentLight);
+            }
 			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
@@ -423,13 +425,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
-			if (ImGui::CollapsingHeader("Properties")) {
-				buildLightPropertiesSection(currentLight);
-			}
-
 		}
 	}
-	else if (type == 3) {
+	else if (type == PARALLEL_LIGHT_SECTION) {
 		if (ImGui::Button("Add Parallel Light")) {
             if (scene->GetParallelLightCount() == 0) {
                 scene->AddParallelLight();
@@ -442,6 +440,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
+            if (ImGui::CollapsingHeader("Properties")) {
+                buildLightPropertiesSection(currentLight);
+            }
 			if (ImGui::CollapsingHeader("Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
@@ -453,16 +454,16 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 				buildWorldTrans(T, currentLight);
 				currentLight->UpdateworldTransform(T);
 			}
-			if (ImGui::CollapsingHeader("Properties")) {
-				buildLightPropertiesSection(currentLight);
-			}
 		}
 	}
-	else {
+	else if (type == AMBIENT_LIGHT_SECTION){
 		std::shared_ptr<AmbientLight> currentLight = scene->GetAmbient();
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
 		Tk = handleKeyboardInputs(currentLight);
 		currentLight->UpdateworldTransform(Tk);
+        if (ImGui::CollapsingHeader("Properties")) {
+            buildLightPropertiesSection(currentLight);
+        }
 		if (ImGui::CollapsingHeader("Local Transformations")) {
 			buildLocalTrans(Tci, currentLight);
 			glm::vec3 location = currentLight->GetLocationAfterTrans();
@@ -474,10 +475,40 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			buildWorldTrans(T, currentLight);
 			currentLight->UpdateworldTransform(T);			
 		}
-        if (ImGui::CollapsingHeader("Properties")) {
-            buildLightPropertiesSection(currentLight);
+    }
+    else if (type == BLUR_SECTION) {
+        bool rebuild = false;
+        if (ImGui::CollapsingHeader("Gaussian Blur")) {
+            ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
+            int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
+            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
+            if (scene->gaussianBlur) {
+                if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
+                    rebuild = true;
+                }
+            }
         }
-	}
+        if (ImGui::CollapsingHeader("Bloom Bleeding")) {
+            ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
+            int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
+            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
+            ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
+            if (scene->bloom) {
+                scene->gaussianBlur = true;
+                if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
+                    rebuild = true;
+                }
+            }
+        }
+        if (rebuild) {
+            scene->buildGaussian();
+        }
+    }
+    else {
+        std::cout << "Problem while picking a section." << std::endl;
+    }
 		
 	
 	ImGui::Text("");
