@@ -318,19 +318,19 @@ void buildLightPropertiesSection(std::shared_ptr<AmbientLight> currentLight) {
 void buildLightPropertiesSection(std::shared_ptr<PointLight> currentLight) {
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
+	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 void buildLightPropertiesSection(std::shared_ptr<ParallelLight> currentLight) {
     ImGui::ColorEdit3("Color", (float*)&(currentLight->color)); // Edit 3 floats representing a color
 	ImGui::SliderFloat("Ray Intensity (Diffuse)", &(currentLight->Ld), 0.0f, 1.0f);
-	ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
+	//ImGui::SliderFloat("Ray Intensity (Specular)", &(currentLight->Ls), 0.0f, 1.0f);
 }
 
 // it is important to use public variable for lite reading and writing values from object's fields
 // the main UI building function:
 void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight) {
-	ImGui::Begin("Task 1 - Cameras VS. Models", &showTransWindow);
+	ImGui::Begin("Task 2 - Cameras VS. Models", &showTransWindow);
 	ImVec4 textColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 	ImGui::ColorEdit3("Background Color", (float*)&backgroundColor); // Edit 3 floats representing a color
 	glm::mat4x4 Tc(1), Tcm(1), Tcx(1), Tcy(1), Tcz(1);
