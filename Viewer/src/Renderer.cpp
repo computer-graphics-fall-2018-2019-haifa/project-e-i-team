@@ -608,12 +608,9 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
 
     glm::vec3 illuPoint(0,0,0), illuParallel(0,0,0);
-    
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
-		glm::vec3 loc = scene.GetPointLight(i)->GetLocationAfterTrans();
-        glm::vec3 S = glm::normalize(loc - *interpolatedNormal);
-		glm::vec3 eyex = glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye);
-        glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, &eyex, interpolatedNormal, &S, &model->color, DIFFUSE);
+        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - *interpolatedNormal);
+        glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, &glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, &S, &model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, &glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,&S, &model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
         glm::vec3 diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
@@ -629,8 +626,7 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
         glm::vec3 specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
         illuParallel = illuParallel + scene.GetParallelLight(scene.CurrParallel)->color * (diffuseTotalColor + specularTotalColor);
     }
-    return (ambientColor + illuPoint + illuParallel);
-    
+    return *std::make_shared<glm::vec3>(ambientColor + illuPoint + illuParallel);
 }
 
 void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3* vect0, glm::vec3* n0, glm::vec3* vect1, glm::vec3* n1, glm::vec3* vect2, glm::vec3* n2,glm::vec3* color0, glm::vec3* color1, glm::vec3* color2) {
@@ -639,9 +635,7 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
 
     glm::vec3 gouraudPoint0(0,0,0), gouraudPoint1(0,0,0), gouraudPoint2(0,0,0);
     glm::vec3 gouraudParallel0(0,0,0), gouraudParallel1(0,0,0), gouraudParallel2(0,0,0);
-    bool isDraw = false;
     for(int i = 0;i < scene.GetPointLightCount();i++){
-        isDraw = true;
         glm::vec3 S0 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - *vect0);
         glm::vec3 S1 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - *vect1);
         glm::vec3 S2 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - *vect2);
@@ -663,7 +657,6 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
         gouraudPoint2 = gouraudPoint2 + scene.GetPointLight(scene.CurrPoint)->color * (diffuseTotalColor2 + specularTotalColor2);
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
-        isDraw = true;
         glm::vec3 S0 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - *vect0);
         glm::vec3 S1 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - *vect1);
         glm::vec3 S2 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - *vect2);
@@ -684,16 +677,9 @@ void Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, gl
         gouraudParallel1 = gouraudParallel1 + scene.GetParallelLight(scene.CurrPoint)->color * (diffuseTotalColor1 + specularTotalColor1);
         gouraudParallel2 = gouraudParallel2 + scene.GetParallelLight(scene.CurrPoint)->color * (diffuseTotalColor2 + specularTotalColor2);
     }
-    if (isDraw) {
-        *color0 = ambientColor + gouraudPoint0 + gouraudParallel0;
-        *color1 = ambientColor + gouraudPoint1 + gouraudParallel1;
-        *color2 = ambientColor + gouraudPoint2 + gouraudParallel2;
-    }
-    else {
-        *color0 = ambientColor;
-        *color1 = ambientColor;
-        *color2 = ambientColor;
-    }
+    *color0 = ambientColor + gouraudPoint0 + gouraudParallel0;
+    *color1 = ambientColor + gouraudPoint1 + gouraudParallel1;
+    *color2 = ambientColor + gouraudPoint2 + gouraudParallel2;
 }
 
 float Renderer::Distance(glm::vec2 v1, glm::vec2 v2) {
