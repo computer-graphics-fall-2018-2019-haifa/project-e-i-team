@@ -19,9 +19,9 @@ AmbientLight::AmbientLight(glm::vec3 base) :
 }
 
 glm::vec3& AmbientLight::GetLocationAfterTrans() {
-	glm::vec4 base4(base.x, base.y, base.z, 1);
+	glm::vec4 base4(base, 1);
 	glm::vec4 location = GetWorldTransformation() * base4;
-	return glm::vec3(location.x, location.y, location.z);
+	return glm::vec3(location.x, location.y, location.z) / location.w;
 }
 
 AmbientLight::~AmbientLight() {}

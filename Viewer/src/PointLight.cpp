@@ -9,7 +9,7 @@
 
 
 PointLight::PointLight(std::shared_ptr<MeshModel> model) :
-	MeshModel(model), Ld(1.0f), Ls(1.0f), Center(BoundMiddle)
+	MeshModel(model), Ld(1.0f), Ls(1.0f)
 {
 	int x = 0, y = 0, z = 0;
 	Center = glm::vec3(x, y, z);
@@ -22,8 +22,12 @@ PointLight::PointLight(std::shared_ptr<MeshModel> model) :
 
 
 glm::vec3& PointLight::GetLocationAfterTrans() {
+	
 	glm::vec4 Center4(Center, 1);
 	glm::vec4 location = GetWorldTransformation() * Center4;
+
+	//cout << Center.x << "," << Center.y << "," << Center.z << "   "<< location.x << "," << location.y << "," << location.z << "," << location.w << endl;
+
 	return glm::vec3(location.x, location.y, location.z) / location.w;
 }
 

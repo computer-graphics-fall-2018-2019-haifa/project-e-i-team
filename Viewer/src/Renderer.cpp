@@ -613,7 +613,7 @@ glm::vec3& Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
         isDraw = true;
         //printf("(%d,%d,%d)\n", scene.GetPointLight(i)->GetLocationAfterTrans().x, scene.GetPointLight(i)->GetLocationAfterTrans().y, scene.GetPointLight(i)->GetLocationAfterTrans().z);
-        glm::vec3 S = glm::normalize(glm::vec3(10,10,10) - interpolatedNormal);//glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal);
+        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - interpolatedNormal);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, S, model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
@@ -623,7 +623,7 @@ glm::vec3& Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel
     }
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         isDraw = true;
-        glm::vec3 S = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - interpolatedNormal);
+		glm::vec3 S = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans() - interpolatedNormal);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal, S, model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetParallelLight(i)->Ld, glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye), interpolatedNormal,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetParallelLight(i)->color;
