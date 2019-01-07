@@ -25,11 +25,11 @@
  */
 class Scene {
 private:
-	std::vector<std::shared_ptr<MeshModel>> models;
-	std::vector< std::shared_ptr<Camera>> cameras;
-	std::vector< std::shared_ptr<PointLight>> PointLights;
-	std::vector< std::shared_ptr<ParallelLight>> ParallelLights;
-	std::shared_ptr<AmbientLight> Ambient;
+    std::vector<std::shared_ptr<MeshModel>> models;
+    std::vector<std::shared_ptr<Camera>> cameras;
+    std::vector<std::shared_ptr<PointLight>> PointLights;
+    std::vector<std::shared_ptr<ParallelLight>> ParallelLights;
+    std::shared_ptr<AmbientLight> Ambient;
 public:
     float gaussianKernel3x3[3][3] = {  
                                     {0, 0, 0},
