@@ -294,11 +294,11 @@ void buildLightTranslationsSection(glm::mat4x4& Tm, std::shared_ptr<MeshModel> c
 }
 
 void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
-    //ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color));
-    //ImGui::SliderFloat("Model Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
-    //ImGui::SliderFloat("Model Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
-    //ImGui::SliderFloat("Model Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
-    //ImGui::SliderInt("Model Shininess", &(currentModel->alpha), 1, 200);
+    ImGui::ColorEdit3("Model Color", (float*)&(currentModel->color));
+    ImGui::SliderFloat("Model Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
+    ImGui::SliderFloat("Model Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
+    ImGui::SliderFloat("Model Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
+    ImGui::SliderInt("Model Shininess", &(currentModel->alpha), 1, 200);
 	ImGui::Checkbox("Model Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Model Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Model Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
