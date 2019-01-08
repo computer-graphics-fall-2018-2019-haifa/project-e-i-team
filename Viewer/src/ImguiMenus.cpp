@@ -431,9 +431,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentLight);
 			currentLight->UpdateworldTransform(Tk);
-            //if (ImGui::CollapsingHeader("Point Properties")) {
-            //    buildLightPropertiesSection(currentLight);
-            //}
+            if (ImGui::CollapsingHeader("Point Properties")) {
+                buildLightPropertiesSection(currentLight);
+            }
 			if (ImGui::CollapsingHeader("Point Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
@@ -460,9 +460,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			glm::mat4x4 T(1), Tci(1), Tk(1);
 			Tk = handleKeyboardInputs(currentParallelLight);
             currentParallelLight->UpdateworldTransform(Tk);
-            //if (ImGui::CollapsingHeader("Parallel Properties")) {
-            //    buildLightPropertiesSection(currentParallelLight);
-            //}
+            if (ImGui::CollapsingHeader("Parallel Properties")) {
+                buildLightPropertiesSection(currentParallelLight);
+            }
 			if (ImGui::CollapsingHeader("Parallel Local Transformations")) {
 				buildLocalTrans(Tci, currentParallelLight);
 				glm::vec3 location = currentParallelLight->GetLocationAfterTrans();
@@ -481,9 +481,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		glm::mat4x4 T(1), Tci(1) , Tk(1);
 		Tk = handleKeyboardInputs(currentAmbientLight);
         currentAmbientLight->UpdateworldTransform(Tk);
-        //if (ImGui::CollapsingHeader("Ambient Properties")) {
-        //    buildLightPropertiesSection(currentAmbientLight);
-        //}
+        if (ImGui::CollapsingHeader("Ambient Properties")) {
+            buildLightPropertiesSection(currentAmbientLight);
+        }
 		if (ImGui::CollapsingHeader("Ambient Local Transformations")) {
 			buildLocalTrans(Tci, currentAmbientLight);
 			glm::vec3 location = currentAmbientLight->GetLocationAfterTrans();
@@ -501,7 +501,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Gaussian Blur")) {
             ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), "M3\0M5\0M10", 3);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
             if (scene->gaussianBlur) {
                 if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
@@ -512,7 +512,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Bloom Bleeding")) {
             ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::SliderInt("Mask", &(scene->gaussianMaskSize), 3, 10);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), "M3\0M5\0M10", 3);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
             ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
             if (scene->bloom) {
@@ -529,7 +529,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	
     ImGui::Text("");
 
-    buildCommonFeatures(scene,textColor);
+    //buildCommonFeatures(scene,textColor);
 	
 	ImGui::Text("");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
