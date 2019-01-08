@@ -34,18 +34,20 @@ ParallelLight::ParallelLight(glm::vec3 to) :
 	MeshModel({}, vertices, {}, zero, zero, zero, "Parallel Light");*/
 }
 
-glm::vec3& ParallelLight::GetLocationAfterTrans() {
+glm::vec3 ParallelLight::GetLocationAfterTrans() {
 	glm::vec4 from4(from.x, from.y, from.z, 1);
 	glm::vec4 location = GetWorldTransformation() * from4;
 	return glm::vec3(location.x, location.y, location.z);
 }
 
-glm::vec3& ParallelLight::GetDirectionAfterTrans() {
+glm::vec3 ParallelLight::GetDirectionAfterTrans() {
 	glm::vec4 from4(from, 1);
 	glm::vec4 from_location = GetWorldTransformation() * from4;
+	from_location = from_location / from_location.w;
 
 	glm::vec4 to4(to, 1);
 	glm::vec4 to_location = GetWorldTransformation() * to4;
+	to_location = to_location / to_location.w;
 
 	glm::vec4 direction = to_location - from_location;
 

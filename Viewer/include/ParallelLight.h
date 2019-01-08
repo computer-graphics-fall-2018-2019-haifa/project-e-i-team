@@ -16,6 +16,6 @@ public:
     ParallelLight::~ParallelLight();
 	glm::vec3& ParallelLight::GetToVector();
 	glm::vec3& ParallelLight::GetfromVector();
-    glm::vec3& ParallelLight::GetLocationAfterTrans();
-    glm::vec3& ParallelLight::GetDirectionAfterTrans();
+    glm::vec3 ParallelLight::GetLocationAfterTrans();
+    glm::vec3 ParallelLight::GetDirectionAfterTrans();
 };
