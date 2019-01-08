@@ -208,21 +208,21 @@ void buildCameraWorldTransformationsSection(glm::mat4x4& Tc,std::shared_ptr<Came
 	if (diff != 0.0f) { Tc = Trans::getzRotate4x4(diff); }
 }
 
-void buildCameraLocalTransformationsSection(std::shared_ptr<Camera> currentCam) {
+void buildCameraLocalTransformationsSection(glm::mat4x4& Tci, std::shared_ptr<Camera> currentCam) {
 	float frx = currentCam->lrotatex, diff = 0.0f;
-	//ImGui::SliderFloat("Pitch", &(currentCam->lrotatex), -2.0f*M_PI, 2.0f*M_PI);
-	//diff = currentCam->lrotatex - frx;
-	//if (diff != 0.0f) { currentCam->pitch(diff); }
+	ImGui::SliderFloat("Local Rotate (X)", &(currentCam->lrotatex), -2.0f*M_PI, 2.0f*M_PI);
+	diff = currentCam->lrotatex - frx;
+	if (diff != 0.0f) { Tci = Trans::getxRotate4x4(diff); }
 
-	//float fry = currentCam->lrotatey;
-	//ImGui::SliderFloat("Yaw", &(currentCam->lrotatey), -2.0f*M_PI, 2.0f*M_PI);
-	//diff = currentCam->lrotatey - fry;
-	//if (diff != 0.0f) { currentCam->yaw(diff); }
+	float fry = currentCam->lrotatey;
+	ImGui::SliderFloat("Local Rotate (Y)", &(currentCam->lrotatey), -2.0f*M_PI, 2.0f*M_PI);
+	diff = currentCam->lrotatey - fry;
+	if (diff != 0.0f) { Tci = Trans::getyRotate4x4(diff); }
 
 	float frz = currentCam->lrotatez;
-	ImGui::SliderFloat("Roll", &(currentCam->lrotatez), -2.0f*M_PI, 2.0f*M_PI);
+	ImGui::SliderFloat("Local Rotate (Z)", &(currentCam->lrotatez), -2.0f*M_PI, 2.0f*M_PI);
 	diff = currentCam->lrotatez - frz;
-	if (diff != 0.0f) { currentCam->roll(diff); }
+	if (diff != 0.0f) { Tci = Trans::getzRotate4x4(diff); }
 }
 
 void buildLocalTrans(glm::mat4x4& Tci,std::shared_ptr<MeshModel> currentModel) {
@@ -369,10 +369,9 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->CurrCam);
 		if (currentCam != NULL) {
 			Tcm = handleKeyboardInputs(currentCam);
-
 			currentCam->UpdateviewTransformation(Tcm);
 			currentCam->UpdateworldTransform(Tcm);
-
+			
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			if (ImGui::CollapsingHeader("Projection Fields")) {
@@ -381,11 +380,21 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			// rotation the whole world against the stable camera:
 			if (ImGui::CollapsingHeader("Camera World Transformations")) {
 				buildCameraWorldTransformationsSection(Tc, currentCam);
+
+				currentCam->UpdateviewTransformation(Tc);
+				currentCam->UpdateworldTransform(Tc);
 			}
 			if (ImGui::CollapsingHeader("Camera Local Transformations")) {
 				// Next additional functionalities:
-				buildCameraLocalTransformationsSection(currentCam);
+				buildCameraLocalTransformationsSection(Tc,currentCam);
+				glm::vec3 location = currentCam->origin_eye;
+				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
+				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);
+
+				currentCam->UpdateviewTransformation(BacktoOrigin * Tc * toZero);
+				currentCam->UpdateworldTransform(BacktoOrigin * Tc * toZero);
 			}
+			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
 				currentCam->SetOrthographicProjection(aspectratio, frameBufferWidth);
@@ -395,8 +404,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			}
 
 			//scene->WholeWorldTransfer(Tcm, Tc);
-			currentCam->UpdateviewTransformation(Tc);
-			currentCam->UpdateworldTransform(Tc);
+			
 			
 			if (ImGui::Button("Focus On Current Model")) {
 				scene->SetFocusOnCurrentModel();

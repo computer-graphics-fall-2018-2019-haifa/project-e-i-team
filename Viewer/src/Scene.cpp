@@ -258,7 +258,7 @@ void Scene::SetFocusOnCurrentModel() {
 	std::shared_ptr<Camera> camera = GetCamera(CurrCam);
 	std::shared_ptr<MeshModel> model = GetModel(activeModelIndex);
 
-	glm::vec4 _at = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1);
+	glm::vec4 _at = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle, 1);
 	glm::vec3 at(_at.x, _at.y, _at.z);
 
 	glm::vec3 help_up = glm::vec3(0, 1, 0);
