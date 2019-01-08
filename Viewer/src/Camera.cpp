@@ -57,9 +57,13 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 		glm::vec4(-glm::dot(eye,x), -glm::dot(eye,y), -glm::dot(eye,z),1.0f)
 	);
 
-	viewTransformation = lookAt;
-	SetWorldTransformation(glm::inverse(lookAt));
+	viewTransformation = glm::inverse(lookAt);
+	SetWorldTransformation((lookAt));
 }
+void Camera::UpdateviewTransformation(glm::mat4x4 matrix) {
+	viewTransformation = viewTransformation * glm::inverse(matrix);
+}
+
 
 //aspectRatio = width / height
 void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)

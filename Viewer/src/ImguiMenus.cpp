@@ -369,6 +369,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 		std::shared_ptr<Camera> currentCam = scene->GetCamera(scene->CurrCam);
 		if (currentCam != NULL) {
 			Tcm = handleKeyboardInputs(currentCam);
+
+			currentCam->UpdateviewTransformation(Tcm);
+			currentCam->UpdateworldTransform(Tcm);
+
 			ImGui::RadioButton("Orthographic", &(currentCam->transType), 0);
 			ImGui::RadioButton("Perspective", &(currentCam->transType), 1);
 			if (ImGui::CollapsingHeader("Projection Fields")) {
@@ -389,7 +393,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			else {
 				currentCam->SetPerspectiveProjection(aspectratio, frameBufferWidth);
 			}
-			scene->WholeWorldTransfer(Tcm, Tc);
+
+			//scene->WholeWorldTransfer(Tcm, Tc);
+			currentCam->UpdateviewTransformation(Tc);
+			currentCam->UpdateworldTransform(Tc);
+			
 			if (ImGui::Button("Focus On Current Model")) {
 				scene->SetFocusOnCurrentModel();
 			}
@@ -553,7 +561,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 		loadGrid(scene); 
 		
 		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,frameBufferWidth, glm::vec3(0, 500, 500));
+		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,frameBufferWidth, glm::vec3(0, 0, 500));
 		
 	}
 

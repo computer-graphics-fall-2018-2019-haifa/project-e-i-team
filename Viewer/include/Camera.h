@@ -57,7 +57,7 @@ public:
 	// void Camera::pitch(float angle);		// Not working right
 
 	void Camera::slide(float delU, float delV, float delN);
-
+	void Camera::UpdateviewTransformation(glm::mat4x4 matrix);
 	/*
 	*	this projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
 	*/

@@ -274,17 +274,17 @@ void Scene::SetFocusOnCurrentModel() {
 	camera->SetCameraLookAt(eye4, at4, up4);
 }
 
-void Scene::WholeWorldTransfer(glm::mat4x4& Tcm,glm::mat4x4& Tc) {
-	for (int i = 0; i < GetModelCount(); i++) {
-		std::shared_ptr<MeshModel> model = GetModel(i);
-		glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1.0f);
-		model->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
-	}
-	for (int i = 0; i < GetCameraCount(); i++) {
-		std::shared_ptr<Camera> camera = GetCamera(i);
-		if (i != SizeCam) {
-			glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
-			camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
-		}
-	}
-}
+//void Scene::WholeWorldTransfer(glm::mat4x4& Tcm,glm::mat4x4& Tc) {
+//	for (int i = 0; i < GetModelCount(); i++) {
+//		std::shared_ptr<MeshModel> model = GetModel(i);
+//		glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z, 1.0f);
+//		model->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
+//	}
+//	for (int i = 0; i < GetCameraCount(); i++) {
+//		std::shared_ptr<Camera> camera = GetCamera(i);
+//		if (i != SizeCam) {
+//			glm::vec3 mass = camera->GetWorldTransformation() * glm::vec4(camera->BoundMiddle.x, camera->BoundMiddle.y, camera->BoundMiddle.z, 1.0f);
+//			camera->UpdateworldTransform(Trans::get2InitAxis4x4(mass, Tcm * Tc));
+//		}
+//	}
+//}
