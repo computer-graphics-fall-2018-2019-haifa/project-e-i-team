@@ -4,7 +4,7 @@
 #define ORIGIN AmbientLight(glm::vec3(0, 0, 0))
 
 Scene::Scene() : CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0), 
-shadingType(0), kernelM(5), kernelN(5), gaussianRadius(3), gaussianBlur(false), bloom(false), gaussianMaskSize(5), bloomThresh(0.7f)
+shadingType(0), kernelM(5), kernelN(5), gaussianRadius(3), gaussianBlur(false), bloom(false), gaussianMaskSize(1), bloomThresh(0.7f)
 {
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
     buildGaussian();
@@ -14,21 +14,21 @@ Scene::~Scene() {}
 
 void Scene::buildGaussian() {
     switch (gaussianMaskSize) {
-        case 3: {
+        case 0: {
             int std = 1;
             if (gaussianRadius > 0) {
                 std = gaussianRadius;
             }
             Trans::buildGaussianKernel3x3(gaussianKernel3x3, kernelM, kernelN, std);        break;
         }
-        case 5: {
+        case 1: {
             int std = 3;
             if (gaussianRadius > 0) {
                 std = gaussianRadius;
             }
             Trans::buildGaussianKernel5x5(gaussianKernel5x5, kernelM, kernelN, std);        break;
         }
-        case 10: {
+        case 3: {
             int std = 5;
             if (gaussianRadius > 0) {
                 std = gaussianRadius;

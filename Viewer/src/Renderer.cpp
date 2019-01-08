@@ -884,9 +884,9 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
             }
         }
         switch (scene.gaussianMaskSize) {
-            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);      break;
-            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);      break;
-            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+            case 0:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);      break;
+            case 1:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);      break;
+            case 2:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
         }
         for (int i = 0; i < viewportWidth; i++) {
             for (int j = 0; j < viewportHeight; j++) {
@@ -898,9 +898,9 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
     } 
     if (scene.gaussianBlur) {
         switch (scene.gaussianMaskSize) {
-            case 3:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);  break;
-            case 5:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);  break;
-            case 10:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+            case 0:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);  break;
+            case 1:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);  break;
+            case 2:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
         }
     }
 }

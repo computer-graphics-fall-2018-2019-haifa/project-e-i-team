@@ -501,7 +501,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Gaussian Blur")) {
             ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::Combo("Mask", &(scene->gaussianMaskSize), "M3\0M5\0M10", 3);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5 \0 10", 3);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
             if (scene->gaussianBlur) {
                 if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
@@ -512,7 +512,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Bloom Bleeding")) {
             ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::Combo("Mask", &(scene->gaussianMaskSize), "M3\0M5\0M10", 3);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5 \0 10", 3);
             ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
             ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
             if (scene->bloom) {
