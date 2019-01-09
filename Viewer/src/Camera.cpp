@@ -10,7 +10,7 @@ Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm:
 	viewTransformation(glm::mat4x4(1)),
 	projectionTransformation(glm::mat4x4(1)),
 	transType(0),
-	ffovy(FFAR_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
+	ofovy(OFOVY_DEF),pfovy(PFOVY_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
 	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), lrotatex(0.0f), lrotatey(0.0f), lrotatez(0.0f),
 	MeshModel(model)
 {
@@ -80,7 +80,7 @@ void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
 		pright = right;
 		pleft = left;
 	} else {
-		ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
+		ptop = tanf(0.1f * glm::radians(ofovy)) * fnear;
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
 		pleft = -pright;
@@ -122,7 +122,7 @@ void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
 		pleft = left;
 	}
 	else {
-		ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
+		ptop = tanf(0.1f * glm::radians(pfovy)) * fnear;
 		pbottom = -1.0f * ptop;
 		pright = aspectRatio * ptop;
 		pleft = -pright;

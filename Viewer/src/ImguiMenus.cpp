@@ -176,11 +176,19 @@ void buildProjectionsSection(std::shared_ptr<Camera> currentCam) {
 	}
 	else {
 		std::string fName = !currentCam->transType ? "Height" : "Fovy";
-		ImGui::SliderFloat(fName.c_str(), &(currentCam->ffovy), FFOVY_DEF, 50.0f);
-		ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 10.0f);
-		ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 10.0f);
+		if (currentCam->transType == 0) {
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->ofovy), 30.0f, 200.0f);
+			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 40.0f);
+			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 40.0f);
+		}
+		else {
+			ImGui::SliderFloat(fName.c_str(), &(currentCam->pfovy), 30.0f, 200.0f);
+			ImGui::SliderFloat("Near", &(currentCam->fnear), FNEAR_DEF, FNEAR_DEF + 40.0f);
+			ImGui::SliderFloat("Far", &(currentCam->ffar), FFAR_DEF, FFAR_DEF + 40.0f);
+		}
+		
 	}
-	if (ImGui::Button("Snap Form To Origin")) {
+	/*if (ImGui::Button("Snap Form To Origin")) {
 		currentCam->ffovy = 1;
 		currentCam->fnear = -1;
 		currentCam->ffar = 1;
@@ -188,7 +196,7 @@ void buildProjectionsSection(std::shared_ptr<Camera> currentCam) {
 		currentCam->bottom = 1;
 		currentCam->right = -1;
 		currentCam->left = 1;
-	}
+	}*/
 }
 
 void buildCameraWorldTransformationsSection(glm::mat4x4& Tc,std::shared_ptr<Camera> currentCam) {
