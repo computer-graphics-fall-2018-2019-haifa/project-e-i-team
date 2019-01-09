@@ -37,6 +37,7 @@ ParallelLight::ParallelLight(glm::vec3 to) :
 glm::vec3 ParallelLight::GetLocationAfterTrans() {
 	glm::vec4 from4(from.x, from.y, from.z, 1);
 	glm::vec4 location = GetWorldTransformation() * from4;
+    location = location / location.w;
 	return glm::vec3(location.x, location.y, location.z);
 }
 

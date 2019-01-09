@@ -465,9 +465,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	}
 	if (type == PARALLEL_LIGHT_SECTION) {
 		if (ImGui::Button("Add Parallel Light")) {
-            if (scene->GetParallelLightCount() == 0) {
-                scene->AddParallelLight();
-            }
+            scene->AddParallelLight();
 		}
 		const char* parallels = getLightNames(scene->SizeParallel, "Parallel Light ");
 		ImGui::Combo("Light Name", &(scene->CurrParallel), parallels, IM_ARRAYSIZE(parallels));
