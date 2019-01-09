@@ -33,7 +33,7 @@ private:
     void Renderer::drawParallelLight(Scene& scene, glm::vec4& from, glm::vec4& to, glm::vec3 color);
 	glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 vbase,glm::vec3 vec0, glm::vec3 vec1, glm::vec3 vec2, float fNlength);
 	void Renderer::showAllMeshModels(Scene &scene, const ImGuiIO& io);
-	glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p);
+	glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p, int counter=0);
 	
 	GLuint glScreenTex;
 	GLuint glScreenVtc;

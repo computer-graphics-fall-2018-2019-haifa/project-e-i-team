@@ -211,7 +211,7 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
     }
 }
 
-glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p) {
+glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p, int counter) {
 	float w1_up = a.x * (c.y - a.y) + (p.y - a.y) * (c.x - a.x) - p.x * (c.y - a.y);
 	float w1_down = (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y);
 	float w1 = w1_up / w1_down;
@@ -219,6 +219,15 @@ glm::vec2 Renderer::CalculateW12(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec
 	float w2_up = p.y - a.y - w1 * (b.y - a.y);
 	float w2_down = c.y - a.y;
 	float w2 = w2_up / w2_down;
+
+	if ((w1_down == 0 || w2_down == 0) && (counter == 0 || counter == 1)) {
+		glm::vec2 temp = a;
+		a = b;
+		b = c;
+		c = temp;
+		counter++;
+		return CalculateW12(a, b, c, p, counter);
+	}
 
 	return glm::vec2(w1, w2);
 
@@ -860,7 +869,14 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	//p2 = io.MousePos.x - (viewportWidth/2);
 	//q2 = (viewportHeight/2) - io.MousePos.y;
 	*/
+	
 	showAllMeshModels(scene, io);
+	
+	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(200, 0, 0, 1), glm::vec4(200, 200, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 20);
+	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(200, 0, 0, 1), glm::vec4(200, -200, 0, 1), glm::vec3(255, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 20);
+	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-200, 0, 0, 1), glm::vec4(-200, -200, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
+	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-200, 0, 0, 1), glm::vec4(-200, 200, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
+	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-2, 2, 0, 1), glm::vec4(2, 2, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
 
     // post effects:
     if (scene.bloom) {

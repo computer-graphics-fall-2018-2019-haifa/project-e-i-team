@@ -3,7 +3,10 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#define FFOVY_DEF	1.0f
+#define PFOVY_DEF	1.0f
+#define OFOVY_DEF	200.0f
+
+
 #define FNEAR_DEF	-1.0f
 #define FFAR_DEF	1.0f
 #define BOX_BOUNDERY_RANGE	100.0f
@@ -46,7 +49,7 @@ public:
 	float worldfRotatex, worldfRotatey, worldfRotatez, lrotatex, lrotatey, lrotatez;
 	glm::vec3 origin_eye,origin_at,origin_up;
 	int transType,FrustrumType;
-	float ffovy, fnear, ffar, left, right, top, bottom;
+	float ofovy, pfovy, fnear, ffar, left, right, top, bottom;
 
 	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3& massCenter);
 	~Camera();
