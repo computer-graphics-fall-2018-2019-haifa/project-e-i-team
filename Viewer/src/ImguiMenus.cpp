@@ -551,6 +551,10 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	
     ImGui::Text("");
 
+    if (ImGui::Button("Enable Debug Mode")) {
+        scene->Debug_mode = !scene->Debug_mode;
+    }
+
     //buildCommonFeatures(scene,textColor);
 	
 	ImGui::Text("");

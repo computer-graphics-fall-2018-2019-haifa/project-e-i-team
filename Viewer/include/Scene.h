@@ -31,6 +31,7 @@ private:
     std::vector<std::shared_ptr<ParallelLight>> ParallelLights;
     std::shared_ptr<AmbientLight> Ambient;
 public:
+    bool Debug_mode;
     float gaussianKernel3x3[3][3] = {  
                                     {0, 0, 0},
                                     {0, 0, 0},

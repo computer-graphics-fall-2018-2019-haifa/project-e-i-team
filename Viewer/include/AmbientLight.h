@@ -13,6 +13,6 @@ public:
 	float Ka,La;
     AmbientLight::AmbientLight(glm::vec3 base);
     AmbientLight::~AmbientLight();
-	glm::vec3& AmbientLight::GetBaseVector();
-	glm::vec3& AmbientLight::GetLocationAfterTrans();
+	glm::vec3 AmbientLight::GetBaseVector();
+	glm::vec3 AmbientLight::GetLocationAfterTrans();
 };
