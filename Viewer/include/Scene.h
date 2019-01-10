@@ -95,8 +95,6 @@ public:
 	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;
 	std::shared_ptr<AmbientLight> Scene::GetAmbient() const;
 	int Scene::modelName2Index(std::string name);
-    // glm::vec3 Scene::GetModelMassCenter(std::shared_ptr<MeshModel> model); // BUG - do not use it - required a series test before changing to use this general-mass function
 	void Scene::SetFocusOnCurrentModel();
-	void WholeWorldTransfer(glm::mat4x4& Tcm, glm::mat4x4& Tc);
-    void Scene::buildGaussian();
+    void Scene::buildGaussian();;
 };
