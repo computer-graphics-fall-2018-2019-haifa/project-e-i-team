@@ -82,8 +82,6 @@ const char* getLightNames(int size,string str) {
 	std::string cStr = "";
 	for (size_t i = 0; i < size; i++) {
 		char num = '0' + i;
-		//std::string s("Your name is ");
-		//s += num;
 		std::string modelName = str;
 		modelName += num;
 		cStr += modelName;
@@ -188,15 +186,6 @@ void buildProjectionsSection(std::shared_ptr<Camera> currentCam) {
 		}
 		
 	}
-	/*if (ImGui::Button("Snap Form To Origin")) {
-		currentCam->ffovy = 1;
-		currentCam->fnear = -1;
-		currentCam->ffar = 1;
-		currentCam->top = -1;
-		currentCam->bottom = 1;
-		currentCam->right = -1;
-		currentCam->left = 1;
-	}*/
 }
 
 void buildCameraWorldTransformationsSection(glm::mat4x4& Tc,std::shared_ptr<Camera> currentCam) {
@@ -566,6 +555,17 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 	ImGui::End();
 }
 
+void loadBasicScene(Scene& scene) {
+    std::string path = Get_Root_Project_Dir("Data\\obj_examples\\cow.obj");
+    MeshModel model(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)),0.0f,false,false);
+    scene.AddModel(std::make_shared<MeshModel>(model));
+}
+
+void loadCamera(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
+    std::string path = Get_Root_Project_Dir("Data\\camera.obj");
+    scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth, glm::vec3(0, 0, 500));
+}
+
 void loadGrid(Scene& scene) {
 	MeshModel k = Utils::LoadGridModel();
 	scene.AddModel(std::make_shared<MeshModel>(k));
@@ -576,12 +576,11 @@ void loadGrid(Scene& scene) {
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
 	if (scene.gridCounter == 0) { 
-		loadGrid(scene); 
+		loadGrid(scene);
+        //loadBasicScene(scene); // TODO for task submission 2
 		
-		std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-		scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight,frameBufferWidth, glm::vec3(0, 0, 500));
-		
-	}
+        loadCamera(scene, frameBufferHeight, frameBufferWidth);
+    }
 
 	if (showTransWindow) { 
 		buildTransformationsWindow(io, &scene, y_scroll_offset ,frameBufferWidth, frameBufferHeight); 
@@ -612,12 +611,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int fra
 				}
 				ImGui::EndMenu();
 			}
-			//TODO: finish this and make it no closing while it opens!!!
-			//if (ImGui::BeginMenu("Help")) {
-			//if (ImGui::MenuItem("Show Demo Menu", "")) { ImGui::ShowDemoWindow(&showDemoWindow); }
-			//	if (ImGui::MenuItem("About Us..", "")) { buildAboutUsWindow(); }
-			//	ImGui::EndMenu();
-			//}
 			ImGui::EndMainMenuBar();
 		}
 	}

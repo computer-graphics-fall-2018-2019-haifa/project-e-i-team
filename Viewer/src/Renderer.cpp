@@ -117,7 +117,6 @@ glm::vec3 Renderer::GetColorBarycentricInterpolate(glm::vec4 p, glm::vec4 a, glm
     float Sb =  AreaOfTriangle(p0, x0, x2);
     float Sc =  AreaOfTriangle(p0, x0, x1);
     float S  =  AreaOfTriangle(x0, x1, x2);
-    // cout << "(" << Sa << "," << Sb << "," << Sc << "," << S << ")" << endl; // => wrong sub-areas
     return glm::vec3((Sa / S) * color0 + (Sb / S) * color1 + (Sc / S) * color2);
 }
 
@@ -130,7 +129,6 @@ glm::vec3 Renderer::GetColorBarycentricInterpolate(glm::vec4 p, glm::vec4 a, glm
 	float Sb =  AreaOfTriangle(p0, x0, x2);
 	float Sc =  AreaOfTriangle(p0, x0, x1);
     float S  =  AreaOfTriangle(x0, x1, x2);
-    // cout << "(" << Sa << "," << Sb << "," << Sc << "," << S << ")" << endl; // => right sub-areas
     return glm::vec3((Sa / S) * a + (Sb / S) * b + (Sc / S) * c);
 }
 
@@ -611,8 +609,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 }
 
 glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 interpolatedNormal) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * ((scene.GetAmbient()->Ka + model->Ka) / 2) * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * model->Ka * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
+
     glm::vec3 illuPoint(0,0,0), illuParallel(0,0,0);
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
 		
@@ -639,7 +638,7 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
 }
 
 std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0,glm::vec3 n0, glm::vec3 vect1,glm::vec3 n1, glm::vec3 vect2,glm::vec3 n2) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * ((scene.GetAmbient()->Ka + model->Ka) / 2) * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * model->Ka * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
 
     glm::vec3 gouraudPoint0(0,0,0), gouraudPoint1(0,0,0), gouraudPoint2(0,0,0);
@@ -895,7 +894,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
         switch (scene.gaussianMaskSize) {
             case 0:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);      break;
             case 1:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);      break;
-            case 2:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+            case 2:     Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
         }
         for (int i = 0; i < viewportWidth; i++) {
             for (int j = 0; j < viewportHeight; j++) {
@@ -909,7 +908,7 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
         switch (scene.gaussianMaskSize) {
             case 0:     Trans::convolve3x3(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel3x3, scene.kernelM, scene.kernelN);  break;
             case 1:     Trans::convolve5x5(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel5x5, scene.kernelM, scene.kernelN);  break;
-            case 2:    Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
+            case 2:     Trans::convolve10x10(colorBuffer, viewportWidth, viewportHeight, scene.gaussianKernel10x10, scene.kernelM, scene.kernelN);  break;
         }
     }
 }
