@@ -24,8 +24,7 @@ PointLight::PointLight(std::shared_ptr<MeshModel> model) :
 glm::vec3 PointLight::GetLocationAfterTrans() {
 	glm::vec4 Center4(Center, 1.0f);
 	glm::vec4 location = GetWorldTransformation() * Center4;
-	//cout << location.x << "," << location.y	<< "," << location.z << "," << location.w << endl;
-	return (glm::vec3(location) / location.w);
+	return -(glm::vec3(location) / location.w);
 }
 
 PointLight::~PointLight() {}
