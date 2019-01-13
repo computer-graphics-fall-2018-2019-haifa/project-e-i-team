@@ -40,6 +40,20 @@ glm::vec3 ParallelLight::GetLocationAfterTrans() {
 	return glm::vec3(location);
 }
 
+glm::vec3 ParallelLight::GetDirectionAfterTrans() {
+    glm::vec4 from4(from, 1);
+    glm::vec4 from_location = GetWorldTransformation() * from4;
+    from_location = from_location / from_location.w;
+
+    glm::vec4 to4(to, 1);
+    glm::vec4 to_location = GetWorldTransformation() * to4;
+    to_location = to_location / to_location.w;
+
+    glm::vec4 direction = to_location - from_location;
+    //cout << "dir para:" << direction.x << "," << direction.y << "," << direction.z << endl;
+    return glm::vec3(direction);
+}
+
 glm::vec3 ParallelLight::GetDirectionAfterTrans(glm::mat4x4 camTrans) {
     glm::vec4 from4(from, 1);
 	glm::vec4 from_location = camTrans * GetWorldTransformation() * from4;

@@ -449,6 +449,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             }
 			if (ImGui::CollapsingHeader("Point Local Transformations")) {
 				buildLocalTrans(Tci, currentLight);
+                //std::shared_ptr<Camera> cam = scene->GetCamera(scene->CurrCam);
+                //glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
 				glm::vec3 location = currentLight->GetLocationAfterTrans();
 				glm::mat4x4 toZero = Trans::getTranslate4x4(-location.x, -location.y, -location.z);
 				glm::mat4x4 BacktoOrigin = Trans::getTranslate4x4(location.x, location.y, location.z);

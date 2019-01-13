@@ -20,11 +20,16 @@ PointLight::PointLight(std::shared_ptr<MeshModel> model) :
 	UpdateworldTransform(Trans::getTranslate4x4(x, y, z));
 }
 
-
 glm::vec3 PointLight::GetLocationAfterTrans() {
+    glm::vec4 Center4(Center, 1.0f);
+    glm::vec4 location = GetWorldTransformation() * Center4;
+    return (glm::vec3(location) / location.w);
+}
+
+glm::vec3 PointLight::GetLocationAfterTrans(glm::mat4x4 camTrans) {
 	glm::vec4 Center4(Center, 1.0f);
-	glm::vec4 location = GetWorldTransformation() * Center4;
-	return -(glm::vec3(location) / location.w);
+	glm::vec4 location = camTrans * GetWorldTransformation() * Center4;
+	return (glm::vec3(location) / location.w);
 }
 
 PointLight::~PointLight() {}

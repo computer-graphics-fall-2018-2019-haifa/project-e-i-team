@@ -614,9 +614,12 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
 
     glm::vec3 illuPoint(0,0,0), illuParallel(0,0,0);
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
+        std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
+        glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
 		glm::vec3 inter = glm::normalize(interpolatedNormal);
-        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - inter);
-        glm::vec3 eye(0, 0, 0);
+        float sign0 = (glm::dot(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans), interpolatedNormal) < 0) ? -1.0f : 1.0f;
+        glm::vec3 S = sign0 * glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans) - inter);
+        glm::vec3 eye(0, 0, 0); //= glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, eye, inter, S, model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, eye, inter,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetPointLight(i)->color;
@@ -628,8 +631,9 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
         std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
         glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
 		glm::vec3 inter = glm::normalize(interpolatedNormal);
-        glm::vec3 S = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans) - inter);
-        glm::vec3 eye(0, 0, 0);
+        float sign0 = (glm::dot(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans), interpolatedNormal) < 0) ? -1.0f : 1.0f;
+        glm::vec3 S = sign0 * glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans));
+        glm::vec3 eye(0, 0, 0); // = glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye);
         glm::vec3 diffuseColor = estColor(model->Kd, scene.GetParallelLight(i)->Ld, eye, inter, S, model->color, DIFFUSE);
         glm::vec3 specularColor = estColor(model->Ks, scene.GetParallelLight(i)->Ld, eye, inter,S, model->color, SPECULAR, model->alpha);
         glm::vec3 color = scene.GetParallelLight(i)->color;
@@ -647,10 +651,15 @@ std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<Me
     glm::vec3 gouraudPoint0(0,0,0), gouraudPoint1(0,0,0), gouraudPoint2(0,0,0);
     glm::vec3 gouraudParallel0(0,0,0), gouraudParallel1(0,0,0), gouraudParallel2(0,0,0);
     for(int i = 0;i < scene.GetPointLightCount();i++){
-        glm::vec3 S0 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect0);
-        glm::vec3 S1 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect1);
-        glm::vec3 S2 = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans() - vect2);
-        glm::vec3 eye(0, 0, 0);
+        std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
+        glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
+        float sign0 = (glm::dot(scene.GetPointLight(i)->GetLocationAfterTrans(), vect0) < 0) ? -1.0f : 1.0f;
+        float sign1 = (glm::dot(scene.GetPointLight(i)->GetLocationAfterTrans(), vect1) < 0) ? -1.0f : 1.0f;
+        float sign2 = (glm::dot(scene.GetPointLight(i)->GetLocationAfterTrans(), vect2) < 0) ? -1.0f : 1.0f;
+        glm::vec3 S0 = sign0 * glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans) - vect0);
+        glm::vec3 S1 = sign1 * glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans) - vect1);
+        glm::vec3 S2 = sign2 * glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans) - vect2);
+        glm::vec3 eye(0, 0, 0); //glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye);
         glm::vec3 diffuseColor0 = estColor(model->Kd, scene.GetPointLight(i)->Ld, eye, glm::normalize(n0), S0, model->color, DIFFUSE);
         glm::vec3 diffuseColor1 = estColor(model->Kd, scene.GetPointLight(i)->Ld, eye, glm::normalize(n1), S1, model->color, DIFFUSE);
         glm::vec3 diffuseColor2 = estColor(model->Kd, scene.GetPointLight(i)->Ld, eye, glm::normalize(n2), S2, model->color, DIFFUSE);
@@ -671,10 +680,13 @@ std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<Me
     for (int i = 0; i < scene.GetParallelLightCount(); i++) {
         std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
         glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
-        glm::vec3 S0 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans) - vect0);
-        glm::vec3 S1 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans) - vect1);
-        glm::vec3 S2 = glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans) - vect2);
-        glm::vec3 eye(0, 0, 0);
+        float sign0 = (glm::dot(scene.GetParallelLight(i)->GetDirectionAfterTrans(), vect0) < 0) ? -1.0f : 1.0f;
+        float sign1 = (glm::dot(scene.GetParallelLight(i)->GetDirectionAfterTrans(), vect1) < 0) ? -1.0f : 1.0f;
+        float sign2 = (glm::dot(scene.GetParallelLight(i)->GetDirectionAfterTrans(), vect2) < 0) ? -1.0f : 1.0f;
+        glm::vec3 S0 = sign0 * glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans));
+        glm::vec3 S1 = sign1 * glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans));
+        glm::vec3 S2 = sign2 * glm::normalize(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans));
+        glm::vec3 eye(0, 0, 0); //= glm::normalize(scene.GetCamera(scene.CurrCam)->origin_eye);
         glm::vec3 diffuseColor0 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, eye, glm::normalize(n0), S0, model->color, DIFFUSE);
         glm::vec3 diffuseColor1 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, eye, glm::normalize(n1), S1, model->color, DIFFUSE);
         glm::vec3 diffuseColor2 = estColor(model->Kd, scene.GetParallelLight(i)->Ld, eye, glm::normalize(n2), S2, model->color, DIFFUSE);

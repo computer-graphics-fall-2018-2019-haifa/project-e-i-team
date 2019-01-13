@@ -12,7 +12,8 @@ public:
 	glm::vec3 Center;
 	float Ld, Ls;
     PointLight::PointLight(std::shared_ptr<MeshModel> model);
-	glm::vec3 PointLight::GetLocationAfterTrans();
+	glm::vec3 PointLight::GetLocationAfterTrans(glm::mat4x4 camTrans);
+    glm::vec3 PointLight::GetLocationAfterTrans();
     PointLight::~PointLight();
 
 };

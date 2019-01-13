@@ -18,4 +18,5 @@ public:
 	glm::vec3& ParallelLight::GetfromVector();
     glm::vec3 ParallelLight::GetLocationAfterTrans();
     glm::vec3 ParallelLight::GetDirectionAfterTrans(glm::mat4x4 camTrans);
+    glm::vec3 ParallelLight::GetDirectionAfterTrans();
 };
