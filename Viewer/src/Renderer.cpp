@@ -1,4 +1,4 @@
-#define _USE_MATH_DEFINES
+﻿#define _USE_MATH_DEFINES
 
 #include "Renderer.h"
 #include "InitShader.h"
@@ -201,6 +201,13 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
                 }
                 else if (shader == SIMPLE_SHADER) {
                     p_color = glm::vec3(n0);
+                }
+                if (scene.needCreative) {
+                    glm::vec3 p3(p, 1.0f);
+                    glm::vec3 f = glm::abs(glm::sin(p3)) + (1 / 4.0f) * glm::abs(glm::sin(4.0f * p3))
+                        + (1 / 8.0f) * glm::abs(glm::sin(8.0f * p3)) + (1 / 16.0f) * glm::abs(glm::sin(16.0f * p3))
+                        + (1 / 32.0f) * glm::abs(glm::sin(32.0f * p3));
+                    p_color = glm::sin((f + p3) * p_color);
                 }
                 putPixel((viewportWidth / 2) + p.x, (viewportHeight / 2) + p.y, depth, p_color);
             }
@@ -609,7 +616,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 }
 
 glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 interpolatedNormal) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * model->Ka * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * scene.GetAmbient()->Ka * model->Ka * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
 
     glm::vec3 illuPoint(0,0,0), illuParallel(0,0,0);
@@ -644,7 +651,7 @@ glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel>
 }
 
 std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0,glm::vec3 n0, glm::vec3 vect1,glm::vec3 n1, glm::vec3 vect2,glm::vec3 n2) {
-    glm::vec3 ambientColor = scene.GetAmbient()->color * model->Ka * scene.GetAmbient()->La;
+    glm::vec3 ambientColor = scene.GetAmbient()->color * scene.GetAmbient()->Ka * model->Ka * scene.GetAmbient()->La;
     ambientColor = glm::vec3(ambientColor.x * model->color.x, ambientColor.y * model->color.y, ambientColor.z * model->color.z);
 
     glm::vec3 gouraudPoint0(0,0,0), gouraudPoint1(0,0,0), gouraudPoint2(0,0,0);
@@ -776,7 +783,6 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	int modelsCount = scene.GetModelCount();
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
-
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);

@@ -181,13 +181,13 @@ public:
     static void thresh(float* image, int viewportWidth, int viewportHeight,int th){
         for (int i = 0; i < viewportWidth;i++) {
             for (int j = 0; j < viewportHeight;j++) {
-                if (image[INDEXCOLOR(viewportWidth, i, j, 0)] < th) {
+                if (image[INDEXCOLOR(viewportWidth, i, j, 0)] < th * 256) {
                     image[INDEXCOLOR(viewportWidth, i, j, 0)] = 0.0f;
                 }
-                if (image[INDEXCOLOR(viewportWidth, i, j, 1)] < th) {
+                if (image[INDEXCOLOR(viewportWidth, i, j, 1)] < th * 256) {
                     image[INDEXCOLOR(viewportWidth, i, j, 1)] = 0.0f;
                 }
-                if (image[INDEXCOLOR(viewportWidth, i, j, 2)] < th) {
+                if (image[INDEXCOLOR(viewportWidth, i, j, 2)] < th * 256) {
                     image[INDEXCOLOR(viewportWidth, i, j, 2)] = 0.0f;
                 }
             }

@@ -509,8 +509,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Gaussian Blur")) {
             ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5 \0 10", 3);
-            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 20);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5", 2);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 2000);
             if (scene->gaussianBlur) {
                 if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
                     rebuild = true;
@@ -520,8 +520,8 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
         if (ImGui::CollapsingHeader("Bloom Bleeding")) {
             ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
-            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5 \0 10", 3);
-            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 200);
+            ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5", 2);
+            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 2000);
             ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
             if (scene->bloom) {
                 scene->gaussianBlur = true;
@@ -534,8 +534,17 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             scene->buildGaussian();
         }
     }
-	
+
     ImGui::Text("");
+
+    if (scene->needCreative) {
+        if (ImGui::Button("Disable Creativity")) {
+            scene->needCreative = !scene->needCreative;
+        }
+    }
+    else if (ImGui::Button("Enable Creativity")) {
+        scene->needCreative = !scene->needCreative;
+    }
 
     if (scene->illuminationMode) {
         if (ImGui::Button("Disable Illumination")) {
@@ -545,8 +554,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
     else if (ImGui::Button("Enable Illumination")) {
         scene->illuminationMode = !scene->illuminationMode;
     }
-
-    ImGui::Text("");
 
     if (ImGui::Button("Enable Debug Mode")) {
         scene->Debug_mode = !scene->Debug_mode;
@@ -569,23 +576,22 @@ void loadBasicScene(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
     glm::vec4 BlueColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     glm::vec4 RedColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     scene.GetModel(1)->resetModel(45.0f, false, false, false, RedColor, BlueColor, &glm::vec3(1.0, 0.0, 1.0), 0.0f, 0.0f);
-    //scene.GetModel(1)->fTranslatex = -100.0f;
+    scene.GetModel(1)->UpdateworldTransform(Trans::getTranslate4x4(-100.0f,0.0f,0.0f));
 
     std::string pathBishop = Get_Root_Project_Dir("Data\\obj_examples\\bishop.obj");
     scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathBishop)));
     scene.GetModel(2)->resetModel(1220.0f, false, false, false, RedColor, BlueColor, &glm::vec3(1.0, 1.0, 1.0), 0.0f, 0.0f);
-    //scene.GetModel(2)->fTranslatex = 100.0f;
+    scene.GetModel(2)->UpdateworldTransform(Trans::getTranslate4x4(100.0f, 0.0f, 0.0f));
 
     std::string pathLightSrc = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
     scene.AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathLightSrc)), frameBufferHeight, frameBufferWidth);
     scene.GetPointLight(scene.CurrPoint)->color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-    //scene.GetPointLight(scene.CurrPoint)->fScale = 10.0f;
-    //scene.GetPointLight(scene.CurrPoint)->fTranslatey = 200.0f;
+    scene.GetPointLight(scene.CurrPoint)->UpdateworldTransform(Trans::getTranslate4x4(0.0f, -300.0f, 5.0f));
 }
 
 void loadCamera(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
     std::string path = Get_Root_Project_Dir("Data\\camera.obj");
-    scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth, glm::vec3(0, 0, 500));
+    scene.AddCamera(std::make_shared<MeshModel>(Utils::LoadMeshModel(path)), frameBufferHeight, frameBufferWidth, glm::vec3(0.0f, 0.0f, 500.0f));
 }
 
 void loadGrid(Scene& scene) {
