@@ -31,7 +31,7 @@ private:
     std::vector<std::shared_ptr<ParallelLight>> ParallelLights;
     std::shared_ptr<AmbientLight> Ambient;
 public:
-    bool Debug_mode;
+    bool Debug_mode, illuminationMode;
     float gaussianKernel3x3[3][3] = {  
                                     {0, 0, 0},
                                     {0, 0, 0},
@@ -96,5 +96,6 @@ public:
 	std::shared_ptr<AmbientLight> Scene::GetAmbient() const;
 	int Scene::modelName2Index(std::string name);
 	void Scene::SetFocusOnCurrentModel();
-    void Scene::buildGaussian();;
+    void Scene::buildGaussian();
+    bool Scene::isIlluminationModeOn();
 };
