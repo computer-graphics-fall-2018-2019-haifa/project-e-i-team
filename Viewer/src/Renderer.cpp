@@ -401,7 +401,7 @@ glm::vec3 Renderer::GetEstimatedNormal(glm::vec3 basePoint, glm::vec3 vec0, glm:
 	glm::vec3 u0 = vec1 - vec0;
 	glm::vec3 u1 = vec2 - vec0;
 	// return the normal as length of length
-	glm::vec3 v = normalizeVector(basePoint, glm::cross(u0, u1), fNlength);
+    glm::vec3 v  = vec0 + fNlength * glm::normalize(glm::cross(u0, u1));
 	return v;
 }
 
@@ -517,7 +517,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	vect1 = vect1 / vect1.w;
 	glm::vec4 vect2 = seriesTransform*vec2;
 	vect2 = vect2 / vect2.w;
-	glm::vec4 vect3 = seriesTransform * vec3;
+	glm::vec4 vect3 = seriesTransform*vec3;
 	if (isGrid) {
 		vect3 = vect3 / vect3.w;
 	}
@@ -530,30 +530,22 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
     if (vNormals.size() > 0) {
         // transform and normalize vertex normals:
-        n0 = vNormals.at(0);
-        nt0 = seriesTransform * glm::vec4(n0.x, n0.y, n0.z, 1);
-        nt0 = nt0 / nt0.w;
-        // return the normal as length of length
-        nt0 = normalizeVector(vect0, nt0, vNlength);
-        n0 = glm::vec3(nt0);
+        n0 = glm::normalize(vNormals.at(0));
+        nt0 = seriesTransform * glm::vec4(n0, 1);
+        n0 = glm::vec3(vect0 + nt0 / nt0.w);
 
-        n1 = vNormals.at(1);
-        nt1 = seriesTransform * glm::vec4(n1.x, n1.y, n1.z, 1);
-        nt1 = nt1 / nt1.w;
-        nt1 = normalizeVector(vect1, nt1, vNlength);
-        n1 = glm::vec3(nt1);
+        n1 = glm::normalize(vNormals.at(1));
+        nt1 = seriesTransform * glm::vec4(n1, 1);
+        n1 = glm::vec3(vect1 + nt1 / nt1.w);
 
-        n2 = vNormals.at(2);
-        nt2 = seriesTransform * glm::vec4(n2.x, n2.y, n2.z, 1);
-        nt2 = nt2 / nt2.w;
-        nt2 = normalizeVector(vect2, nt2, vNlength);
-        n2 = glm::vec3(nt2);
+        n2 = glm::normalize(vNormals.at(2));
+        nt2 = seriesTransform * glm::vec4(n2, 1);
+        n2 = glm::vec3(vect2 + nt2 / nt2.w);
 
         if (isGrid) {
-            n3 = vNormals.at(3);
-            nt3 = seriesTransform * glm::vec4(n3.x, n3.y, n3.z, 1);
-            nt3 = normalizeVector(vect3, nt3, vNlength);
-            n3 = glm::vec3(nt3);
+            n3 = glm::normalize(vNormals.at(3));
+            nt3 = seriesTransform * glm::vec4(n3, 1);
+            n3 = glm::vec3(vect3 + nt3 / nt3.w);
         }
     } else {
         isNormalPerVertexExist = false;
@@ -567,17 +559,17 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	} else {
         // point light could be presented here only:
 		if (!isPointLight) {
-            float fVlength = model->GetFaceNormalLength();
-            glm::vec3 basePoint((vect0.x + vect1.x + vect2.x) / 3, (vect0.y + vect1.y + vect2.y) / 3, (vect0.z + vect1.z + vect2.z) / 3);
-            glm::vec3 estfNormal = GetEstimatedNormal(basePoint, vect0, vect1, vect2, fVlength);
+            glm::vec3 basePoint = (vect0 + vect1 + vect2) / 3.0f;
+            glm::vec3 estfNormal2Draw = GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
+            glm::vec3 estfNormal = GetEstimatedNormal(basePoint, vect0, vect1, vect2, 1);
 			if (model->GetFaceNormalView()) {
-				DrawLine(basePoint, estfNormal, model->GetFaceNormalColor());
+				DrawLine(basePoint, estfNormal2Draw, model->GetFaceNormalColor());
 			}
             if (model->GetVertexNormalView()) {
                 glm::vec4 vertexColor = model->GetVertexNormalColor();
-                DrawLine(vect0, nt0, vertexColor);
-                DrawLine(vect1, nt1, vertexColor);
-                DrawLine(vect2, nt2, vertexColor);
+                DrawLine(vect0, vNlength * glm::vec4(n0,1), vertexColor);
+                DrawLine(vect1, vNlength * glm::vec4(n1,1), vertexColor);
+                DrawLine(vect2, vNlength * glm::vec4(n2,1), vertexColor);
             }
 
             if (scene.isIlluminationModeOn() && isNormalPerVertexExist) {

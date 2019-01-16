@@ -16,7 +16,7 @@ using namespace std;
 #define POS_DOUBLE_PI 2.2f*M_PI
 
 #define MAX_NORMAL_LENGTH 100.0f
-#define MIN_NORMAL_LENGTH 0.0f
+#define MIN_NORMAL_LENGTH 1.0f
 
 #define MAX_SCALE_FACTOR 100.0f
 #define MIN_SCALE_FACTOR 1.0f
