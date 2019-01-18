@@ -108,6 +108,7 @@ public:
 		float vertexNlength = MAX_NORMAL_LENGTH,
 		float faceNlength = MAX_NORMAL_LENGTH);
 	glm::vec3 MeshModel::GetVerticeByIndex(int index);
+	glm::vec3 MeshModel::GetNormalByIndex(int index);
 	void MeshModel::SetFaceNormalLength(float length);
 	void MeshModel::SetFaceNormalColor(glm::vec4 color);
 	float MeshModel::GetFaceNormalLength();

@@ -108,6 +108,10 @@ glm::vec3 MeshModel::GetVerticeByIndex(int index) {
 	return vertices[index];
 }
 
+glm::vec3 MeshModel::GetNormalByIndex(int index) {
+	return normals[index];
+}
+
 void MeshModel::SetFaceNormalLength(float length) {
 	fNlength = length;
 }

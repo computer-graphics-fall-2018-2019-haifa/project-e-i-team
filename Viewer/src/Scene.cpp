@@ -107,12 +107,24 @@ glm::vec3 Scene::getCameraVertices(int indexModel, int indexVertex) {
 	return cameras.at(indexModel)->GetVerticeByIndex(indexVertex);
 }
 
+glm::vec3 Scene::getCameraNormals(int indexModel, int indexVertex) {
+	return cameras.at(indexModel)->GetNormalByIndex(indexVertex);
+}
+
 glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex) {
 	return PointLights[indexModel]->GetVerticeByIndex(indexVertex);
 }
 
+glm::vec3 Scene::getLightPointNormals(int indexModel, int indexVertex) {
+	return PointLights[indexModel]->GetNormalByIndex(indexVertex);
+}
+
 glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const {
 	return models[indexModel]->GetVerticeByIndex(indexVertex);
+}
+
+glm::vec3 Scene::getModelNormals(int indexModel, int indexVertex) const {
+	return models[indexModel]->GetNormalByIndex(indexVertex);
 }
 
 std::shared_ptr<MeshModel> Scene::GetModel(int index) const {

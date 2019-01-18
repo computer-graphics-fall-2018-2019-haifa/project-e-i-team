@@ -447,8 +447,13 @@ void Renderer::drawAmbientLight(Scene& scene, glm::vec4& base, glm::vec3& color)
     printTriangle(scene, Right1, Right2, Left1, color);
 }
 
-void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel,bool isGrid, bool isPointLight) {
+void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, std::vector<glm::vec3> vNormals, int k, const ImGuiIO& io, bool isCameraModel, bool isGrid, bool isPointLight) {
 	std::shared_ptr<Camera> active_camera = scene.GetCamera(scene.CurrCam);
+	std::shared_ptr<MeshModel> model = NULL;
+	if (isCameraModel) {model = scene.GetCamera(k);}
+	else if (isPointLight) { model = scene.GetPointLight(k); }
+	else {model = scene.GetModel(k);}
+	float vNlength = model->GetVertexNormalLength();
 	glm::mat4x4 Mc = glm::mat4x4(1);
 	glm::mat4x4 Mp = glm::mat4x4(1);
 	if (active_camera != NULL) {
@@ -460,96 +465,79 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	int v2 = face->GetVertexIndex(2) - 1;
 	int v3;
 	isGrid ? v3 = face->GetVertexIndex(3) - 1 : v3 = -1;
-	// for instance: v0,v1,v2 => 1,13,4
-
-	glm::vec3 modelVec;
-	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v0); }
-	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v0); }
-	else { modelVec = scene.getModelVertices(k, v0); }
-	float x0 = modelVec.x;
-	float y0 = modelVec.y;
-	float z0 = modelVec.z;
-	glm::vec4 vec0(x0, y0, z0, 1);
-	// => (x0,y0,z0)
-
-	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v1); }
-	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v1); }
-	else { modelVec = scene.getModelVertices(k, v1); }
-	float x1 = modelVec.x;
-	float y1 = modelVec.y;
-	float z1 = modelVec.z;
-	glm::vec4 vec1(x1, y1, z1, 1);
-	// => (x1,y1,z1)
-
-	if (isCameraModel) { modelVec = scene.getCameraVertices(k, v2); } 
-	else if (isPointLight) { modelVec = scene.getLightPointVertices(k, v2); }
-	else { modelVec = scene.getModelVertices(k, v2); }
-	float x2 = modelVec.x;
-	float y2 = modelVec.y;
-	float z2 = modelVec.z;
-	glm::vec4 vec2(x2, y2, z2, 1);
-	// => (x2,y2,z2)
-
-	float x3 = 0.0f;
-	float y3 = 0.0f;
-	float z3 = 0.0f;
-	if (isGrid) {
-		x3 = scene.getModelVertices(k, v3).x;
-		y3 = scene.getModelVertices(k, v3).y;
-		z3 = scene.getModelVertices(k, v3).z;
+		
+	glm::vec3 modelVec0(0), normalVec0(0), modelVec1(0), normalVec1(0), modelVec2(0), normalVec2(0);
+	if (isCameraModel) { 
+		modelVec0 = scene.getCameraVertices(k, v0);  
+		modelVec1 = scene.getCameraVertices(k, v1); 
+		modelVec2 = scene.getCameraVertices(k, v2); 
+		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
+			normalVec0 = scene.getCameraNormals(k, face->GetNormalIndex(0) - 1);
+			normalVec1 = scene.getCameraNormals(k, face->GetNormalIndex(1) - 1);
+			normalVec2 = scene.getCameraNormals(k, face->GetNormalIndex(2) - 1);
+		}
 	}
-	glm::vec4 vec3(x3, y3, z3, 1);
-	// => (x3,y3,z3)
+	else if (isPointLight) { 
+		modelVec0 = scene.getLightPointVertices(k, v0); 
+		modelVec1 = scene.getLightPointVertices(k, v1); 
+		modelVec2 = scene.getLightPointVertices(k, v2); 
+		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
+			normalVec0 = scene.getLightPointNormals(k, face->GetNormalIndex(0) - 1);
+			normalVec1 = scene.getLightPointNormals(k, face->GetNormalIndex(1) - 1);
+			normalVec2 = scene.getLightPointNormals(k, face->GetNormalIndex(2) - 1);
+		}
+	}
+	else { 
+		modelVec0 = scene.getModelVertices(k, v0);  
+		modelVec1 = scene.getModelVertices(k, v1); 
+		modelVec2 = scene.getModelVertices(k, v2); 
+		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
+			normalVec0 = scene.getModelNormals(k, face->GetNormalIndex(0) - 1);
+			normalVec1 = scene.getModelNormals(k, face->GetNormalIndex(1) - 1);
+			normalVec2 = scene.getModelNormals(k, face->GetNormalIndex(2) - 1);
+		}
+	}
+	glm::vec4 vec0(modelVec0, 1);
+	glm::vec4 vec1(modelVec1, 1);
+	glm::vec4 vec2(modelVec2, 1);
+	glm::vec4 norm0(modelVec0 + (vNlength * glm::normalize(normalVec0)), 1);
+	glm::vec4 norm2(modelVec1 + (vNlength * glm::normalize(normalVec1)), 1);
+	glm::vec4 norm1(modelVec2 + (vNlength * glm::normalize(normalVec2)), 1);
+
+	glm::vec4 vec3(0, 0, 0, 1);
+	if (isGrid) {
+		vec3 = glm::vec4(scene.getModelVertices(k, v3),1);
+	}
 
 	// transform face as world transform view:
-	std::shared_ptr<MeshModel> model = NULL;
-	if(isCameraModel){
-		model = scene.GetCamera(k);
-	}
-	else if (isPointLight) { model = scene.GetPointLight(k); }
-	else {
-		model = scene.GetModel(k);
-	}
 	glm::mat4x4 seriesTransform = Mp * Mc * model->GetWorldTransformation();
-	glm::vec4 vect0 = seriesTransform*vec0;
+	
+	glm::vec4 vect0 = seriesTransform * vec0;
 	vect0 = vect0 / vect0.w;
-	glm::vec4 vect1 = seriesTransform*vec1;
+	glm::vec4 vect1 = seriesTransform * vec1;
 	vect1 = vect1 / vect1.w;
-	glm::vec4 vect2 = seriesTransform*vec2;
+	glm::vec4 vect2 = seriesTransform * vec2;
 	vect2 = vect2 / vect2.w;
-	glm::vec4 vect3 = seriesTransform*vec3;
+	glm::vec4 vect3 = seriesTransform * vec3;
 	if (isGrid) {
 		vect3 = vect3 / vect3.w;
 	}
 
-	float vNlength = model->GetVertexNormalLength();
-    glm::vec3 n0, n1, n2 ,n3;
-    glm::vec4 nt0, nt1, nt2 ,nt3;
+	norm0 = seriesTransform * norm0;
+	norm0 = norm0 / norm0.w;
+	norm1 = seriesTransform * norm1;
+	norm1 = norm1 / norm1.w;
+	norm2 = seriesTransform * norm2;
+	norm2 = norm2 / norm2.w;
+	
 
-    bool isNormalPerVertexExist = true;
+	bool isNormalPerVertexExist = true;
 
-    if (vNormals.size() > 0) {
-        // transform and normalize vertex normals:
-        n0 = glm::normalize(vNormals.at(0));
-        nt0 = seriesTransform * glm::vec4(n0, 1);
-        n0 = glm::vec3(vect0 + nt0 / nt0.w);
+	if (!(vNormals.size() > 0)) {
+		isNormalPerVertexExist = false;
+	}
+	
 
-        n1 = glm::normalize(vNormals.at(1));
-        nt1 = seriesTransform * glm::vec4(n1, 1);
-        n1 = glm::vec3(vect1 + nt1 / nt1.w);
-
-        n2 = glm::normalize(vNormals.at(2));
-        nt2 = seriesTransform * glm::vec4(n2, 1);
-        n2 = glm::vec3(vect2 + nt2 / nt2.w);
-
-        if (isGrid) {
-            n3 = glm::normalize(vNormals.at(3));
-            nt3 = seriesTransform * glm::vec4(n3, 1);
-            n3 = glm::vec3(vect3 + nt3 / nt3.w);
-        }
-    } else {
-        isNormalPerVertexExist = false;
-    }
 	// draw the object as triangles collection:
 	if(isGrid){
 		DrawLine(vect0, vect1, model->color);
@@ -561,15 +549,14 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		if (!isPointLight) {
             glm::vec3 basePoint = (vect0 + vect1 + vect2) / 3.0f;
             glm::vec3 estfNormal2Draw = GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
-            glm::vec3 estfNormal = GetEstimatedNormal(basePoint, vect0, vect1, vect2, 1);
 			if (model->GetFaceNormalView()) {
 				DrawLine(basePoint, estfNormal2Draw, model->GetFaceNormalColor());
 			}
             if (model->GetVertexNormalView()) {
                 glm::vec4 vertexColor = model->GetVertexNormalColor();
-                DrawLine(vect0, vNlength * glm::vec4(n0,1), vertexColor);
-                DrawLine(vect1, vNlength * glm::vec4(n1,1), vertexColor);
-                DrawLine(vect2, vNlength * glm::vec4(n2,1), vertexColor);
+                DrawLine(vect0, norm0, vertexColor);
+                DrawLine(vect1, norm1, vertexColor);
+                DrawLine(vect2, norm2, vertexColor);
             }
 
             if (scene.isIlluminationModeOn() && isNormalPerVertexExist) {
@@ -578,7 +565,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        estfNormal, nullNormal1, nullNormal2,
+						estfNormal2Draw, nullNormal1, nullNormal2,
                         k,FLAT
                     );
                 }
@@ -586,7 +573,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        n0, n1, n2,
+                        norm0, norm1, norm2,
                         k,PHONG
                     );
                 }
@@ -594,7 +581,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        n0, n1, n2,
+                        norm0, norm1, norm2,
                         k,GOURAUD
                     );
                 }

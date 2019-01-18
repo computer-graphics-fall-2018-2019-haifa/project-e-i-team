@@ -88,8 +88,11 @@ public:
 	std::vector<glm::vec3> Scene::getCameraNormals(int indexModel);
 	std::vector<glm::vec3> Scene::getPointLightNormals(int indexModel);
 	glm::vec3 Scene::getCameraVertices(int indexModel, int indexVertex);
+	glm::vec3 Scene::getCameraNormals(int indexModel, int indexVertex);
 	glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex);
+	glm::vec3 Scene::getLightPointNormals(int indexModel, int indexVertex);
 	glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const;
+	glm::vec3 Scene::getModelNormals(int indexModel, int indexVertex) const;
 	std::shared_ptr<MeshModel> Scene::GetModel(int index) const;
 	std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const;
 	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;

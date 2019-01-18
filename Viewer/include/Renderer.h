@@ -40,8 +40,8 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 public:
-	static glm::vec3 Renderer::normalizeVector(glm::vec3 v, glm::vec3 n, float length) { return (v + length * glm::normalize(n)); }
-	static glm::vec4 Renderer::normalizeVector(glm::vec4 v, glm::vec4 n, float length) { return length * glm::normalize(v + n) + v; }
+	//static glm::vec3 Renderer::normalizeVector(glm::vec3 v, glm::vec3 n, float length) { return (v + length * glm::normalize(n)); }
+	//static glm::vec4 Renderer::normalizeVector(glm::vec4 v, glm::vec4 n, float length) { return length * glm::normalize(v + n) + v; }
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
 	void Render(Scene& scene, const ImGuiIO& io);
