@@ -500,9 +500,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	glm::vec4 vec0(modelVec0, 1);
 	glm::vec4 vec1(modelVec1, 1);
 	glm::vec4 vec2(modelVec2, 1);
-	glm::vec4 norm0(modelVec0 + (vNlength * glm::normalize(normalVec0)), 1);
-	glm::vec4 norm2(modelVec1 + (vNlength * glm::normalize(normalVec1)), 1);
-	glm::vec4 norm1(modelVec2 + (vNlength * glm::normalize(normalVec2)), 1);
+	glm::vec4 norm0(modelVec0 + normalVec0, 1);
+	glm::vec4 norm2(modelVec1 + normalVec1, 1);
+	glm::vec4 norm1(modelVec2 + normalVec2, 1);
 
 	glm::vec4 vec3(0, 0, 0, 1);
 	if (isGrid) {
@@ -522,13 +522,15 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if (isGrid) {
 		vect3 = vect3 / vect3.w;
 	}
-
 	norm0 = seriesTransform * norm0;
 	norm0 = norm0 / norm0.w;
+	norm0 = vect0 + glm::vec4(glm::normalize(glm::vec3(norm0) - glm::vec3(vect0)) * vNlength, 1);
 	norm1 = seriesTransform * norm1;
 	norm1 = norm1 / norm1.w;
+	norm1 = vect1 + glm::vec4(glm::normalize(glm::vec3(norm1) - glm::vec3(vect1)) * vNlength, 1);
 	norm2 = seriesTransform * norm2;
 	norm2 = norm2 / norm2.w;
+	norm2 = vect2 + glm::vec4(glm::normalize(glm::vec3(norm2) - glm::vec3(vect2)) * vNlength, 1);
 	
 
 	bool isNormalPerVertexExist = true;
@@ -548,7 +550,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
         // point light could be presented here only:
 		if (!isPointLight) {
             glm::vec3 basePoint = (vect0 + vect1 + vect2) / 3.0f;
-            glm::vec3 estfNormal2Draw = GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
+			glm::vec3 estfNormal2Draw = (glm::vec3(norm0) + glm::vec3(norm1) + glm::vec3(norm2)) / 3.0f;//GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
 			if (model->GetFaceNormalView()) {
 				DrawLine(basePoint, estfNormal2Draw, model->GetFaceNormalColor());
 			}
