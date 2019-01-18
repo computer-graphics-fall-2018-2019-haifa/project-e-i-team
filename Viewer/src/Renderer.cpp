@@ -550,9 +550,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
         // point light could be presented here only:
 		if (!isPointLight) {
             glm::vec3 basePoint = (vect0 + vect1 + vect2) / 3.0f;
-			glm::vec3 estfNormal2Draw = (glm::vec3(norm0) + glm::vec3(norm1) + glm::vec3(norm2)) / 3.0f;//GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
+			glm::vec3 FaceNormal = (glm::vec3(norm0) + glm::vec3(norm1) + glm::vec3(norm2)) / 3.0f;//GetEstimatedNormal(basePoint, vect0, vect1, vect2, model->GetFaceNormalLength());
 			if (model->GetFaceNormalView()) {
-				DrawLine(basePoint, estfNormal2Draw, model->GetFaceNormalColor());
+				DrawLine(basePoint, FaceNormal, model->GetFaceNormalColor());
 			}
             if (model->GetVertexNormalView()) {
                 glm::vec4 vertexColor = model->GetVertexNormalColor();
@@ -567,7 +567,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-						estfNormal2Draw, nullNormal1, nullNormal2,
+						FaceNormal, nullNormal1, nullNormal2,
                         k,FLAT
                     );
                 }
