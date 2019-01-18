@@ -532,14 +532,6 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	norm2 = seriesTransform * norm2;
 	norm2 = norm2 / norm2.w;
 	norm2 = vect2 + glm::vec4(glm::normalize(glm::vec3(norm2) - glm::vec3(vect2)) * vNlength, 1);
-	
-
-	bool isNormalPerVertexExist = true;
-
-	if (!(vNormals.size() > 0)) {
-		isNormalPerVertexExist = false;
-	}
-	
 
 	// draw the object as triangles collection:
 	if(isGrid){
@@ -563,7 +555,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                 DrawLine(vect2, norm2, vertexColor);
             }
 
-            if (scene.isIlluminationModeOn() && isNormalPerVertexExist) {
+            if (scene.isIlluminationModeOn() && (model->GetFaceNormalView() || model->GetVertexNormalView())) {
                 if (scene.shadingType == FLAT) {
                     glm::vec3 nullNormal1, nullNormal2;
                     printTriangle(
