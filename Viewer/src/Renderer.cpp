@@ -561,7 +561,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-						basePointNormal, nullNormal1, nullNormal2,
+						basePointNormal - basePoint, nullNormal1, nullNormal2,
                         k,FLAT
                     );
                 }
@@ -569,7 +569,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        norm0, norm1, norm2,
+                        norm0-vect0, norm1 - vect1, norm2-vect2,
                         k,PHONG
                     );
                 }
@@ -577,7 +577,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        norm0, norm1, norm2,
+                        norm0 - vect0, norm1 - vect1, norm2 - vect2,
                         k,GOURAUD
                     );
                 }
