@@ -196,7 +196,7 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
                     p_color = computePhongAndFlat(scene, scene.GetModel(kindex), interpolatedNormal);
                 }
                 else if (shader == GOURAUD_SHADER) {
-                    std::vector<glm::vec3> colors = computeGouraud(scene, scene.GetModel(kindex), a, n0, b, n1, c, n2);
+                    std::vector<glm::vec3> colors = computeGouraud(scene, scene.GetModel(kindex), a, n0, b, n1, c, n2); // TODO using normals
                     p_color = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), a, b, c, colors.at(0), colors.at(1), colors.at(2));
                 }
                 else if (shader == SIMPLE_SHADER) {
