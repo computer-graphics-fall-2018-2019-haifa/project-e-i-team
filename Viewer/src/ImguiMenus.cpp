@@ -295,7 +295,7 @@ void buildPropertiesSection(std::shared_ptr<MeshModel> currentModel) {
     ImGui::SliderFloat("Model Reflected Ray (Ambient)", &(currentModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
     ImGui::SliderFloat("Model Reflected Ray (Diffuse)", &(currentModel->Kd), 0.0f, 1.0f);
     ImGui::SliderFloat("Model Reflected Ray (Specular)", &(currentModel->Ks), 0.0f, 1.0f);
-    ImGui::SliderInt("Model Shininess", &(currentModel->alpha), 1, 200);
+    ImGui::SliderFloat("Model Shininess", &(currentModel->alpha), 1.0f, 200.0f);
 	ImGui::Checkbox("Model Face Normals", &(currentModel->showFaceNormals));
 	ImGui::ColorEdit3("Model Normal Color  (Faces)", (float*)&(currentModel->fNcolor));
 	ImGui::SliderFloat("Model Normal Length (Faces)", &(currentModel->fNlength), MIN_NORMAL_LENGTH, MAX_NORMAL_LENGTH);
@@ -332,7 +332,7 @@ void buildCommonFeatures(Scene* scene, ImVec4& textColor) {
         ImGui::SliderFloat("Model Reflected Ray (Ambient)", &(currModel->Ka), 0.0f, 1.0f); // next usage to make ununiform coloring
         ImGui::SliderFloat("Model Reflected Ray (Diffuse)", &(currModel->Kd), 0.0f, 1.0f);
         ImGui::SliderFloat("Model Reflected Ray (Specular)", &(currModel->Ks), 0.0f, 1.0f);
-        ImGui::SliderInt("Model Shininess", &(currModel->alpha), 1, 200);
+        ImGui::SliderFloat("Model Shininess", &(currModel->alpha), 1.0f, 200.0f);
     }
     if (scene->GetPointLightCount() > 0) {
         ImGui::TextColored(textColor, "Point Light");
@@ -510,7 +510,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             ImGui::Combo("Enable", &(scene->gaussianBlur),"No\0Yes",2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
             ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5", 2);
-            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 2000);
+            ImGui::SliderFloat("Radius", &(scene->gaussianRadius), 1.0f, 2000.0f);
             if (scene->gaussianBlur) {
                 if (scene->gaussianMaskSize != mask || scene->gaussianRadius != radius) {
                     rebuild = true;
@@ -521,7 +521,7 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
             ImGui::Combo("Enable", &(scene->bloom), "No\0Yes", 2);
             int mask = scene->gaussianMaskSize, radius = scene->gaussianRadius;
             ImGui::Combo("Mask", &(scene->gaussianMaskSize), " 3 \0 5", 2);
-            ImGui::SliderInt("Radius", &(scene->gaussianRadius), 1, 2000);
+            ImGui::SliderFloat("Radius", &(scene->gaussianRadius), 1.0f, 2000.0f);
             ImGui::SliderFloat("Threshold", &(scene->bloomThresh), 0.0f, 1.0f);
             if (scene->bloom) {
                 scene->gaussianBlur = true;
@@ -571,7 +571,6 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 }
 
 void loadBasicScene(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
-	/*
     std::string pathCow = Get_Root_Project_Dir("Data\\obj_examples\\cow.obj");
     scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathCow)));
     glm::vec4 BlueColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -587,7 +586,7 @@ void loadBasicScene(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
     std::string pathLightSrc = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
     scene.AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathLightSrc)), frameBufferHeight, frameBufferWidth);
     scene.GetPointLight(scene.CurrPoint)->color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-    scene.GetPointLight(scene.CurrPoint)->UpdateworldTransform(Trans::getTranslate4x4(0.0f, -300.0f, 5.0f));*/
+    scene.GetPointLight(scene.CurrPoint)->UpdateworldTransform(Trans::getTranslate4x4(0.0f, -300.0f, 5.0f));
 }
 
 void loadCamera(Scene& scene, int frameBufferHeight, int frameBufferWidth) {

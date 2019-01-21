@@ -63,10 +63,10 @@ public:
     float Renderer::AreaOfTriangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
     // uniform and simply mesh-model rendering without any ray technique:
     void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec3 color);
-    void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec3 n0, glm::vec3 n1, glm::vec3 n2,int kindex, int shader);
+    void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec3 alternativeBasePoint, glm::vec3 n0, glm::vec3 n1, glm::vec3 n2,int kindex, int shader);
 
     //glm::vec3& Renderer::estTrianglePointNormal(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& p);
-    glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 interpolatedNormal);
+    glm::vec3 Renderer::computePhongAndFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 basePoint, glm::vec3 interpolatedNormal);
     std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0, glm::vec3 n0, glm::vec3 vect1, glm::vec3 n1, glm::vec3 vect2, glm::vec3 n2);
 	
     void Renderer::DrawLine(glm::vec3& v1, glm::vec3& v2, const glm::vec3& color);
