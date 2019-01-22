@@ -60,7 +60,8 @@ public:
 	int CurrPoint, SizePoint;
 	int CurrParallel, SizeParallel;
 	int activeModelIndex, gridCounter;
-	int shadingType,gaussianRadius,gaussianMaskSize;
+	int shadingType,gaussianMaskSize;
+    float gaussianRadius;
     int bloom, gaussianBlur;
     int kernelM, kernelN;
     float bloomThresh;
