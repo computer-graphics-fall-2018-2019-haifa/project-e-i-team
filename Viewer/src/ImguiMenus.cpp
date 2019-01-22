@@ -575,14 +575,15 @@ void loadBasicScene(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
     scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathCow)));
     glm::vec4 BlueColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     glm::vec4 RedColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    scene.GetModel(1)->resetModel(45.0f, false, false, false, RedColor, BlueColor, &glm::vec3(1.0, 0.0, 1.0), 0.0f, 0.0f);
+    scene.GetModel(1)->resetModel(45.0f, true, true, false, RedColor, BlueColor, &glm::vec3(1.0, 0.0, 1.0), 0.0f, 0.0f);
     scene.GetModel(1)->UpdateworldTransform(Trans::getTranslate4x4(-100.0f,0.0f,0.0f));
 	
     std::string pathBishop = Get_Root_Project_Dir("Data\\obj_examples\\bishop.obj");
     scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathBishop)));
-    scene.GetModel(2)->resetModel(1220.0f, false, false, false, RedColor, BlueColor, &glm::vec3(1.0, 1.0, 1.0), 0.0f, 0.0f);
+    scene.GetModel(2)->resetModel(1300.0f, true, true, false, RedColor, BlueColor, &glm::vec3(1.0, 1.0, 1.0), 0.0f, 0.0f);
     scene.GetModel(2)->UpdateworldTransform(Trans::getTranslate4x4(100.0f, 0.0f, 0.0f));
-
+	scene.GetModel(2)->UpdateworldTransform(Trans::getyRotate4x4(6.28f));
+	
     std::string pathLightSrc = Get_Root_Project_Dir("Data\\obj_examples\\light_source.obj");
     scene.AddPointLight(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathLightSrc)), frameBufferHeight, frameBufferWidth);
     scene.GetPointLight(scene.CurrPoint)->color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);

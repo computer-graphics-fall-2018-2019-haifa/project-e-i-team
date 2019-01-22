@@ -472,27 +472,23 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 		modelVec0 = scene.getCameraVertices(k, v0);  
 		modelVec1 = scene.getCameraVertices(k, v1); 
 		modelVec2 = scene.getCameraVertices(k, v2); 
-		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
-			normalVec0 = scene.getCameraNormals(k, face->GetNormalIndex(0) - 1);
-			normalVec1 = scene.getCameraNormals(k, face->GetNormalIndex(1) - 1);
-			normalVec2 = scene.getCameraNormals(k, face->GetNormalIndex(2) - 1);
-		}
+		normalVec0 = scene.getCameraNormals(k, face->GetNormalIndex(0) - 1);
+		normalVec1 = scene.getCameraNormals(k, face->GetNormalIndex(1) - 1);
+		normalVec2 = scene.getCameraNormals(k, face->GetNormalIndex(2) - 1);
 	}
 	else if (isPointLight) { 
 		modelVec0 = scene.getLightPointVertices(k, v0); 
 		modelVec1 = scene.getLightPointVertices(k, v1); 
 		modelVec2 = scene.getLightPointVertices(k, v2); 
-		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
-			normalVec0 = scene.getLightPointNormals(k, face->GetNormalIndex(0) - 1);
-			normalVec1 = scene.getLightPointNormals(k, face->GetNormalIndex(1) - 1);
-			normalVec2 = scene.getLightPointNormals(k, face->GetNormalIndex(2) - 1);
-		}
+		normalVec0 = scene.getLightPointNormals(k, face->GetNormalIndex(0) - 1);
+		normalVec1 = scene.getLightPointNormals(k, face->GetNormalIndex(1) - 1);
+		normalVec2 = scene.getLightPointNormals(k, face->GetNormalIndex(2) - 1);
 	}
 	else { 
 		modelVec0 = scene.getModelVertices(k, v0);  
 		modelVec1 = scene.getModelVertices(k, v1); 
 		modelVec2 = scene.getModelVertices(k, v2); 
-		if (model->GetFaceNormalView() || model->GetVertexNormalView()) {
+		if (!isGrid) {
 			normalVec0 = scene.getModelNormals(k, face->GetNormalIndex(0) - 1);
 			normalVec1 = scene.getModelNormals(k, face->GetNormalIndex(1) - 1);
 			normalVec2 = scene.getModelNormals(k, face->GetNormalIndex(2) - 1);
@@ -501,9 +497,9 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	glm::vec4 vec0(modelVec0, 1);
 	glm::vec4 vec1(modelVec1, 1);
 	glm::vec4 vec2(modelVec2, 1);
-	glm::vec4 norm0(modelVec0 + normalVec0, 1);
-	glm::vec4 norm2(modelVec1 + normalVec1, 1);
-	glm::vec4 norm1(modelVec2 + normalVec2, 1);
+	glm::vec4 n0(modelVec0 + normalVec0, 1);
+	glm::vec4 n1(modelVec1 + normalVec1, 1);
+	glm::vec4 n2(modelVec2 + normalVec2, 1);
 
 	glm::vec4 vec3(0, 0, 0, 1);
 	if (isGrid) {
@@ -523,15 +519,18 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	if (isGrid) {
 		vect3 = vect3 / vect3.w;
 	}
-	norm0 = seriesTransform * norm0;
-	norm0 = norm0 / norm0.w;
-	norm0 = vect0 + glm::vec4(glm::normalize(glm::vec3(norm0) - glm::vec3(vect0)) * vNlength, 1);
-	norm1 = seriesTransform * norm1;
-	norm1 = norm1 / norm1.w;
-	norm1 = vect1 + glm::vec4(glm::normalize(glm::vec3(norm1) - glm::vec3(vect1)) * vNlength, 1);
-	norm2 = seriesTransform * norm2;
-	norm2 = norm2 / norm2.w;
-	norm2 = vect2 + glm::vec4(glm::normalize(glm::vec3(norm2) - glm::vec3(vect2)) * vNlength, 1);
+	n0 = seriesTransform * n0;
+	n0 = n0 / n0.w;
+	glm::vec4 norm0 = vect0 + glm::vec4(glm::normalize(glm::vec3(n0) - glm::vec3(vect0)), 1);
+	glm::vec4 norm0Draw = vect0 + glm::vec4(glm::normalize(glm::vec3(n0) - glm::vec3(vect0)) * vNlength, 1);
+	n1 = seriesTransform * n1;
+	n1 = n1 / n1.w;
+	glm::vec4 norm1 = vect1 + glm::vec4(glm::normalize(glm::vec3(n1) - glm::vec3(vect1)), 1);
+	glm::vec4 norm1Draw = vect1 + glm::vec4(glm::normalize(glm::vec3(n1) - glm::vec3(vect1)) * vNlength, 1);
+	n2 = seriesTransform * n2;
+	n2 = n2 / n2.w;
+	glm::vec4 norm2 = vect2 + glm::vec4(glm::normalize(glm::vec3(n2) - glm::vec3(vect2)), 1);
+	glm::vec4 norm2Draw = vect2 + glm::vec4(glm::normalize(glm::vec3(n2) - glm::vec3(vect2)) * vNlength, 1);
 
 	// draw the object as triangles collection:
 	if(isGrid){
@@ -543,17 +542,18 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
         // point light could be presented here only:
 		if (!isPointLight) {
             glm::vec3 basePoint = (vect0 + vect1 + vect2) / 3.0f;
-			glm::vec3 basePointNormal = (glm::vec3(norm0) + glm::vec3(norm1) + glm::vec3(norm2)) / 3.0f;
-            glm::vec3 avgPointDir = basePointNormal - basePoint;
-			basePointNormal = basePoint + glm::normalize(glm::vec3(basePointNormal) - glm::vec3(basePoint)) * fNlength;
+			glm::vec3 basePointNorm = (glm::vec3(norm0) + glm::vec3(norm1) + glm::vec3(norm2)) / 3.0f;
+            glm::vec3 avgPointDir = basePointNorm - basePoint;
+			glm::vec3 basePointNormal = basePoint + glm::normalize(glm::vec3(basePointNorm) - glm::vec3(basePoint));
+			glm::vec3 basePointNormalDraw = basePoint + glm::normalize(glm::vec3(basePointNorm) - glm::vec3(basePoint)) * fNlength;
 			if (model->GetFaceNormalView()) {
-				DrawLine(basePoint, basePointNormal, model->GetFaceNormalColor());
+				DrawLine(basePoint, basePointNormalDraw, model->GetFaceNormalColor());
 			}
             if (model->GetVertexNormalView()) {
                 glm::vec4 vertexColor = model->GetVertexNormalColor();
-                DrawLine(vect0, norm0, vertexColor);
-                DrawLine(vect1, norm1, vertexColor);
-                DrawLine(vect2, norm2, vertexColor);
+                DrawLine(vect0, norm0Draw, vertexColor);
+                DrawLine(vect1, norm1Draw, vertexColor);
+                DrawLine(vect2, norm2Draw, vertexColor);
             }
 
             if (scene.isIlluminationModeOn()) {

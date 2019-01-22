@@ -5,7 +5,7 @@
 #define ORIGIN AmbientLight(glm::vec3(0, 0, 0))
 
 Scene::Scene() : Debug_mode(false), illuminationMode(true), needCreative(false),CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0),
-shadingType(0), kernelM(5), kernelN(5), gaussianRadius(3.0f), gaussianBlur(false), bloom(false), gaussianMaskSize(1), bloomThresh(0.7f)
+shadingType(1), kernelM(5), kernelN(5), gaussianRadius(3.0f), gaussianBlur(false), bloom(false), gaussianMaskSize(1), bloomThresh(0.7f)
 {
 	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
     buildGaussian();
