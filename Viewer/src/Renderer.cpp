@@ -192,8 +192,9 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
                     p_color = computePhongAndFlat(scene, scene.GetModel(kindex), alternativeBasePoint,n0);
                 }
                 else if (shader == PHONG_SHADER) {
+                    alternativeBasePoint = glm::vec3(p, 0);
                     glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
-                    p_color = computePhongAndFlat(scene, scene.GetModel(kindex), alternativeBasePoint,interpolatedNormal);
+                    p_color = computePhongAndFlat(scene, scene.GetModel(kindex), alternativeBasePoint,interpolatedNormal - glm::vec3(p, 0));
                 }
                 else if (shader == GOURAUD_SHADER) {
                     std::vector<glm::vec3> colors = computeGouraud(scene, scene.GetModel(kindex), a, n0, b, n1, c, n2);
@@ -558,21 +559,22 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 
             if (scene.isIlluminationModeOn()) {
                 if (scene.shadingType == FLAT) {
-                    glm::vec3 nullNormal1, nullNormal2;
+                    glm::vec3 nullVec;
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
                         basePoint,
-                        glm::normalize(avgPointDir), nullNormal1, nullNormal2,
+                        glm::normalize(avgPointDir), nullVec, nullVec,
                         k,FLAT
                     );
                 }
                 else if (scene.shadingType == PHONG) {
+                    glm::vec3 nullVec;
                     printTriangle(
                         scene,
                         vect0, vect1, vect2,
-                        basePoint,
-                        glm::normalize(norm0 - vect0), glm::normalize(norm1 - vect1), glm::normalize(norm2 - vect2),
+                        nullVec,
+                        glm::normalize(norm0), glm::normalize(norm1), glm::normalize(norm2),
                         k,PHONG
                     );
                 }
