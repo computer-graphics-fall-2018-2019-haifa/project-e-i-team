@@ -71,5 +71,5 @@ public:
     std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0, glm::vec3 n0, glm::vec3 vect1, glm::vec3 n1, glm::vec3 vect2, glm::vec3 n2);
 	
     void Renderer::DrawLine(glm::vec3& v1, glm::vec3& v2, const glm::vec3& color);
-    glm::vec3 Renderer::GetColorBarycentricInterpolate(glm::vec4 p, glm::vec4 a, glm::vec4 b, glm::vec4 c);
+    glm::vec3 Renderer::GetColorBarycentricInterpolate(glm::vec4 p, glm::vec4 a, glm::vec4 b, glm::vec4 c, bool isPhong = false);
 };
