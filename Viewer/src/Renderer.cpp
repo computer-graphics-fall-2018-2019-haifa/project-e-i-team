@@ -189,11 +189,11 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
                 float depth = GetZPointBarycentricInterpolate(a, b, c, p);
                 glm::vec3 p_color;
                 if (shader == FLAT_SHADER) {
-                    p_color = computeFlat(scene, scene.GetModel(kindex), alternativeBasePoint, n0);
+                    p_color = computePhongFlat(scene, scene.GetModel(kindex), alternativeBasePoint, n0);
                 }
                 else if (shader == PHONG_SHADER) {
-                    glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, 0, 0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
-                    p_color = computePhong(scene, scene.GetModel(kindex), glm::vec3(p,0), a, b, c,interpolatedNormal);
+                    glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, depth,0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0));
+                    p_color = computePhongFlat(scene, scene.GetModel(kindex), glm::vec3(p, depth),interpolatedNormal);
                 }
                 else if (shader == GOURAUD_SHADER) {
                     std::vector<glm::vec3> colors = computeGouraud(scene, scene.GetModel(kindex), a, n0, b, n1, c, n2);
@@ -595,7 +595,7 @@ void Renderer::showMeshObject(Scene& scene, std::vector<Face>::iterator face, st
 	}
 }
 
-glm::vec3 Renderer::computeFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 basePoint,glm::vec3 interpolatedNormal) {
+glm::vec3 Renderer::computePhongFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 basePoint,glm::vec3 interpolatedNormal) {
     glm::vec3 illuPoint(0,0,0), illuParallel(0,0,0);
     for (int i = 0; i < scene.GetPointLightCount(); i++) {
         std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
@@ -638,48 +638,6 @@ glm::vec3 Renderer::computeFlat(Scene& scene, std::shared_ptr<MeshModel> model, 
     return (ambientColor + illuPoint + illuParallel);
 }
 
-glm::vec3 Renderer::computePhong(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 p, glm::vec3 basePoint0, glm::vec3 basePoint1, glm::vec3 basePoint2, glm::vec3 interpolatedNormal) {
-    glm::vec3 phongPoint(0, 0, 0), phongParallel(0, 0, 0);
-    for (int i = 0; i < scene.GetPointLightCount(); i++) {
-        std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
-        glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
-        glm::vec3 N = glm::normalize(interpolatedNormal);
-        glm::vec3 S = glm::normalize(scene.GetPointLight(i)->GetLocationAfterTrans(camTrans) - p);
-        glm::vec3 eye(0, 0, 0);
-        glm::vec3 diffuseColor = estColor(model->Kd, scene.GetPointLight(i)->Ld, eye, N, S, model->color, DIFFUSE);
-        glm::vec3 specularColor = estColor(model->Ks, scene.GetPointLight(i)->Ld, eye, N, S, model->color, SPECULAR, model->alpha);
-        glm::vec3 color = scene.GetPointLight(i)->color;
-        glm::vec3 diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
-        glm::vec3 specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        phongPoint = phongPoint + color * (diffuseTotalColor + specularTotalColor);
-    }
-    for (int i = 0; i < scene.GetParallelLightCount(); i++) {
-        std::shared_ptr<Camera> cam = scene.GetCamera(scene.CurrCam);
-        glm::mat4x4 camTrans = cam->GetProjection() * cam->Getview();
-        glm::vec4 S = Trans::getTranslate4x4(p.x, p.y, 1) * glm::vec4(scene.GetParallelLight(i)->GetDirectionAfterTrans(camTrans), 1.0f);
-        glm::vec3 eye(0, 0, 0);
-        glm::vec3 N = glm::normalize(interpolatedNormal);
-        glm::vec3 diffuseColor = estColor(model->Kd, scene.GetParallelLight(i)->Ld, eye, N, S, model->color, DIFFUSE);
-        glm::vec3 specularColor = estColor(model->Ks, scene.GetParallelLight(i)->Ld, eye, N, S, model->color, SPECULAR, model->alpha);
-        glm::vec3 color = scene.GetParallelLight(i)->color;
-        glm::vec3 diffuseTotalColor = glm::vec3(color.x * diffuseColor.x, color.y * diffuseColor.y, color.z * diffuseColor.z);
-        glm::vec3 specularTotalColor = glm::vec3(color.x * specularColor.x, color.y * specularColor.y, color.z * specularColor.z);
-        phongParallel = phongParallel + color * (diffuseTotalColor + specularTotalColor);
-    }
-    glm::vec3 ambientColor = scene.GetAmbient()->color * scene.GetAmbient()->Ka * scene.GetAmbient()->La;
-    glm::vec3 avgModelColor(0, 0, 0);
-    float avgKa = 0;
-    for (int i = 0; i < scene.GetModelCount(); i++) {
-        avgModelColor += scene.GetModel(i)->color;
-        avgKa += scene.GetModel(i)->Ka;
-    }
-    avgModelColor /= (float)scene.GetModelCount();
-    avgKa /= (float)scene.GetModelCount();
-    ambientColor = glm::vec3(ambientColor.x * avgKa * avgModelColor.x, ambientColor.y * avgKa * avgModelColor.y, ambientColor.z * avgKa * avgModelColor.z);
-    phongPoint = glm::vec3(phongPoint.x * model->color.x, phongPoint.y * model->color.y, phongPoint.z * model->color.z);
-    phongParallel = glm::vec3(phongParallel.x * model->color.x, phongParallel.y * model->color.y, phongParallel.z * model->color.z);
-    return (ambientColor + phongPoint + phongParallel);
-}
 std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0,glm::vec3 n0, glm::vec3 vect1,glm::vec3 n1, glm::vec3 vect2,glm::vec3 n2) {
     glm::vec3 gouraudPoint0(0,0,0), gouraudPoint1(0,0,0), gouraudPoint2(0,0,0);
     glm::vec3 gouraudParallel0(0,0,0), gouraudParallel1(0,0,0), gouraudParallel2(0,0,0);
