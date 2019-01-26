@@ -571,10 +571,11 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 }
 
 void loadBasicScene(Scene& scene, int frameBufferHeight, int frameBufferWidth) {
+	glm::vec4 BlueColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	glm::vec4 RedColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     std::string pathCow = Get_Root_Project_Dir("Data\\obj_examples\\cow.obj");
     scene.AddModel(std::make_shared<MeshModel>(Utils::LoadMeshModel(pathCow)));
-    glm::vec4 BlueColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    glm::vec4 RedColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    
     scene.GetModel(1)->resetModel(45.0f, true, true, false, RedColor, BlueColor, &glm::vec3(1.0, 0.0, 1.0), 0.0f, 0.0f);
     scene.GetModel(1)->UpdateworldTransform(Trans::getTranslate4x4(-100.0f,0.0f,0.0f));
 	
