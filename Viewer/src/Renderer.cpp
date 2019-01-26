@@ -193,7 +193,7 @@ void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c
                     p_color = computePhongFlat(scene, scene.GetModel(kindex), alternativeBasePoint, n0);
                 }
                 else if (shader == PHONG_SHADER) {
-                    glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, depth,0), glm::vec4(n0, 0), glm::vec4(n1, 0), glm::vec4(n2, 0),true);
+                    glm::vec3 interpolatedNormal = GetColorBarycentricInterpolate(glm::vec4(p, depth, 0), a, b, c, n0, n1, n2);
                     p_color = computePhongFlat(scene, scene.GetModel(kindex), glm::vec3(p, depth),interpolatedNormal);
                 }
                 else if (shader == GOURAUD_SHADER) {
