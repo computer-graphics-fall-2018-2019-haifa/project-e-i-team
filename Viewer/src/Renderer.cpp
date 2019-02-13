@@ -12,6 +12,10 @@
 #include <math.h>       /* nearbyint */
 #include "Trans.h"
 
+#include "ShaderProgram.h"
+#include <memory>
+#include <algorithm>
+
 using namespace std;
 
 #define INDEXCOLOR(width,x,y,c) ((x)+(y)*(width))*3+(c)
@@ -894,12 +898,8 @@ void Renderer::Render(Scene& scene, const ImGuiIO& io)
 	
 	showAllMeshModels(scene, io);
 	
-	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(200, 0, 0, 1), glm::vec4(200, 200, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 20);
-	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(200, 0, 0, 1), glm::vec4(200, -200, 0, 1), glm::vec3(255, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 20);
-	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-200, 0, 0, 1), glm::vec4(-200, -200, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
-	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-200, 0, 0, 1), glm::vec4(-200, 200, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
-	//printTriangle(scene, glm::vec4(0, 0, 0, 1), glm::vec4(-2, 2, 0, 1), glm::vec4(2, 2, 0, 1), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), glm::vec3(0, 255, 0), 20);
 
+	
     // post effects:
     if (scene.bloom) {
         float* pColorBuffer = new float[3 * viewportWidth * viewportHeight];
@@ -1051,4 +1051,20 @@ void Renderer::SwapBuffers()
 
 	// Finally renders the data.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+
+
+
+void Renderer::LoadShaders()
+{
+	colorShader.loadShaders("vshader_color.glsl", "fshader_color.glsl");
+}
+
+void Renderer::LoadTextures()
+{
+	if (!texture1.loadTexture("bin\\Debug\\crate.jpg", true))
+	{
+		texture1.loadTexture("bin\\Release\\crate.jpg", true);
+	}
 }

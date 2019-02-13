@@ -3,6 +3,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+
 #define PFOVY_DEF	1.0f
 #define OFOVY_DEF	200.0f
 
@@ -64,13 +65,23 @@ public:
 	/*
 	*	this projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
 	*/
-	void SetOrthographicProjection(	float aspectRatio, float frameWidth);
-
+	//void SetOrthographicProjection(	float aspectRatio, float frameWidth);
+	void Camera::SetOrthographicProjection(
+		const float height,
+		const float aspectRatio,
+		const float zNear,
+		const float zFar);
 	/*
 	*	this projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
 	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
 	*/
-	void SetPerspectiveProjection(float aspectRatio, float frameWidth);
+	//void SetPerspectiveProjection(float aspectRatio, float frameWidth);
+	void Camera::SetPerspectiveProjection(
+		const float fovy,
+		const float aspectRatio,
+		const float zNear,
+		const float zFar);
+	
 	glm::mat4x4 Getview() { return viewTransformation; }
 	void Updateview(glm::mat4x4& rotateView) { viewTransformation = rotateView * viewTransformation; }
 	void UpdateProjection(glm::mat4x4& rotateView) { projectionTransformation = rotateView * projectionTransformation; }

@@ -394,10 +394,12 @@ void buildTransformationsWindow(ImGuiIO& io,Scene* scene,int y_scroll_offset, co
 			
 			float aspectratio = frameBufferHeight ? float(frameBufferWidth) / float(frameBufferHeight) : 0.0f;
 			if (!currentCam->transType) {
-				currentCam->SetOrthographicProjection(aspectratio, frameBufferWidth);
+				//currentCam->SetOrthographicProjection(aspectratio, frameBufferWidth);
+				currentCam->SetOrthographicProjection(frameBufferHeight, aspectratio, currentCam->fnear, currentCam->ffar);
 			}
 			else {
-				currentCam->SetPerspectiveProjection(aspectratio, frameBufferWidth);
+				//currentCam->SetPerspectiveProjection(aspectratio, frameBufferWidth);
+				currentCam->SetPerspectiveProjection(currentCam->pfovy, aspectratio, currentCam->fnear, currentCam->ffar);
 			}
 			
 			if (ImGui::Button("Focus On Current Model")) {

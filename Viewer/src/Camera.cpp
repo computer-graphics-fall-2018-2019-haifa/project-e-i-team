@@ -50,6 +50,8 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 		y = origin_v;
 		z = origin_n;
 	}
+
+/*
 	glm::mat4x4 lookAt(
 		glm::vec4(x.x,x.y,x.z,0.0f),
 		glm::vec4(y.x,y.y,y.z,0.0f),
@@ -58,91 +60,116 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	);
 
 	viewTransformation = glm::inverse(lookAt);
-	SetWorldTransformation((lookAt));
+	SetWorldTransformation((lookAt));*/
+
+	viewTransformation = glm::lookAt(eye, at, up);
+	SetWorldTransformation(glm::inverse(viewTransformation));
 }
+
+
+
 void Camera::UpdateviewTransformation(glm::mat4x4 matrix) {
 	viewTransformation = viewTransformation * glm::inverse(matrix);
 }
 
 
-//aspectRatio = width / height
-void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
+
+void Camera::SetOrthographicProjection(
+	const float height,
+	const float aspectRatio,
+	const float zNear,
+	const float zFar)
 {
-	float ptop, pbottom, pright, pleft;
-	if (FrustrumType) {
-		//TODO: elias
-		/*ptop = top;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;*/
-		ptop = top;
-		pbottom = bottom;
-		pright = right;
-		pleft = left;
-	} else {
-		ptop = tanf(0.1f * glm::radians(ofovy)) * fnear;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;
-	}
-	
-	float S_x = 2.0f / (pright - pleft);
-	float S_y = 2.0f / (ptop - pbottom);
-	float S_z = 2.0f / (fnear - ffar);
-	float x = -((pright + pleft) / (pright - pleft));
-	float y = -((ptop + pbottom) / (ptop - pbottom));
-	float z = -((ffar + fnear) / (ffar - fnear));
+	//prespective = false;
+	float width = aspectRatio * height;
+	projectionTransformation = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, zNear, zFar);
+}
 
-	glm::mat4x4 P(
-		glm::vec4(S_x, 0.0f, 0.0f, 0.0f),
-		glm::vec4(0, S_y, 0.0f, 0.0f),
-		glm::vec4(0, 0, S_z, 0.0f),
-		glm::vec4(x, y, z, 1.0f)
-	);
-
-	projectionTransformation = P;
+void Camera::SetPerspectiveProjection(
+	const float fovy,
+	const float aspectRatio,
+	const float zNear,
+	const float zFar)
+{
+	//prespective = true;
+	projectionTransformation = glm::perspective(fovy, aspectRatio, zNear, zFar);
 }
 
 
+////aspectRatio = width / height
+//void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
+//{
+//	float ptop, pbottom, pright, pleft;
+//	if (FrustrumType) {
+//		ptop = top;
+//		pbottom = bottom;
+//		pright = right;
+//		pleft = left;
+//	} else {
+//		ptop = tanf(0.1f * glm::radians(ofovy)) * fnear;
+//		pbottom = -1.0f * ptop;
+//		pright = aspectRatio * ptop;
+//		pleft = -pright;
+//	}
+//	
+//	float S_x = 2.0f / (pright - pleft);
+//	float S_y = 2.0f / (ptop - pbottom);
+//	float S_z = 2.0f / (fnear - ffar);
+//	float x = -((pright + pleft) / (pright - pleft));
+//	float y = -((ptop + pbottom) / (ptop - pbottom));
+//	float z = -((ffar + fnear) / (ffar - fnear));
+//
+//	glm::mat4x4 P(
+//		glm::vec4(S_x, 0.0f, 0.0f, 0.0f),
+//		glm::vec4(0, S_y, 0.0f, 0.0f),
+//		glm::vec4(0, 0, S_z, 0.0f),
+//		glm::vec4(x, y, z, 1.0f)
+//	);
+//
+//	projectionTransformation = P;
+//}
 
-void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
-{
-	/*cout << "fovy = " << fovy << endl;
-	cout << "radi = " << glm::radians(fovy) << endl;*/
-	float ptop, pbottom, pright, pleft;
-	if (FrustrumType) {
-		//TODO: elias
-		/*ptop = top;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;*/
-		ptop = top;
-		pbottom = bottom;
-		pright = right;
-		pleft = left;
-	}
-	else {
-		ptop = tanf(0.1f * glm::radians(pfovy)) * fnear;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;
-		//cout << "ptop = " << ptop << endl;
-	}
 
-	/*float ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
-	float pbottom = -ptop;
-	float pright = ptop * aspectRatio;
-	float pleft = -pright;*/
 
-	glm::mat4x4 P(
-		glm::vec4(2.0f * fnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
-		glm::vec4(0.0f, 2.0f * fnear / (ptop - pbottom), 0.0f, 0.0f),
-		glm::vec4((pright + pleft) / (pright - pleft), (ptop + pbottom) / (ptop - pbottom), -(ffar + fnear) / (ffar - fnear), -1.0f),
-		glm::vec4(0.0f, 0.0f, -2.0f * ffar * fnear / (ffar - fnear), 0.0f)
-	);
+//void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
+//{
+//	/*cout << "fovy = " << fovy << endl;
+//	cout << "radi = " << glm::radians(fovy) << endl;*/
+//	float ptop, pbottom, pright, pleft;
+//	if (FrustrumType) {
+//		//TODO: elias
+//		/*ptop = top;
+//		pbottom = -1.0f * ptop;
+//		pright = aspectRatio * ptop;
+//		pleft = -pright;*/
+//		ptop = top;
+//		pbottom = bottom;
+//		pright = right;
+//		pleft = left;
+//	}
+//	else {
+//		ptop = tanf(0.1f * glm::radians(pfovy)) * fnear;
+//		pbottom = -1.0f * ptop;
+//		pright = aspectRatio * ptop;
+//		pleft = -pright;
+//		//cout << "ptop = " << ptop << endl;
+//	}
+//
+//	/*float ptop = tanf(0.1f * glm::radians(ffovy)) * fnear;
+//	float pbottom = -ptop;
+//	float pright = ptop * aspectRatio;
+//	float pleft = -pright;*/
+//
+//	glm::mat4x4 P(
+//		glm::vec4(2.0f * fnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
+//		glm::vec4(0.0f, 2.0f * fnear / (ptop - pbottom), 0.0f, 0.0f),
+//		glm::vec4((pright + pleft) / (pright - pleft), (ptop + pbottom) / (ptop - pbottom), -(ffar + fnear) / (ffar - fnear), -1.0f),
+//		glm::vec4(0.0f, 0.0f, -2.0f * ffar * fnear / (ffar - fnear), 0.0f)
+//	);
+//
+//	projectionTransformation = P;
+//}
 
-	projectionTransformation = P;
-}
 
 void Camera::roll(float angle) { // roll the camera through angle degrees
 	float cs = cosf(angle);

@@ -16,6 +16,36 @@
 #include "Camera.h"
 #include "ImguiMenus.h"
 #include "Utils.h"
+///////////////////
+#include <cmath>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <imgui/imgui.h>
+
+#include <nfd.h>
+
+#include <stdio.h>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <string>
+#include <sstream>
+#include <stdlib.h>
+
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+#include "Renderer.h"
+#include "Scene.h"
+#include "Camera.h"
+#include "ImguiMenus.h"
+#include "AmbientLight.h"
+#include "PointLight.h"
+#include "Utils.h"
+
+
 
 static int y_scroll_offset;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 #include <string>
 #include <iostream>
 #include <memory>
@@ -60,6 +61,13 @@ static glm::vec3* getRandColor() {
     return color;
 }
 
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 textureCoords;
+};
+
 /*
  * MeshModel class.
  * This class represents a mesh model (with faces and normals informations).
@@ -71,9 +79,14 @@ private:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> textureCoords;
+	std::vector<Vertex> modelVertices;
 	glm::mat4x4 worldTransform;
 	std::string modelName;
+	GLuint vbo;
+	GLuint vao;
 public:
+	GLuint GetVAO() const;
 	glm::vec3 GetModelLocationAfterTrans();
 	glm::vec3 BoundMin,BoundMax,BoundMiddle,BoundingBoxColor, color;
 	bool showFaceNormals,showVertexNormals,showBoundingBox;
@@ -85,7 +98,7 @@ public:
     float alpha;
 
     MeshModel();
-	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
+	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, std::vector<glm::vec2> textureCoords, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE,bool showFNormals = false, bool showVNormals = false);
 	virtual ~MeshModel();
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
