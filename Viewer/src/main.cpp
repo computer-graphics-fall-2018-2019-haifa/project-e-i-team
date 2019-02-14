@@ -7,43 +7,22 @@
 #include <cmath>
 #include <string>
 #include <windows.h>
-
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
 #include "Renderer.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "ImguiMenus.h"
 #include "Utils.h"
-///////////////////
-#include <cmath>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <imgui/imgui.h>
-
 #include <nfd.h>
-
-#include <stdio.h>
 #include <iostream>
 #include <memory>
 #include <random>
-#include <string>
 #include <sstream>
 #include <stdlib.h>
-
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-#include "Renderer.h"
-#include "Scene.h"
-#include "Camera.h"
-#include "ImguiMenus.h"
 #include "AmbientLight.h"
 #include "PointLight.h"
-#include "Utils.h"
+
 
 
 
@@ -88,6 +67,8 @@ int main(int argc, char **argv)
 
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
+	renderer.LoadShaders();
+	renderer.LoadTextures();
 	Scene scene = Scene();
 
 	// Setup ImGui
@@ -112,6 +93,7 @@ int main(int argc, char **argv)
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
+	glfwTerminate();
 	
     return 0;
 }
@@ -204,3 +186,6 @@ void Cleanup(GLFWwindow* window)
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+
+
+
