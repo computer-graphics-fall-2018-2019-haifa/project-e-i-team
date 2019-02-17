@@ -18,6 +18,7 @@
 #include "Utils.h"
 
 static int y_scroll_offset;
+std::shared_ptr<Scene> scene;
 
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
@@ -56,9 +57,14 @@ int main(int argc, char **argv)
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
+    scene = std::make_shared<Scene>();
+
 	// Create the renderer and the scene
-	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
-	Scene scene = Scene();
+    Renderer renderer;
+    renderer.LoadShaders();
+    //renderer.LoadTextures();
+    //Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
+	//Scene scene = Scene();
 
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
@@ -72,12 +78,14 @@ int main(int argc, char **argv)
     {
         glfwPollEvents();
 		StartFrame();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		
-		DrawImguiMenus(io, scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
+		DrawImguiMenus(io, *scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
 		
 		// Render the next frame
-		RenderFrame(window, scene, renderer, io);
+		RenderFrame(window, *scene, renderer, io);
 	}
 
 	// If we're here, then we're done. Cleanup memory.

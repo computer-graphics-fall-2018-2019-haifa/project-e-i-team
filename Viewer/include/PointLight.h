@@ -7,7 +7,6 @@
 
 class PointLight : public MeshModel
 {
-
 public:
 	glm::vec3 Center;
 	float Ld, Ls;
@@ -15,5 +14,4 @@ public:
 	glm::vec3 PointLight::GetLocationAfterTrans(glm::mat4x4 camTrans);
     glm::vec3 PointLight::GetLocationAfterTrans();
     PointLight::~PointLight();
-
 };

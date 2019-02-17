@@ -12,11 +12,12 @@ MeshModel::MeshModel() :
     resetModel(); 
 }
 
-MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName) :
+MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, std::vector<glm::vec2> textureCoords, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle, const std::string& modelName) :
 	modelName(modelName),
 	vertices(vertices),
 	faces(faces),
 	normals(normals),
+    textureCoords(textureCoords),
 	BoundMin(BoundMin),
 	BoundMax(BoundMax),
 	BoundMiddle(BoundMiddle),
@@ -34,7 +35,10 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }
-MeshModel::~MeshModel() {}
+MeshModel::~MeshModel() {
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+}
 
 glm::vec3 MeshModel::GetModelLocationAfterTrans() {
 	glm::vec4 BoundMiddle4(BoundMiddle.x, BoundMiddle.y, BoundMiddle.z, 1);
@@ -102,6 +106,51 @@ void MeshModel::resetModel(
 	wfRotatex = 0.0f;
 	wfRotatey = 0.0f;
 	wfRotatez = 0.0f;
+
+    modelVertices.reserve(3 * faces.size());
+    for (int i = 0; i < faces.size(); i++)
+    {
+        Face currentFace = faces.at(i);
+        for (int j = 0; j < 3; j++)
+        {
+            int vertexIndex = currentFace.GetVertexIndex(j) - 1;
+
+            Vertex vertex;
+            vertex.position = vertices[vertexIndex];
+            vertex.normal = normals[vertexIndex];
+
+            if (textureCoords.size() > 0)
+            {
+                int textureCoordsIndex = currentFace.GetTextureIndex(j) - 1;
+                vertex.textureCoords = textureCoords[textureCoordsIndex];
+            }
+
+            modelVertices.push_back(vertex);
+        }
+    }
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(Vertex), &modelVertices[0], GL_STATIC_DRAW);
+
+    // Vertex Positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    // Normals attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    // Vertex Texture Coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+
+    // unbind to make sure other code does not change it somewhere else
+    glBindVertexArray(0);
+
 }
 
 glm::vec3 MeshModel::GetVerticeByIndex(int index) {
@@ -170,4 +219,13 @@ const glm::mat4x4& MeshModel::GetWorldTransformation() const {
 
 void MeshModel::SetColor(const glm::vec4& color) { 
 	this->color = color; 
+}
+
+GLuint MeshModel::GetVAO() const
+{
+    return vao;
+}
+
+const std::vector<Vertex>& MeshModel::GetModelVertices(){
+    return modelVertices;
 }

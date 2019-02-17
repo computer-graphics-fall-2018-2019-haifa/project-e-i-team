@@ -1,10 +1,12 @@
 #pragma once
+#include "ShaderProgram.h"
 #include "Scene.h"
 #include <vector>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
+#include "Texture2D.h"
 
 #define BLACK_COLOR_LINE glm::vec3(0, 0, 0)
 
@@ -39,15 +41,18 @@ private:
 	GLuint glScreenVtc;
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
+
+    ShaderProgram lightShader;
+    ShaderProgram colorShader;
+    Texture2D texture1;
 public:
-	//static glm::vec3 Renderer::normalizeVector(glm::vec3 v, glm::vec3 n, float length) { return (v + length * glm::normalize(n)); }
-	//static glm::vec4 Renderer::normalizeVector(glm::vec4 v, glm::vec4 n, float length) { return length * glm::normalize(v + n) + v; }
-	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
-	~Renderer();
-	void Render(Scene& scene, const ImGuiIO& io);
-	void SwapBuffers();
-	void ClearColorBuffer(const glm::vec3& color, const float depth);
-	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
+    Renderer::Renderer();
+    Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
+    Renderer::~Renderer();
+	void Renderer::Render(Scene& scene, const ImGuiIO& io);
+	void Renderer::SwapBuffers();
+	void Renderer::ClearColorBuffer(const glm::vec3& color, const float depth);
+	void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	/*
 	K - fraction of  light  reflected from surface
 	L - light intensity
@@ -64,12 +69,10 @@ public:
     // uniform and simply mesh-model rendering without any ray technique:
     void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec3 color);
     void Renderer::printTriangle(Scene& scene, glm::vec4 a, glm::vec4 b, glm::vec4 c, glm::vec3 alternativeBasePoint, glm::vec3 n0, glm::vec3 n1, glm::vec3 n2,int kindex, int shader);
-
-    //glm::vec3& Renderer::estTrianglePointNormal(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& p);
     glm::vec3 Renderer::computePhongFlat(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 basePoint, glm::vec3 interpolatedNormal);
-    //glm::vec3 Renderer::computePhong(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 p, glm::vec3 basePoint0, glm::vec3 basePoint1, glm::vec3 basePoint2, glm::vec3 interpolatedNormal);
     std::vector<glm::vec3> Renderer::computeGouraud(Scene& scene, std::shared_ptr<MeshModel> model, glm::vec3 vect0, glm::vec3 n0, glm::vec3 vect1, glm::vec3 n1, glm::vec3 vect2, glm::vec3 n2);
-	
     void Renderer::DrawLine(glm::vec3& v1, glm::vec3& v2, const glm::vec3& color);
     glm::vec3 Renderer::GetColorBarycentricInterpolate(glm::vec4 p, glm::vec4 a, glm::vec4 b, glm::vec4 c, bool isPhong = false);
+    void Renderer::LoadShaders();
+    void Renderer::LoadTextures();
 };

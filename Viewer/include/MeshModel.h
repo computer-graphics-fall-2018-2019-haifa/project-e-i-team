@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 #include <string>
 #include <iostream>
 #include <memory>
@@ -7,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "Trans.h"
+#include <random>
 
 using namespace std;
 
@@ -48,17 +50,22 @@ static glm::vec4 VERTEX_NORMAL_COLOR = glm::vec4(1.0f, 0.0f, 0.0f, 1.00f);      
 static glm::vec4 FACE_NORMAL_COLOR = glm::vec4(0.0f, 0.0f, 1.0f, 1.00f);            // (r,g,b)
 static glm::vec4 BOUNDING_BOX_COLOR = glm::vec4(0.0625f, 0.433f, 0.050f, 1.00f);    // (r,g,b)
 
-/*
-getRandColor() success depend on srand(time(NULL)) in the top on main function
-*/
+
 static glm::vec3* getRandColor() {
-	//int r = (rand() % 256) / 100;
-	//int g = (rand() % 256) / 100;
-	//int b = (rand() % 256) / 100;
-	//glm::vec3* color = &glm::vec3(r, g, b);
-    glm::vec3* color = &glm::vec3(1.0f, 1.0f, 1.0f);
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0, 1);
+    glm::vec3* color = &glm::vec3(dist(mt), dist(mt), dist(mt));
+    //glm::vec3* color = &glm::vec3(1.0f, 1.0f, 1.0f);
     return color;
 }
+
+struct Vertex
+{
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 textureCoords;
+};
 
 /*
  * MeshModel class.
@@ -67,12 +74,18 @@ static glm::vec3* getRandColor() {
  */
 class MeshModel
 {
-private:
+protected:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> textureCoords;
+    std::vector<Vertex> modelVertices;
+
 	glm::mat4x4 worldTransform;
 	std::string modelName;
+
+    GLuint vbo;
+    GLuint vao;
 public:
 	glm::vec3 GetModelLocationAfterTrans();
 	glm::vec3 BoundMin,BoundMax,BoundMiddle,BoundingBoxColor, color;
@@ -85,7 +98,7 @@ public:
     float alpha;
 
     MeshModel();
-	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
+	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices,const std::vector<glm::vec3>& normals, std::vector<glm::vec2> textureCoords, glm::vec3 BoundMin, glm::vec3 BoundMax, glm::vec3 BoundMiddle,const std::string& modelName = "");
 	MeshModel(std::shared_ptr<MeshModel> model, float defsize = CAMERA_BASIC_SIZE,bool showFNormals = false, bool showVNormals = false);
 	virtual ~MeshModel();
 	void SetWorldTransformation(const glm::mat4x4& worldTransform);
@@ -121,4 +134,6 @@ public:
 	void MeshModel::SetVertexNormalColor(glm::vec4 color);
 	float MeshModel::GetVertexNormalLength();
 	glm::vec4 MeshModel::GetVertexNormalColor();
+    GLuint GetVAO() const;
+    const std::vector<Vertex>& MeshModel::GetModelVertices();
 };

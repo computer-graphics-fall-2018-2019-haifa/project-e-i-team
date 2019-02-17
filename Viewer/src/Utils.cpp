@@ -26,6 +26,7 @@ MeshModel Utils::LoadGridModel() {
 
 	std::vector<Face> grid_faces;
 	std::vector<glm::vec3> grid_vertices;
+    std::vector<glm::vec2> textureCoords;
 
 	int counter = 0;
 	for (int y = -9; y < 9; y++) {
@@ -54,7 +55,7 @@ MeshModel Utils::LoadGridModel() {
 			counter += 4;
 		}
 	}
-	return MeshModel(grid_faces, grid_vertices, grid_vertices,glm::vec3(0,0,0) , glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), "Grid");
+	return MeshModel(grid_faces, grid_vertices, grid_vertices, textureCoords,glm::vec3(0 ,0 ,0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), "Grid");
 }
 
 MeshModel Utils::LoadLightSource() {
@@ -62,6 +63,7 @@ MeshModel Utils::LoadLightSource() {
 	std::vector<Face> Light_faces;
 	std::vector<glm::vec3> Light_vertices;
 	std::vector<glm::vec3> Light_normals;
+    std::vector<glm::vec2> textureCoords;
 	int d = 1;
 	int n = 2 * d;
 
@@ -134,7 +136,7 @@ MeshModel Utils::LoadLightSource() {
 
 	
 	Light_counter++;
-	return MeshModel(Light_faces, Light_vertices, Light_normals, BoundMin, BoundMax, BoundMiddle, "Light Source "+ Light_counter);
+	return MeshModel(Light_faces, Light_vertices, Light_normals, textureCoords, BoundMin, BoundMax, BoundMiddle, "Light Source "+ Light_counter);
 }
 
 
@@ -144,6 +146,7 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> textureCoords;
 	std::ifstream ifile(filePath.c_str());
 	
 
@@ -174,6 +177,7 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 		else if (lineType == "vt")
 		{
 			// Texture coordinates
+            textureCoords.push_back(Utils::Vec2fFromStream(issLine));
 		}
 		else if (lineType == "f")
 		{
@@ -216,7 +220,7 @@ MeshModel Utils::LoadMeshModel(const std::string& filePath)
 	glm::vec3 BoundMax(max_x , max_y , max_z);
 	glm::vec3 BoundMiddle( (min_x + max_x) / 2, (min_y + max_y) / 2, (min_z + max_z) / 2);
 	
-	return MeshModel(faces, vertices, normals, BoundMin, BoundMax, BoundMiddle, Utils::GetFileName(filePath));
+	return MeshModel(faces, vertices, normals, textureCoords,BoundMin, BoundMax, BoundMiddle, Utils::GetFileName(filePath));
 }
 
 std::string Utils::GetFileName(const std::string& filePath)

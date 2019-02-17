@@ -11,6 +11,7 @@
 #include <fenv.h>       /* fegetround, FE_* */
 #include <math.h>       /* nearbyint */
 #include "Trans.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -18,6 +19,21 @@ using namespace std;
 #define INDEXZ(width,x,y) ((x)+(y)*(width))
 #define MaxDepth 4000.0f
 #define LIGHT_THRESH 0.7f
+
+void Renderer::LoadShaders(){
+    colorShader.loadShaders("vshader_color.glsl", "fshader_color.glsl");
+}
+
+void Renderer::LoadTextures(){
+    std::string textureLoc = "D:\\GitHub\\project-e-i-team\\Data\\obj_examples\\crate.jpg"; // Get_Root_Project_Dir("Data\\crate.jpg");
+    if (!texture1.loadTexture(textureLoc, true))
+    {
+        texture1.loadTexture(textureLoc, true);
+    }
+}
+
+Renderer::Renderer(){}
+
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -787,6 +803,38 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
 	if (scene.GetModelCount() > 0) {
 		for (int k = 0; k < modelsCount; k++) {
 			std::shared_ptr<MeshModel> model = scene.GetModel(k);
+
+            /*START ADDITIONALS*/
+            // Activate the 'colorShader' program (vertex and fragment shaders)
+            colorShader.use();
+
+            // Set the uniform variables
+            colorShader.setUniform("model", model->GetWorldTransformation()/* * model->GetModelTransformation()*/);
+            colorShader.setUniform("view", scene.GetCamera(scene.CurrCam)->Getview());
+            colorShader.setUniform("projection", scene.GetCamera(scene.CurrCam)->GetProjection());
+            colorShader.setUniform("material.textureMap", 0);
+
+            // Set 'texture1' as the active texture at slot #0
+            texture1.bind(0);
+
+            // Drag our model's faces (triangles) in fill mode
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glBindVertexArray(model->GetVAO());
+            glDrawArrays(GL_TRIANGLES, 0, model->GetModelVertices().size());
+            glBindVertexArray(0);
+
+            // Unset 'texture1' as the active texture at slot #0
+            texture1.unbind(0);
+
+            colorShader.setUniform("color", glm::vec3(0, 0, 0));
+
+            // Drag our model's faces (triangles) in line mode (wireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glBindVertexArray(model->GetVAO());
+            glDrawArrays(GL_TRIANGLES, 0, model->GetModelVertices().size());
+            glBindVertexArray(0);
+            /*END ADDITIONALS*/
+
 			std::vector<Face> faces = scene.getModelfaces(k);
 			std::vector<glm::vec3> vNormals = scene.getModelNormals(k);
 			for (auto face = faces.begin(); face != faces.end(); ++face) {
