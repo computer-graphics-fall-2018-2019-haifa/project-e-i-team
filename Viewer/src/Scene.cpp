@@ -7,38 +7,10 @@
 Scene::Scene() : Debug_mode(false), illuminationMode(true), needCreative(false),CurrCam(0), CurrPoint(0), SizePoint(0), SizeParallel(0), CurrParallel(0), SizeCam(0), activeModelIndex(0), gridCounter(0),
 shadingType(1), kernelM(5), kernelN(5), gaussianRadius(3.0f), gaussianBlur(false), bloom(false), gaussianMaskSize(1), bloomThresh(0.7f)
 {
-	Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
-    buildGaussian();
+	//Ambient = (std::make_shared<AmbientLight>(AmbientLight(ORIGIN)));
 }
 
 Scene::~Scene() {}
-
-void Scene::buildGaussian() {
-    switch (gaussianMaskSize) {
-        case 0: {
-            int std = 1;
-            if (gaussianRadius > 0) {
-                std = gaussianRadius;
-            }
-            Trans::buildGaussianKernel3x3(gaussianKernel3x3, kernelM, kernelN, std);        break;
-        }
-        case 1: {
-            int std = 3;
-            if (gaussianRadius > 0) {
-                std = gaussianRadius;
-            }
-            Trans::buildGaussianKernel5x5(gaussianKernel5x5, kernelM, kernelN, std);        break;
-        }
-        //case 3: {
-        //    int std = 5;
-        //    if (gaussianRadius > 0) {
-        //        std = gaussianRadius;
-        //    }
-        //    Trans::buildGaussianKernel10x10(gaussianKernel10x10, kernelM, kernelN, std);    break;
-        //}
-        default:    Trans::buildGaussianKernel5x5(gaussianKernel5x5, kernelM, kernelN, 3);  break;
-    }
-}
 
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model) { models.push_back(model); }
 const int Scene::GetModelCount() const { return models.size(); }
@@ -66,7 +38,7 @@ void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int wi
 	glm::vec4 eye4 = glm::vec4(eye.x, eye.y, eye.z, 1.0f);
 	glm::vec4 at4 = glm::vec4(at.x, at.y, at.z, 1.0f);
 	glm::vec3 mass = model->GetWorldTransformation() * glm::vec4(model->BoundMiddle.x, model->BoundMiddle.y, model->BoundMiddle.z,1.0f);
-	Camera c(model, eye4, at4, up4,mass);
+	Camera c(model, eye4, at4, up4, mass);
 
 	cameras.push_back(std::make_shared<Camera>(c));
 	this->SizeCam++;

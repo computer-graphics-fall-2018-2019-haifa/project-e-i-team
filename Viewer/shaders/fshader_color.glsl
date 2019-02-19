@@ -3,6 +3,7 @@
 struct Material
 {
 	sampler2D textureMap;
+    vec3 color;
 	// You can add more fields here...
 	// Such as:
 	//		1. diffuse/specular relections constants
@@ -24,7 +25,7 @@ out vec4 frag_color;
 void main()
 {
 	// Sample the texture-map at the UV coordinates given by 'fragTexCoords'
-	vec3 textureColor = vec3(texture(material.textureMap, fragTexCoords));
-
-	frag_color = vec4(textureColor, 1.0f);
+    // vec3 textureColor = vec3(texture(material.textureMap, fragTexCoords));
+    
+	frag_color = vec4(material.color, 1.0f);
 }

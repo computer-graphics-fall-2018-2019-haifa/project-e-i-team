@@ -603,19 +603,19 @@ void loadGrid(Scene& scene) {
 }
 
 void DrawImguiMenus(ImGuiIO& io, Scene& scene,int y_scroll_offset, const int frameBufferWidth, const int frameBufferHeight){
-	if (scene.gridCounter == 0) {
-		loadGrid(scene);
+    if (scene.gridCounter == 0) {
+        loadGrid(scene);
         loadCamera(scene, frameBufferHeight, frameBufferWidth);
         loadBasicScene(scene, frameBufferHeight, frameBufferWidth);
     }
 
-	if (showTransWindow) { 
-		buildTransformationsWindow(io, &scene, y_scroll_offset ,frameBufferWidth, frameBufferHeight); 
-	}
+    if (showTransWindow) {
+        buildTransformationsWindow(io, &scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
+    }
 
-	if (showAboutUsWindow) { 
-		buildAboutUsWindow();
-	}
+    if (showAboutUsWindow) {
+        buildAboutUsWindow();
+    }
 
 	// Demonstrate creating a fullscreen menu bar and populating it:
 	{

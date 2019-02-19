@@ -18,7 +18,7 @@
 #include "Utils.h"
 
 static int y_scroll_offset;
-std::shared_ptr<Scene> scene;
+Scene scene;
 
 // Function declarations
 static void GlfwErrorCallback(int error, const char* description);
@@ -57,15 +57,12 @@ int main(int argc, char **argv)
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-    scene = std::make_shared<Scene>();
+    scene = Scene();
 
 	// Create the renderer and the scene
     Renderer renderer;
     renderer.LoadShaders();
-    //renderer.LoadTextures();
-    //Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
-	//Scene scene = Scene();
-
+    
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 	ImGui::CaptureKeyboardFromApp(true);
@@ -73,7 +70,10 @@ int main(int argc, char **argv)
 	// Register a mouse scroll-wheel callback
 	glfwSetScrollCallback(window, ScrollCallback);
 
-	// This is the main game loop..
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    // This is the main game loop..
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -82,10 +82,10 @@ int main(int argc, char **argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
-		DrawImguiMenus(io, *scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
+		DrawImguiMenus(io, scene, y_scroll_offset, frameBufferWidth, frameBufferHeight);
 		
 		// Render the next frame
-		RenderFrame(window, *scene, renderer, io);
+		RenderFrame(window, scene, renderer, io);
 	}
 
 	// If we're here, then we're done. Cleanup memory.
@@ -105,7 +105,7 @@ GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name)
 	if (!glfwInit())
 		return NULL;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -152,26 +152,20 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	int frameBufferWidth, frameBufferHeight;
 	static int prev_width = 0, prev_height = 0;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-	
+
 	// Resize handling here... (a suggestion)
 	if ((prev_width != frameBufferWidth) || (prev_height != frameBufferHeight)) {
 
-
-		renderer.SetViewport(frameBufferWidth, frameBufferHeight);
+        glViewport(0, 0,frameBufferWidth, frameBufferHeight);
 		prev_width = frameBufferWidth;
 		prev_height = frameBufferHeight;
 	}
-
-	// Clear the frame buffer
-	renderer.ClearColorBuffer(GetClearColor(), GetMaxDepth());
-	
-	// Render the scene
-	renderer.Render(scene, io);
-	// Swap buffers
-	renderer.SwapBuffers();
-
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
+    glm::vec4 color = GetClearColor();
+    glClearColor(color.x, color.y, color.z, 1);
+
+    renderer.Render(scene,io);
 }
 
 void Cleanup(GLFWwindow* window)

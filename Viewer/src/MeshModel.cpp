@@ -35,6 +35,7 @@ MeshModel::MeshModel(std::shared_ptr<MeshModel> model, float defsize, bool showF
 {
 	resetModel(defsize, showFNormals, showVNormals);
 }
+
 MeshModel::~MeshModel() {
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
@@ -137,7 +138,7 @@ void MeshModel::resetModel(
     glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(Vertex), &modelVertices[0], GL_STATIC_DRAW);
 
     // Vertex Positions
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0); // 0 for start position
     glEnableVertexAttribArray(0);
 
     // Normals attribute
