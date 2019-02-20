@@ -6,100 +6,47 @@
 #include <string>
 #include <memory>
 #include "MeshModel.h"
-#include "Camera.h"
-#include "PointLight.h"
-#include "ParallelLight.h"
 #include "AmbientLight.h"
+#include "PointLight.h"
+#include "Camera.h"
 
-#define PHONG			0
-#define GOURAUD			1
-#define FLAT			2
-
-#define POINT_LIGHT		0
-#define PARALLEL_LIGHT	1
-#define AMBIENT_LIGHT	2
-
-/*
- * Scene class.
- * This class holds all the scene information (models, cameras, lights, etc..)
- */
 class Scene {
 private:
-    std::vector<std::shared_ptr<MeshModel>> models;
-    std::vector<std::shared_ptr<Camera>> cameras;
-    std::vector<std::shared_ptr<PointLight>> PointLights;
-    std::vector<std::shared_ptr<ParallelLight>> ParallelLights;
-    std::shared_ptr<AmbientLight> Ambient;
+	std::vector<std::shared_ptr<MeshModel>> models;
+	std::vector<std::shared_ptr<PointLight>> lights;
+	AmbientLight ambientLight;
+	std::vector<Camera> cameras;
+
+	int activeCameraIndex;
+	int activeModelIndex;
+
 public:
-    bool Debug_mode, illuminationMode, needCreative;
-    float gaussianKernel3x3[3][3] = {  
-                                    {0, 0, 0},
-                                    {0, 0, 0},
-                                    {0, 0, 0}
-                                    };
-    float gaussianKernel5x5[5][5] = {
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0}
-                                    };
-    float gaussianKernel10x10[10][10] = {
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0}
-                                        };
-	int CurrCam, SizeCam;
-	int CurrPoint, SizePoint;
-	int CurrParallel, SizeParallel;
-	int activeModelIndex, gridCounter;
-	int shadingType,gaussianMaskSize;
-    float gaussianRadius;
-    int bloom, gaussianBlur;
-    int kernelM, kernelN;
-    float bloomThresh;
-	
 	Scene();
-    ~Scene();
+
 	void AddModel(const std::shared_ptr<MeshModel>& model);
-	const int GetModelCount() const;
-	void Scene::AddPointLight(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth);
-	void Scene::AddParallelLight(glm::vec3 DirectionVector=glm::vec3(1,0,0));
-	void Scene::AddCamera(std::shared_ptr<MeshModel> model, int windowHeight, int windowWidth, glm::vec3 eye = glm::vec3(0, 0, 0));
-	const int GetCameraCount() const;
-	const int GetPointLightCount() const;
-	const int GetParallelLightCount() const;
-	std::shared_ptr<Camera> GetCamera(int index);
-	std::shared_ptr<PointLight> GetPointLight(int index);
+	int GetModelCount() const;
+	std::shared_ptr<MeshModel> GetModel(int index) const;
+
+	void AddCamera(const Camera& camera);
+	int GetCameraCount() const;
+	Camera& GetCamera(int index);
+	const Camera& GetCamera(int index) const;
+
+	void AddLight(const std::shared_ptr<PointLight>& light);
+	int GetLightCount() const;
+	std::shared_ptr<PointLight> GetLight(int index) const;
+	const std::vector<std::shared_ptr<PointLight>>& GetActiveLights() const;
+
+	const AmbientLight& GetAmbientLight();
+
+	const Camera& GetActiveCamera() const;
+	Camera& GetActiveCamera();
+
 	void SetActiveCameraIndex(int index);
 	const int GetActiveCameraIndex() const;
+
+	const std::shared_ptr<MeshModel>& GetActiveModel() const;
+
 	void SetActiveModelIndex(int index);
 	const int GetActiveModelIndex() const;
-	std::vector<Face> Scene::getModelfaces(int indexModel) const;
-	std::vector<glm::vec3> Scene::getModelNormals(int indexModel) const;
-	std::vector<Face> Scene::getCamerafaces(int indexModel);
-	std::vector<Face> Scene::getPointLightfaces(int indexModel);
-	std::vector<glm::vec3> Scene::getCameraNormals(int indexModel);
-	std::vector<glm::vec3> Scene::getPointLightNormals(int indexModel);
-	glm::vec3 Scene::getCameraVertices(int indexModel, int indexVertex);
-	glm::vec3 Scene::getCameraNormals(int indexModel, int indexVertex);
-	glm::vec3 Scene::getLightPointVertices(int indexModel, int indexVertex);
-	glm::vec3 Scene::getLightPointNormals(int indexModel, int indexVertex);
-	glm::vec3 Scene::getModelVertices(int indexModel, int indexVertex) const;
-	glm::vec3 Scene::getModelNormals(int indexModel, int indexVertex) const;
-	std::shared_ptr<MeshModel> Scene::GetModel(int index) const;
-	std::shared_ptr<ParallelLight> Scene::GetParallelLight(int index) const;
-	std::shared_ptr<PointLight> Scene::GetPointLight(int index) const;
-	std::shared_ptr<AmbientLight> Scene::GetAmbient() const;
-	int Scene::modelName2Index(std::string name);
-	void Scene::SetFocusOnCurrentModel();
-    void Scene::buildGaussian();
-    bool Scene::isIlluminationModeOn();
 };
