@@ -32,30 +32,6 @@ private:
     std::shared_ptr<AmbientLight> Ambient;
 public:
     bool Debug_mode, illuminationMode, needCreative;
-    float gaussianKernel3x3[3][3] = {  
-                                    {0, 0, 0},
-                                    {0, 0, 0},
-                                    {0, 0, 0}
-                                    };
-    float gaussianKernel5x5[5][5] = {
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0},
-                                    {0, 0, 0, 0, 0}
-                                    };
-    float gaussianKernel10x10[10][10] = {
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0}
-                                        };
 	int CurrCam, SizeCam;
 	int CurrPoint, SizePoint;
 	int CurrParallel, SizeParallel;
@@ -100,6 +76,5 @@ public:
 	std::shared_ptr<AmbientLight> Scene::GetAmbient() const;
 	int Scene::modelName2Index(std::string name);
 	void Scene::SetFocusOnCurrentModel();
-    void Scene::buildGaussian();
     bool Scene::isIlluminationModeOn();
 };

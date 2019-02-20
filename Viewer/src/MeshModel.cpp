@@ -224,6 +224,7 @@ void MeshModel::SetColor(const glm::vec4& color) {
 
 GLuint MeshModel::GetVAO() const
 {
+	std::cout << vao << std::endl;
     return vao;
 }
 

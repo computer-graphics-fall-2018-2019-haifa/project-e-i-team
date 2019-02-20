@@ -21,8 +21,9 @@ using namespace std;
 #define LIGHT_THRESH 0.7f
 
 void Renderer::LoadShaders(){
-    colorShader.loadShaders("D:\\GitHub\\project-e-i-team\\Viewer\\shaders\\vshader_color.glsl",
-                            "D:\\GitHub\\project-e-i-team\\Viewer\\shaders\\fshader_color.glsl");
+	
+    colorShader.loadShaders("C:\\Users\\user\\Documents\\GitHub\\project-e-i-team\\Viewer\\shaders\\vshader_color.glsl",
+                            "C:\\Users\\user\\Documents\\GitHub\\project-e-i-team\\Viewer\\shaders\\fshader_color.glsl");
                             //("vshader_color.glsl", "fshader_color.glsl");
 }
 
@@ -56,7 +57,7 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
             
             // Drag our model's faces (triangles) in fill mode
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glBindVertexArray(model->GetVAO());
+            glBindVertexArray(1);
             glDrawArrays(GL_TRIANGLES, 0, model->GetModelVertices().size());
             glBindVertexArray(0);
 
@@ -66,76 +67,78 @@ void Renderer::showAllMeshModels(Scene& scene, const ImGuiIO& io) {
             // Drag our model's faces (triangles) in line mode (wireframe)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBindVertexArray(model->GetVAO());
+			std::cout << model->GetModelVertices().size() << std::endl;
+			cout << "---------------------" << endl;
             glDrawArrays(GL_TRIANGLES, 0, model->GetModelVertices().size());
             glBindVertexArray(0);
 		}
 	}
-	int camerasCount = scene.GetCameraCount();
-	for (int k = 0; k < camerasCount; k++) {
-		if (scene.CurrCam != k) {
-            // Activate the 'colorShader' program (vertex and fragment shaders)
-            colorShader.use();
-            std::shared_ptr<Camera> cam = scene.GetCamera(k);
+	//int camerasCount = scene.GetCameraCount();
+	//for (int k = 0; k < camerasCount; k++) {
+	//	if (scene.CurrCam != k) {
+ //           // Activate the 'colorShader' program (vertex and fragment shaders)
+ //           colorShader.use();
+ //           std::shared_ptr<Camera> cam = scene.GetCamera(k);
 
-            // Set the uniform variables
-            colorShader.setUniform("model", cam->GetWorldTransformation());
-            colorShader.setUniform("view", scene.GetCamera(scene.CurrCam)->Getview());
-            colorShader.setUniform("projection", scene.GetCamera(scene.CurrCam)->GetProjection());
-            colorShader.setUniform("material.textureMap", 0);
-            colorShader.setUniform("material.color", cam->color);
+ //           // Set the uniform variables
+ //           colorShader.setUniform("model", cam->GetWorldTransformation());
+ //           colorShader.setUniform("view", scene.GetCamera(scene.CurrCam)->Getview());
+ //           colorShader.setUniform("projection", scene.GetCamera(scene.CurrCam)->GetProjection());
+ //           colorShader.setUniform("material.textureMap", 0);
+ //           colorShader.setUniform("material.color", cam->color);
 
-            // Set 'texture1' as the active texture at slot #0
-            texture1.bind(0);
+ //           // Set 'texture1' as the active texture at slot #0
+ //           texture1.bind(0);
 
-            // Drag our model's faces (triangles) in fill mode
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glBindVertexArray(cam->GetVAO());
-            glDrawArrays(GL_TRIANGLES, 0, cam->GetModelVertices().size());
-            glBindVertexArray(0);
+ //           // Drag our model's faces (triangles) in fill mode
+ //           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+ //           glBindVertexArray(cam->GetVAO());
+ //           glDrawArrays(GL_TRIANGLES, 0, cam->GetModelVertices().size());
+ //           glBindVertexArray(0);
 
-            // Unset 'texture1' as the active texture at slot #0
-            texture1.unbind(0);
+ //           // Unset 'texture1' as the active texture at slot #0
+ //           texture1.unbind(0);
 
-            // Drag our model's faces (triangles) in line mode (wireframe)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glBindVertexArray(cam->GetVAO());
-            glDrawArrays(GL_TRIANGLES, 0, cam->GetModelVertices().size());
-            glBindVertexArray(0);
-		}
-	}
+ //           // Drag our model's faces (triangles) in line mode (wireframe)
+ //           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+ //           glBindVertexArray(cam->GetVAO());
+ //           glDrawArrays(GL_TRIANGLES, 0, cam->GetModelVertices().size());
+ //           glBindVertexArray(0);
+	//	}
+	//}
 
-	int PointLightCount = scene.GetPointLightCount();
-	if (PointLightCount > 0) {
-		for (int k = 0; k < PointLightCount; k++) {
-            // Activate the 'colorShader' program (vertex and fragment shaders)
-            colorShader.use();
-            std::shared_ptr<PointLight> pointLight = scene.GetPointLight(k);
-            // Set the uniform variables
-            colorShader.setUniform("model", pointLight->GetWorldTransformation());
-            colorShader.setUniform("view", scene.GetCamera(scene.CurrCam)->Getview());
-            colorShader.setUniform("projection", scene.GetCamera(scene.CurrCam)->GetProjection());
-            colorShader.setUniform("material.textureMap", 0);
-            colorShader.setUniform("material.color", pointLight->color);
+	//int PointLightCount = scene.GetPointLightCount();
+	//if (PointLightCount > 0) {
+	//	for (int k = 0; k < PointLightCount; k++) {
+ //           // Activate the 'colorShader' program (vertex and fragment shaders)
+ //           colorShader.use();
+ //           std::shared_ptr<PointLight> pointLight = scene.GetPointLight(k);
+ //           // Set the uniform variables
+ //           colorShader.setUniform("model", pointLight->GetWorldTransformation());
+ //           colorShader.setUniform("view", scene.GetCamera(scene.CurrCam)->Getview());
+ //           colorShader.setUniform("projection", scene.GetCamera(scene.CurrCam)->GetProjection());
+ //           colorShader.setUniform("material.textureMap", 0);
+ //           colorShader.setUniform("material.color", pointLight->color);
 
-            // Set 'texture1' as the active texture at slot #0
-            texture1.bind(0);
+ //           // Set 'texture1' as the active texture at slot #0
+ //           texture1.bind(0);
 
-            // Drag our model's faces (triangles) in fill mode
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glBindVertexArray(pointLight->GetVAO());
-            glDrawArrays(GL_TRIANGLES, 0, pointLight->GetModelVertices().size());
-            glBindVertexArray(0);
+ //           // Drag our model's faces (triangles) in fill mode
+ //           glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+ //           glBindVertexArray(pointLight->GetVAO());
+ //           glDrawArrays(GL_TRIANGLES, 0, pointLight->GetModelVertices().size());
+ //           glBindVertexArray(0);
 
-            // Unset 'texture1' as the active texture at slot #0
-            texture1.unbind(0);
+ //           // Unset 'texture1' as the active texture at slot #0
+ //           texture1.unbind(0);
 
-            // Drag our model's faces (triangles) in line mode (wireframe)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glBindVertexArray(pointLight->GetVAO());
-            glDrawArrays(GL_TRIANGLES, 0, pointLight->GetModelVertices().size());
-            glBindVertexArray(0);
-		}
-	}
+ //           // Drag our model's faces (triangles) in line mode (wireframe)
+ //           glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+ //           glBindVertexArray(pointLight->GetVAO());
+ //           glDrawArrays(GL_TRIANGLES, 0, pointLight->GetModelVertices().size());
+ //           glBindVertexArray(0);
+	//	}
+	//}
 
 	//Draw All Parallel Lights
     /*
