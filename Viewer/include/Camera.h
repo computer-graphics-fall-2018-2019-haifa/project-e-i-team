@@ -1,78 +1,104 @@
 #pragma once
-#include "MeshModel.h"
 #include <memory>
 #include <glm/glm.hpp>
-
-#define PFOVY_DEF	1.0f
-#define OFOVY_DEF	200.0f
-
-
-#define FNEAR_DEF	-1.0f
-#define FFAR_DEF	1.0f
-#define BOX_BOUNDERY_RANGE	100.0f
-
-/*
-By the book parameters value:
-==============================
-*/
-#define FLEFT_DEF	-1.0f
-#define FRIGHT_DEF	1.0f
-#define FTOP_DEF	1.0f
-#define FBOTTOM_DEF -1.0f
-
-/*
-* Pseudo Algorithm of the camera behavior in transformation's relationship:
-* ========================================================================
-* if Orthogonal:
-*	* M_projectionTransformation = SetOrthographicProjection()
-* if perspective:
-*	* M_projectionTransformation = SetPerspectiveProjection()
-* M_viewTransformation = SetCameraLookAt()
-* newVector = M_projectionTransformation*M_viewTransformation*M_worldTransform*vector
-* newVector -> newVector/newVector[w]
-* newVector = (x/w , y/w , z/w , 1)
-* remove z/w and 1
-* newVector = (x/w , y/w)
-* bresenham(x/w , y/w)
-*/
-
+#include "MeshModel.h"
 /*
  * Camera class. This class takes care of all the camera transformations and manipulations.
-*/
-class Camera : public MeshModel
+ */
+class Camera
 {
 private:
-	glm::mat4x4 viewTransformation; // Mc
-	glm::mat4x4 projectionTransformation; // Mp
-	glm::vec3 origin_u, origin_v, origin_n;
+	glm::mat4x4 viewTransformation;
+	glm::mat4x4 projectionTransformation;
+
+	glm::vec3 eye;
+	glm::vec3 up;
+	glm::vec3 at;
+
+	glm::vec3 x;
+	glm::vec3 y;
+	glm::vec3 z;
+
+	
+
 public:
-	float worldfRotatex, worldfRotatey, worldfRotatez, lrotatex, lrotatey, lrotatez;
-	glm::vec3 origin_eye,origin_at,origin_up;
-	int transType,FrustrumType;
-	float ofovy, pfovy, fnear, ffar, left, right, top, bottom;
+	float zoom;
+	float fovy;
+	float height;
+	float zNear;
+	float zFar;
+	float aspectRatio;
 
-	Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up, glm::vec3& massCenter);
+	bool prespective;
+
+
+	Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, const float aspectRatio);
 	~Camera();
-	void SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, bool recalculate=true);
-	void Camera::roll(float angle);
 
-	// void Camera::yaw(float angle);		// Not working right
-	// void Camera::pitch(float angle);		// Not working right
+	void SetOrthographicProjection(
+		const float height,
+		const float aspectRatio,
+		const float zNear,
+		const float zFar);
 
-	void Camera::slide(float delU, float delV, float delN);
-	void Camera::UpdateviewTransformation(glm::mat4x4 matrix);
-	/*
-	*	this projection is about to project the 3D Model to some hyperplane as 2D - zoom in is steps along z-axis
-	*/
-	void SetOrthographicProjection(	float aspectRatio, float frameWidth);
+	void SetPerspectiveProjection(
+		const float fovy,
+		const float aspect,
+		const float zNear,
+		const float zFar);
 
-	/*
-	*	this projection is up to the gap between far hyperplane to near hyperplace which is parallel to y hyperplace
-	*	=> cannot remain space to normals to be shown using very small gap [|near - far| < some epsilon]
-	*/
-	void SetPerspectiveProjection(float aspectRatio, float frameWidth);
-	glm::mat4x4 Getview() { return viewTransformation; }
-	void Updateview(glm::mat4x4& rotateView) { viewTransformation = rotateView * viewTransformation; }
-	void UpdateProjection(glm::mat4x4& rotateView) { projectionTransformation = rotateView * projectionTransformation; }
-	glm::mat4x4 GetProjection() { return projectionTransformation;  }
+	void UpdateProjectionMatrix();
+
+	void SetNear(const float zNear);
+
+	void SetFar(const float zFar);
+
+	void SetFovy(const float fovy);
+
+	void SetHeight(const float height);
+
+	void Zoom(const float factor);
+
+	void SphericalRotate(const glm::vec2& sphericalDelta);
+
+	const glm::mat4x4& GetProjectionTransformation() const;
+
+	const glm::mat4x4& GetViewTransformation() const;
+
+	void SetAspectRatio(float aspectRatio);
+
+	void SwitchToPrespective();
+	void SwitchToOrthographic();
+
+	float GetNear();
+
+	float GetFar();
+
+	float GetFovy();
+
+	float GetHeight();
+
+	bool IsPrespective();
+
+	const glm::vec3& GetEye() const;
+
+
+    void TranslateModel(const glm::vec3& translationVector);
+    void TranslateWorld(const glm::vec3& translationVector);
+
+    void RotateXModel(double angle);
+    void RotateYModel(double angle);
+    void RotateZModel(double angle);
+    void ScaleXModel(double factor);
+    void ScaleYModel(double factor);
+    void ScaleZModel(double factor);
+    void ScaleModel(double factor);
+
+    void RotateXWorld(double angle);
+    void RotateYWorld(double angle);
+    void RotateZWorld(double angle);
+    void ScaleXWorld(double factor);
+    void ScaleYWorld(double factor);
+    void ScaleZWorld(double factor);
+    void ScaleWorld(double factor);
 };

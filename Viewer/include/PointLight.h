@@ -1,17 +1,20 @@
 #pragma once
-#include "MeshModel.h"
-#include <memory>
+
 #include <glm/glm.hpp>
+//#include <memory>
+#include "Light.h"
 
-
-
-class PointLight : public MeshModel
+class PointLight : public Light
 {
 public:
-	glm::vec3 Center;
-	float Ld, Ls;
-    PointLight::PointLight(std::shared_ptr<MeshModel> model);
-	glm::vec3 PointLight::GetLocationAfterTrans(glm::mat4x4 camTrans);
-    glm::vec3 PointLight::GetLocationAfterTrans();
-    PointLight::~PointLight();
+	PointLight(const glm::vec3& position, const glm::vec3& color);
+	virtual ~PointLight();
+	glm::vec3& GetPosition();
+
+	glm::vec3 PointLight::GetPositionAfterTrans();
+
+private:
+	glm::vec3 position;
 };
+
+

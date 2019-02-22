@@ -1,22 +1,19 @@
 #pragma once
-#include "MeshModel.h"
-#include <memory>
+
 #include <glm/glm.hpp>
+//#include <memory>
+#include "Light.h"
 
-
-
-class ParallelLight : public MeshModel
+class Parallellight : public Light
 {
+public:
+	Parallellight(const glm::vec3& from, const glm::vec3& to, const glm::vec3& color);
+	virtual ~Parallellight();
+	//glm::vec3& GetPosition();
+
+	glm::vec3 GetDirectionAfterTrans();
+
 private:
 	glm::vec3 from;
 	glm::vec3 to;
-public:
-	float Ld, Ls;
-    ParallelLight::ParallelLight(glm::vec3 to);
-    ParallelLight::~ParallelLight();
-	glm::vec3& ParallelLight::GetToVector();
-	glm::vec3& ParallelLight::GetfromVector();
-    glm::vec3 ParallelLight::GetLocationAfterTrans();
-    glm::vec3 ParallelLight::GetDirectionAfterTrans(glm::mat4x4 camTrans);
-    glm::vec3 ParallelLight::GetDirectionAfterTrans();
 };

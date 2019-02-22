@@ -1,157 +1,269 @@
-#define _USE_MATH_DEFINES
-
-#include "Trans.h"
 #include "Camera.h"
-#include "Renderer.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "Utils.h"
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-Camera::Camera(std::shared_ptr<MeshModel> model,const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up,glm::vec3& massCenter) :
-	viewTransformation(glm::mat4x4(1)),
-	projectionTransformation(glm::mat4x4(1)),
-	transType(0),
-	ofovy(OFOVY_DEF),pfovy(PFOVY_DEF), fnear(FNEAR_DEF), ffar(FFAR_DEF), left(FLEFT_DEF), right(FRIGHT_DEF),top(FTOP_DEF),bottom(FBOTTOM_DEF),
-	worldfRotatex(0.0f), worldfRotatey(0.0f), worldfRotatez(0.0f), lrotatex(0.0f), lrotatey(0.0f), lrotatez(0.0f),
-	MeshModel(model)
+Camera::Camera(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up, const float aspectRatio) :
+	zoom(1.0f),
+	fovy(glm::pi<float>() / 4.0f),
+	height(5),
+	zNear(0.1f),
+	zFar(200.0f),
+	aspectRatio(aspectRatio),
+	prespective(true),
+	viewTransformation(1),
+	eye(eye),
+	at(at),
+	up(up)
 {
-	SetCameraLookAt(eye, at, up);
-	origin_eye = glm::vec3(eye.x, eye.y, eye.z);
-	origin_at = glm::vec3(at.x, at.y, at.z);
-	origin_up = glm::vec3(up.x, up.y, up.z);
-	
-	// visual camera tuning:
-	glm::vec3 fixed_sight = massCenter - origin_at;
-	glm::vec3 vertical = origin_eye - fixed_sight;
-	float theta = atanf(glm::radians(glm::length(vertical) / glm::length(fixed_sight)));
-	UpdateworldTransform(Trans::get2InitAxis4x4(vertical, Trans::getyRotate4x4(theta)));
-
-	FrustrumType = 1;
+	UpdateProjectionMatrix();
+	viewTransformation = glm::lookAt(eye, at, up);
 }
 
-Camera::~Camera(){}
-
-void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up,bool recalculate)
+Camera::~Camera()
 {
-	glm::vec3 z, x, y;
-	if (recalculate) {
-		// change direct angle
-		glm::vec3 direct = eye - at;
-		z = glm::normalize(direct); // cameraDirection
-		x = glm::normalize(glm::cross(up, z)); // cameraRight
-		y = glm::normalize(glm::cross(z, x)); // cameraUp
-		origin_u = x;
-		origin_v = y;
-		origin_n = z;
-	} else {
-		origin_eye = eye;
-		origin_at = at;
-		origin_up = up;
-		x = origin_u;
-		y = origin_v;
-		z = origin_n;
+}
+
+//void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
+//{
+//	this->eye = eye;
+//	this->at = at;
+//	this->up = up;
+//
+//	f = glm::normalize(eye - at);
+//	l = glm::normalize(glm::cross(up, f));
+//	u = glm::cross(f, l);
+//	
+//	cameraRotation[0] = glm::vec4(l, 0);
+//	cameraRotation[1] = glm::vec4(u, 0);
+//	cameraRotation[2] = glm::vec4(f, 0);
+//	cameraRotation[3] = glm::vec4(0, 0, 0, 1);
+//
+//	glm::mat4x4 cameraModelRotation;
+//	cameraModelRotation[0] = glm::vec4(-l, 0);
+//	cameraModelRotation[1] = glm::vec4(u, 0);
+//	cameraModelRotation[2] = glm::vec4(-f, 0);
+//	cameraModelRotation[3] = glm::vec4(0, 0, 0, 1);
+//
+//	cameraInverseRotation = glm::transpose(cameraRotation);
+//	cameraTranslation = Utils::TranslationMatrix(eye);
+//	cameraInverseTranslation = Utils::TranslationMatrix(-eye);
+//	cameraTransformation = cameraInverseRotation * cameraInverseTranslation;
+//	worldTransform = cameraTranslation * cameraModelRotation * Utils::ScalingMatrix(glm::vec3(0.2,0.2,0.2));
+//}
+
+void Camera::SetOrthographicProjection(
+	const float height,
+	const float aspectRatio,
+	const float zNear,
+	const float zFar)
+{
+	prespective = false;
+	float width = aspectRatio * height;
+	projectionTransformation = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, zNear, zFar);
+}
+
+void Camera::SetPerspectiveProjection(
+	const float fovy,
+	const float aspectRatio,
+	const float zNear,
+	const float zFar)
+{
+	prespective = true;
+	projectionTransformation = glm::perspective(fovy, aspectRatio, zNear, zFar);
+}
+
+const glm::mat4x4& Camera::GetProjectionTransformation() const
+{
+	return projectionTransformation;
+}
+
+const glm::mat4x4& Camera::GetViewTransformation() const
+{
+	return viewTransformation;
+}
+
+void Camera::Zoom(const float factor)
+{
+	fovy = fovy * factor;
+	if (fovy > glm::pi<float>())
+	{
+		fovy = glm::pi<float>();
 	}
 
-	//glm::mat4x4 lookAt(
-	//	glm::vec4(x.x,x.y,x.z,0.0f),
-	//	glm::vec4(y.x,y.y,y.z,0.0f),
-	//	glm::vec4(z.x,z.y,z.z,0.0f),
-	//	glm::vec4(-glm::dot(eye,x), -glm::dot(eye,y), -glm::dot(eye,z),1.0f)
-	//);
-	//viewTransformation = glm::inverse(lookAt);
-	//SetWorldTransformation((lookAt));
-    
-    viewTransformation = glm::lookAt(eye, at, up);
+	UpdateProjectionMatrix();
 }
 
-void Camera::UpdateviewTransformation(glm::mat4x4 matrix) {
-	viewTransformation = viewTransformation * glm::inverse(matrix);
-}
-
-//aspectRatio = width / height
-void Camera::SetOrthographicProjection(	float aspectRatio,float frameWidth)
+void Camera::SphericalRotate(const glm::vec2& sphericalDelta)
 {
-	float ptop, pbottom, pright, pleft;
-	if (FrustrumType) {
-		ptop = top;
-		pbottom = bottom;
-		pright = right;
-		pleft = left;
-	} else {
-		ptop = tanf(0.1f * glm::radians(ofovy)) * fnear;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;
-	}
-	
-	float S_x = 2.0f / (pright - pleft);
-	float S_y = 2.0f / (ptop - pbottom);
-	float S_z = 2.0f / (fnear - ffar);
-	float x = -((pright + pleft) / (pright - pleft));
-	float y = -((ptop + pbottom) / (ptop - pbottom));
-	float z = -((ffar + fnear) / (ffar - fnear));
-
-	//glm::mat4x4 P(
-	//	glm::vec4(S_x, 0.0f, 0.0f, 0.0f),
-	//	glm::vec4(0, S_y, 0.0f, 0.0f),
-	//	glm::vec4(0, 0, S_z, 0.0f),
-	//	glm::vec4(x, y, z, 1.0f)
-	//);
-	//projectionTransformation = P;
-
-    projectionTransformation = glm::ortho(ptop, pbottom, pright, pleft, fnear, ffar);
+	//glm::mat4x4 vAxisRotation = Utils::AxisRotationMatrix(u, sphericalDelta.x);
+	//glm::mat4x4 uAxisRotation = Utils::AxisRotationMatrix(l, sphericalDelta.y);
+	//eye = uAxisRotation * vAxisRotation * glm::vec4(eye,1);
+	//SetCameraLookAt(eye, at, glm::vec3(0, 1, 0));
 }
 
-
-
-void Camera::SetPerspectiveProjection(float aspectRatio,float frameWidth)
+void Camera::SetAspectRatio(float aspectRatio)
 {
-	float ptop, pbottom, pright, pleft;
-	if (FrustrumType) {
-		ptop = top;
-		pbottom = bottom;
-		pright = right;
-		pleft = left;
-	}
-	else {
-		ptop = tanf(0.1f * glm::radians(pfovy)) * fnear;
-		pbottom = -1.0f * ptop;
-		pright = aspectRatio * ptop;
-		pleft = -pright;
-	}
-
-	//glm::mat4x4 P(
-	//	glm::vec4(2.0f * fnear / (pright - pleft), 0.0f, 0.0f, 0.0f),
-	//	glm::vec4(0.0f, 2.0f * fnear / (ptop - pbottom), 0.0f, 0.0f),
-	//	glm::vec4((pright + pleft) / (pright - pleft), (ptop + pbottom) / (ptop - pbottom), -(ffar + fnear) / (ffar - fnear), -1.0f),
-	//	glm::vec4(0.0f, 0.0f, -2.0f * ffar * fnear / (ffar - fnear), 0.0f)
-	//);
-	//projectionTransformation = P;
-
-    projectionTransformation = glm::perspective(ptop, aspectRatio, fnear, ffar);
+	this->aspectRatio = aspectRatio;
+	UpdateProjectionMatrix();
 }
 
-void Camera::roll(float angle) { // roll the camera through angle degrees
-	float cs = cosf(angle);
-	float sn = sinf(angle);
-	glm::vec3 t = origin_u; // remember old u
-	//right
-	origin_u = glm::vec3(
-		cs * t.x + -sn * origin_v.x,
-		cs * t.y + -sn * origin_v.y,
-		cs * t.z + -sn * origin_v.z
-	);
-	//up
-	origin_v = glm::vec3(
-		sn * t.x + cs * origin_v.x,
-		sn * t.y + cs * origin_v.y,
-		sn * t.z + cs * origin_v.z
-	);
-	SetCameraLookAt(origin_eye, origin_at, origin_up, false);
+void Camera::UpdateProjectionMatrix()
+{
+	if (prespective)
+	{
+		SetPerspectiveProjection(fovy, aspectRatio, zNear, zFar);
+	}
+	else
+	{
+		SetOrthographicProjection(height, aspectRatio, zNear, zFar);
+	}
 }
 
-void Camera::slide(float delU, float delV, float delN) {
-	origin_eye.x += delU * origin_u.x + delV * origin_v.x + delN * origin_n.x;
-	origin_eye.y += delU * origin_u.y + delV * origin_v.y + delN * origin_n.y;
-	origin_eye.z += delU * origin_u.z + delV * origin_v.z + delN * origin_n.z;
-	SetCameraLookAt(origin_eye, origin_at, origin_up, false);
+void Camera::SwitchToPrespective()
+{
+	prespective = true;
+	UpdateProjectionMatrix();
+}
+
+void Camera::SwitchToOrthographic()
+{
+	prespective = false;
+	UpdateProjectionMatrix();
+}
+
+void Camera::SetNear(const float zNear)
+{
+	this->zNear = zNear;
+	UpdateProjectionMatrix();
+}
+
+void Camera::SetFar(const float zFar)
+{
+	this->zFar = zFar;
+	UpdateProjectionMatrix();
+}
+
+void Camera::SetHeight(const float height)
+{
+	this->height = height;
+	UpdateProjectionMatrix();
+}
+
+void Camera::SetFovy(const float fovy)
+{
+	this->fovy = fovy;
+	UpdateProjectionMatrix();
+}
+
+float Camera::GetNear()
+{
+	return zNear;
+}
+
+float Camera::GetFar()
+{
+	return zFar;
+}
+
+float Camera::GetFovy()
+{
+	return fovy;
+}
+
+float Camera::GetHeight()
+{
+	return height;
+}
+
+bool Camera::IsPrespective()
+{
+	return prespective;
+}
+
+const glm::vec3& Camera::GetEye() const
+{
+	return eye;
+}
+
+
+void Camera::TranslateModel(const glm::vec3& translationVector)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::TranslationMatrix(translationVector));
+}
+
+void Camera::TranslateWorld(const glm::vec3& translationVector)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::TranslationMatrix(translationVector));
+}
+
+void Camera::RotateXModel(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::XRotationMatrix(angle));
+}
+
+void Camera::RotateYModel(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::YRotationMatrix(angle));
+}
+
+void Camera::RotateZModel(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::ZRotationMatrix(angle));
+}
+
+void Camera::ScaleXModel(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::XScalingMatrix(factor));
+}
+
+void Camera::ScaleYModel(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::YScalingMatrix(factor));
+}
+
+void Camera::ScaleZModel(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::ZScalingMatrix(factor));
+}
+
+void Camera::ScaleModel(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(glm::scale(glm::mat4(1), glm::vec3(factor, factor, factor)));
+}
+
+void Camera::RotateXWorld(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::XRotationMatrix(angle));
+}
+
+void Camera::RotateYWorld(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::YRotationMatrix(angle));
+}
+
+void Camera::RotateZWorld(double angle)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::ZRotationMatrix(angle));
+}
+
+void Camera::ScaleXWorld(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::XScalingMatrix(factor));
+}
+
+void Camera::ScaleYWorld(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::YScalingMatrix(factor));
+}
+
+void Camera::ScaleZWorld(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(Utils::ZScalingMatrix(factor));
+}
+
+void Camera::ScaleWorld(double factor)
+{
+    viewTransformation = viewTransformation * glm::inverse(glm::scale(glm::mat4(1), glm::vec3(factor, factor, factor)));
 }

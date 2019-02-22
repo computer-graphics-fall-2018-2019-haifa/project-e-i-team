@@ -1,18 +1,18 @@
 #pragma once
-#include "MeshModel.h"
-#include <memory>
+
 #include <glm/glm.hpp>
+#include "Light.h"
 
-
-
-class AmbientLight : public MeshModel
+class AmbientLight : public Light 
 {
-private:
-	glm::vec3 base;
 public:
-	float Ka,La;
-    AmbientLight::AmbientLight(glm::vec3 base);
-    AmbientLight::~AmbientLight();
-	glm::vec3 AmbientLight::GetBaseVector();
-	glm::vec3 AmbientLight::GetLocationAfterTrans();
+	AmbientLight(const glm::vec3& position, const glm::vec3& color);
+	virtual ~AmbientLight();
+	glm::vec3& GetPosition();
+
+	glm::vec3 GetPositionAfterTrans();
+
+private:
+	glm::vec3 position;
+
 };
