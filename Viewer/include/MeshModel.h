@@ -9,15 +9,13 @@
 
 #define TOON_RANGE  256
 
-struct Vertex
-{
+struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 textureCoords;
 };
 
-class MeshModel
-{
+class MeshModel {
 public:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
@@ -47,8 +45,6 @@ public:
     glm::vec3 _ambientColorLines, _diffuseColorLines, _specularColorLines;
 	float WScale, WRotatex, WRotatey, WRotatez, MScale, MRotatex, MRotatey, MRotatez;
 	float WTranslatex, WTranslatey, WTranslatez;
-
-
 	
 	MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<glm::vec2> textureCoords, const std::string& modelName = "");
 	virtual ~MeshModel();

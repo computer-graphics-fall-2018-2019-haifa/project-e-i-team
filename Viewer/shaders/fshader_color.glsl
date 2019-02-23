@@ -1,9 +1,5 @@
 #version 330 core
 
-float random (vec4 st) {
-    return fract(sin(dot(st.xyzw,vec4(12.9898,78.233,78.233,78.233)))*43758.5453123);
-}
-
 struct Material
 {
 	sampler2D textureMap;

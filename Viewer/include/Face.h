@@ -4,8 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 
-class Face
-{
+class Face {
 private:
 	std::vector<int> vertexIndices;
 	std::vector<int> normalIndices;

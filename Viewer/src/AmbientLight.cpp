@@ -21,18 +21,11 @@
 
 
 
-AmbientLight::AmbientLight(const glm::vec3& position, const glm::vec3& color) :
-	position(position), Light(color)
-{
-}
+AmbientLight::AmbientLight(const glm::vec3& position, const glm::vec3& color) :	position(position), Light(color) {}
 
+AmbientLight::~AmbientLight() {}
 
-AmbientLight::~AmbientLight()
-{
-}
-
-glm::vec3& AmbientLight::GetPosition()
-{
+glm::vec3& AmbientLight::GetPosition() {
 	return position;
 }
 

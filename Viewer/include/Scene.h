@@ -32,9 +32,6 @@ public:
 	int GetModelCount() const;
 	std::shared_ptr<MeshModel> GetModel(int index) const;
 
-
-	/*Parallellight& Scene::GetActiveParallel();
-	PointLight& Scene::GetActivePoint();*/
 	void Scene::SetActiveParralelIndex(int index);
 	void Scene::SetActivePointIndex(int index);
 	const int Scene::GetActivePointIndex() const;
@@ -49,7 +46,6 @@ public:
 	void AddPointLight(const std::shared_ptr<PointLight>& light);
 	int GetPointLightCount() const;
 	std::shared_ptr<PointLight> GetPointLight(int index) const;
-	
 
 	AmbientLight& GetAmbientLight();
 
@@ -63,8 +59,6 @@ public:
 
 	void SetActiveModelIndex(int index);
 	const int GetActiveModelIndex() const;
-
-
 
 	void Scene::AddParallelLight(const std::shared_ptr<Parallellight>& Parallellight);
 	int Scene::GetParallelLightCount() const;
